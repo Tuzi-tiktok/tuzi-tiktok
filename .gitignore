@@ -19,3 +19,12 @@
 
 # Go workspace file
 go.work
+
+# idea
+.idea
+
+# fleet
+.fleet
+
+# vscode
+.vscode
