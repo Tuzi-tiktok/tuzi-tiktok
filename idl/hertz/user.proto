@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package idl;
+
+option go_package = "auth";
+
+import "api.proto";
+
+message UserLoginRequest {
+  string username = 1; // 登录用户名
+  string password = 2; // 登录密码
+}
+
+message UserLoginResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
+  int64 user_id = 3; // 用户id
+  string token = 4; // 用户鉴权token
+}
+
+
+message UserRegisterRequest{
+  string username = 1; // 注册用户名，最长32个字符
+  string password = 2; // 密码，最长32个字符
+}
+
+message UserRegisterResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
+  int64 user_id = 3; // 用户id
+  string token = 4; // 用户鉴权token
+}
+
+
+message UserInfoRequest {
+  int64 user_id = 1; // 用户id
+  string token = 2; // 用户鉴权token
+}
+message UserInfoResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
+  User user = 3; // 用户信息
+}
+
+message User {
+  int64 id = 1; // 用户id
+  string name = 2; // 用户名称
+  optional int64 follow_count = 3; // 关注总数
+  optional int64 follower_count = 4; // 粉丝总数
+  bool is_follow = 5; // true-已关注，false-未关注
+  optional string avatar = 6; //用户头像
+  optional string background_image = 7; //用户个人页顶部大图
+  optional string signature = 8; //个人简介
+  optional int64 total_favorited = 9; //获赞数量
+  optional int64 work_count = 10; //作品数量
+  optional int64 favorite_count = 11; //点赞数量
+}
+
+
+
+service AuthInfoService {
+  rpc Login(UserLoginRequest) returns(UserRegisterResponse) {
+    option (api.post) = "/douyin/user/login/";
+  }
+  rpc Register(UserRegisterRequest) returns (UserRegisterResponse){
+    option(api.post) = "/douyin/user/register/";
+  }
+  rpc GetUserInfo(UserInfoRequest) returns (UserInfoResponse){
+    option(api.get) = "/douyin/user/";
+  }
+}

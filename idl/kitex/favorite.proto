@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package idl;
+
+option go_package = "favorite";
+
+import "feed.proto";
+
+
+
+
+message FavoriteRequest {
+  string token = 1; // 用户鉴权token
+  int64 video_id = 2; // 视频id
+  int32 action_type = 3; // 1-点赞，2-取消点赞
+}
+
+message FavoriteResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
+}
+
+
+message FavoriteListRequest {
+  int64 user_id = 1; // 用户id
+  string token = 2; // 用户鉴权token
+}
+
+message FavoriteListResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
+  repeated Video video_list = 3; // 用户点赞视频列表
+}
+
+
+
+service FavoriteService{
+
+  rpc FavorVideo(FavoriteRequest) returns (FavoriteResponse){
+  }
+  rpc GetFavoriteList(FavoriteListRequest) returns (FavoriteListResponse){
+  }
+}

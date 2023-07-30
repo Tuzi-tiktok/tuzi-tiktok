@@ -1,0 +1,38 @@
+syntax = "proto3";
+package idl;
+option go_package = "publish";
+
+import "feed.proto";
+
+message PublishRequest {
+  string token = 1; // 用户鉴权token
+  bytes data = 2; // 视频数据
+  string title = 3; // 视频标题
+}
+
+message PublishResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
+}
+
+
+message PublishListRequest {
+  int64 user_id = 1; // 用户id
+  string token = 2; // 用户鉴权token
+}
+
+message PublishListResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  optional string status_msg = 2; // 返回状态描述
+  repeated Video video_list = 3; // 用户发布的视频列表
+}
+
+
+
+
+service PublishService{
+  rpc PublishVideo(PublishRequest) returns (PublishResponse){
+  }
+  rpc GetPublishList(PublishListRequest) returns (PublishListResponse){
+  }
+}
