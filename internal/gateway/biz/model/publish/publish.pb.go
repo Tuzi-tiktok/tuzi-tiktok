@@ -9,7 +9,6 @@ package publish
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	"mime/multipart"
 	reflect "reflect"
 	sync "sync"
 	_ "tuzi-tiktok/gateway/biz/model/api"
@@ -35,7 +34,6 @@ type PublishRequest struct {
 
 func (x *PublishRequest) Reset() {
 	*x = PublishRequest{}
-	multipart.FileHeader{}.Open()
 	if protoimpl.UnsafeEnabled {
 		mi := &file_publish_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
