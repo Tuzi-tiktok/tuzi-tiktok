@@ -1,7 +1,6 @@
 go 1.20
 
 use (
-	.
 	./internal/gateway
 	./internal/service/auth
 	./internal/service/comment
@@ -10,10 +9,21 @@ use (
 	./internal/service/message
 	./internal/service/publish
 	./internal/service/relation
+	./shared/config
 	./shared/dao
 	./shared/kitex
+	./shared/logger
 )
 
+// Windows System Compatibility Dev
+replace github.com/cloudwego/netpoll v0.4.0 => github.com/cloudwego/netpoll v0.4.1
+
 replace tuzi-tiktok/dao v0.0.1 => ./shared/dao
+
 replace tuzi-tiktok/kitex v0.0.1 => ./shared/kitex
-replace github.com/cloudwego/netpoll v0.4.0 => github.com/cloudwego/netpoll v0.3.2
+
+replace tuzi-tiktok/config v0.0.1 => ./shared/config
+
+replace tuzi-tiktok/logger v0.0.1 => ./shared/logger
+
+

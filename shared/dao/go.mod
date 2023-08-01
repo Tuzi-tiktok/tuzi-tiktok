@@ -9,6 +9,12 @@ require (
 	gorm.io/plugin/dbresolver v1.4.2
 )
 
+require tuzi-tiktok/logger v0.0.1
+
+require tuzi-tiktok/config v0.0.1
+
+
+
 require (
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
