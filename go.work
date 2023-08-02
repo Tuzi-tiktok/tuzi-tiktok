@@ -17,13 +17,3 @@ use (
 
 // Windows System Compatibility Dev
 replace github.com/cloudwego/netpoll v0.4.0 => github.com/cloudwego/netpoll v0.4.1
-
-replace tuzi-tiktok/dao v0.0.1 => ./shared/dao
-
-replace tuzi-tiktok/kitex v0.0.1 => ./shared/kitex
-
-replace tuzi-tiktok/config v0.0.1 => ./shared/config
-
-replace tuzi-tiktok/logger v0.0.1 => ./shared/logger
-
-

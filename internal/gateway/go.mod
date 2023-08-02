@@ -2,8 +2,6 @@ module tuzi-tiktok/gateway
 
 go 1.20
 
-// Internal Deps
-//require tuzi-tiktok/dao v0.0.1
 
 require (
 	github.com/cloudwego/hertz v0.6.6
