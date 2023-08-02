@@ -13,6 +13,7 @@ use (
 	./shared/dao
 	./shared/kitex
 	./shared/logger
+	./shared/oss
 )
 
 // Windows System Compatibility Dev

@@ -7,5 +7,6 @@ import (
 )
 
 func TestConfig(t *testing.T) {
+	log.Printf(cfg.DatabaseConfig.DataBaseName)
 	log.Printf("%#v", cfg.DatabaseConfig)
 }

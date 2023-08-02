@@ -16,5 +16,14 @@ database:
   password: admin
   host: 127.0.0.1
   port: 3306
-  dataBaseName: tuzi_tiktok
+  databaseName: tuzi_tiktok
   timeout: 2000
+oss:
+#  minio:
+#    endpoint: "phablet:9090"
+#    bucket: tiktok
+#    accessKey: admin
+#    secretKey: minioadmin
+  lfs:
+    endpoint: "phablet:9090"
+    bucket: tiktok
