@@ -6,6 +6,7 @@ use (
 	./internal/service/comment
 	./internal/service/favorite
 	./internal/service/feed
+	./internal/service/filetransfer
 	./internal/service/message
 	./internal/service/publish
 	./internal/service/relation

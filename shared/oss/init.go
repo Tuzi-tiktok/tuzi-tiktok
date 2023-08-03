@@ -11,7 +11,7 @@ var (
 )
 
 func init() {
-	logger.Debug("all")
+	logger.Debug("over story")
 }
 
 func Ping() error {

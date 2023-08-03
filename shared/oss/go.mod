@@ -2,10 +2,7 @@ module tuzi-tiktok/oss
 
 go 1.20
 
-require (
-	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b
-	github.com/minio/minio-go/v7 v7.0.61
-)
+require github.com/minio/minio-go/v7 v7.0.61
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect

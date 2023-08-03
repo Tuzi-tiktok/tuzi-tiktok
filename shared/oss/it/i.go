@@ -27,8 +27,11 @@ func init() {
 	}
 	sk := strings.Join([]string{ossK, fk}, ".")
 	it := ImplType(fk)
-	if err := Candidates[it].B(sk); err != nil {
-		panic(err)
+	if b, ok := Candidates[it]; ok {
+		err := b.B(sk)
+		if err != nil {
+			panic(err)
+		}
 	}
 	logger.Debugf("%v %v", fk, sk)
 	SetUsing(it)
