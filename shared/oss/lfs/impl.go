@@ -2,35 +2,61 @@ package lfs
 
 import (
 	"io"
-	"log"
-	"sync"
-	"tuzi-tiktok/oss"
+	"os"
+	"path"
+	"strings"
+	"tuzi-tiktok/logger"
 )
 
 var c config
 
-var single = sync.Once{}
-
 type config struct {
-	Endpoint string
-	Bucket   string
+	Endpoint    string
+	Bucket      string
+	StoragePath string
 }
-type impl struct{}
+
+var base string
 
 func (i *impl) Ping() error {
 	// TODO Replace this logger
-	log.Printf("I'm Impl LFS %v\n", c)
+	logger.Debug("I'm Impl LFS ", c)
 	return nil
 }
 
-func (i *impl) PutObject(reader io.Reader) (string, error) {
-	return "", nil
+func (i *impl) PutObject(k string, reader io.Reader) error {
+	dir, f := path.Split(k)
+	dir = path.Join(c.StoragePath, c.Bucket, dir)
+	err := os.MkdirAll(dir, 0666)
+	logger.Debug("Path Is ", dir)
+	if err != nil {
+		return err
+	}
+	mode := os.O_RDWR | os.O_CREATE | os.O_TRUNC
+	pth := path.Join(dir, f)
+	file, err := os.OpenFile(pth, mode, 0666)
+	length, err := io.Copy(file, reader)
+	if err == nil {
+		logger.Debugf("LFS Written %v %v", length, file.Name())
+	}
+	return err
 }
 
 func (i *impl) GetAddress(k string) string {
-	return "http://phablet:9000/tiktok/" + k
-}
-
-func initialize() oss.StorageTransmitter {
-	return &impl{}
+	if k == "" {
+		return ""
+	}
+	if base == "" {
+		s := strings.Builder{}
+		s.WriteString("http://")
+		s.WriteString(c.Endpoint)
+		s.WriteString("/")
+		s.WriteString(c.Bucket)
+		s.WriteString("/")
+		base = s.String()
+	}
+	sb := strings.Builder{}
+	sb.WriteString(base)
+	sb.WriteString(k)
+	return sb.String()
 }

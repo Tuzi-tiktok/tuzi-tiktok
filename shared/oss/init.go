@@ -2,7 +2,7 @@ package oss
 
 import (
 	"io"
-	"log"
+	"tuzi-tiktok/logger"
 )
 
 var (
@@ -11,15 +11,15 @@ var (
 )
 
 func init() {
-	log.Print("all")
+	logger.Debug("all")
 }
 
 func Ping() error {
 	return sTransmitter.Ping()
 }
 
-func PutObject(reader io.Reader) (string, error) {
-	return sTransmitter.PutObject(reader)
+func PutObject(k string, reader io.Reader) error {
+	return sTransmitter.PutObject(k, reader)
 }
 
 func GetAddress(k string) string {

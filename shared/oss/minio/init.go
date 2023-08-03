@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"log"
 	cfg "tuzi-tiktok/config"
+	"tuzi-tiktok/logger"
 	"tuzi-tiktok/oss"
 )
 
@@ -13,11 +13,15 @@ const Name = "minio"
 
 // 注意先后顺序
 func init() {
-	//	TODO Load Config Form CC
+
 	_ = oss.Register(Name, initialize, func(k string) error {
 		return cfg.VConfig.GetViper().UnmarshalKey(k, &c)
 	})
-	log.Print("minio")
+	logger.Debug("minio")
+}
+
+type impl struct {
+	*minio.Client
 }
 
 func initialize() oss.StorageTransmitter {
@@ -31,7 +35,8 @@ func initialize() oss.StorageTransmitter {
 		Secure: false,
 	})
 	if err != nil {
-		log.Fatalln(err)
+		logger.Error(err)
+		panic(err)
 	}
 	_, err = client.ListBuckets(context.Background())
 	if err != nil {

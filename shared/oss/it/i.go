@@ -2,7 +2,6 @@ package it
 
 //  Imitation SPI mechanism
 import (
-	"fmt"
 	"strings"
 	cfg "tuzi-tiktok/config"
 	"tuzi-tiktok/logger"
@@ -31,7 +30,7 @@ func init() {
 	if err := Candidates[it].B(sk); err != nil {
 		panic(err)
 	}
-	fmt.Printf("%v %v\n", fk, sk)
+	logger.Debugf("%v %v", fk, sk)
 	SetUsing(it)
 }
 

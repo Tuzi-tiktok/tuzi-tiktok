@@ -17,7 +17,8 @@ func init() {
 	//log.SetFlags(log.Lmicroseconds | log.Ldate)
 	log.Println("- Load Config")
 	loadLocalConfig()
-	loadRemoteConfig()
+	// TODO Simple Dev
+	//loadRemoteConfig()
 	log.Println("- Load Completed")
 	// TODO DEBUG
 	log.Printf("Config Keys %v", VConfig.viper.AllKeys())
@@ -109,5 +110,5 @@ func loadRemoteConfig() {
 	if err != nil {
 		panic(err)
 	}
-	//log.Println(c)
+
 }

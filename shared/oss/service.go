@@ -3,7 +3,7 @@ package oss
 import (
 	"errors"
 	"io"
-	"log"
+	"tuzi-tiktok/logger"
 )
 
 const defaultImpl = "lfs"
@@ -26,13 +26,11 @@ type Binder func(string) error
 
 type StorageTransmitter interface {
 	Ping() error
-	PutObject(reader io.Reader) (string, error)
-	GetAddress(k string) string
+	PutObject(string, io.Reader) error
+	GetAddress(string) string
 }
 
-// CI Endpoint-Bucket Pair
 type CI struct {
-	// Endpoint  Hos:Port
 	C Constructor
 	B Binder
 }
@@ -52,7 +50,7 @@ func SetUsing(t ImplType) {
 	)
 	if ci, ok = Candidates[t]; !ok {
 		// TODO Replace logger
-		log.Println("The corresponding configuration is not matched")
+		logger.Debug("The corresponding configuration is not matched")
 		ci = Candidates[defaultImpl]
 	}
 	sTransmitter = ci.C()

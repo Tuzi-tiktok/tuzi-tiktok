@@ -19,11 +19,12 @@ database:
   databaseName: tuzi_tiktok
   timeout: 2000
 oss:
-#  minio:
-#    endpoint: "phablet:9090"
-#    bucket: tiktok
-#    accessKey: admin
-#    secretKey: minioadmin
-  lfs:
+  minio:
     endpoint: "phablet:9090"
     bucket: tiktok
+    accessKey: admin
+    secretKey: minioadmin
+#  lfs:
+#    endpoint: "127.0.0.1:9092"
+#    bucket: tiktok
+#    storagePath: "E:/Merge/Tuzi-TikTok/lfs"
