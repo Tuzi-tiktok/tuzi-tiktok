@@ -15,6 +15,7 @@ use (
 	./shared/kitex
 	./shared/logger
 	./shared/oss
+	./shared/utils
 )
 
 // Windows System Compatibility Dev
