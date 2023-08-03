@@ -24,6 +24,9 @@ func (i *impl) Ping() error {
 	return nil
 }
 
+// bufSz 2MB Buffer Size
+const bufSz = 1024 * 1024 * 2
+
 func (i *impl) PutObject(k string, reader io.Reader) error {
 	dir, f := path.Split(k)
 	dir = path.Join(c.StoragePath, c.Bucket, dir)
@@ -35,7 +38,7 @@ func (i *impl) PutObject(k string, reader io.Reader) error {
 	mode := os.O_RDWR | os.O_CREATE | os.O_TRUNC
 	pth := path.Join(dir, f)
 	file, err := os.OpenFile(pth, mode, 0666)
-	length, err := io.Copy(file, reader)
+	length, err := io.CopyBuffer(file, reader, make([]byte, bufSz))
 	if err == nil {
 		logger.Debugf("LFS Written %v %v", length, file.Name())
 	}
