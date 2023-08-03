@@ -27,7 +27,7 @@ type databaseConfig struct {
 	Host         string // 数据库链接
 	Port         uint64 // 数据库端口
 	DataBaseName string // 数据库名
-	Timeout      string // 连接超时，10秒
+	Timeout      string // 连接超时
 }
 
 // Named 内置模块命名 (待用)

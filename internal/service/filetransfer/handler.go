@@ -5,6 +5,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
-func Handle(c context.Context, ctx *app.RequestContext) {
+func Transfer(c context.Context, ctx *app.RequestContext) {
 
 }
