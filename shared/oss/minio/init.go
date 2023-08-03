@@ -6,7 +6,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	cfg "tuzi-tiktok/config"
 	"tuzi-tiktok/logger"
-	"tuzi-tiktok/oss"
+	"tuzi-tiktok/oss/internal/define"
 )
 
 const Name = "minio"
@@ -14,7 +14,7 @@ const Name = "minio"
 // 注意先后顺序
 func init() {
 
-	_ = oss.Register(Name, initialize, func(k string) error {
+	_ = define.Register(Name, initialize, func(k string) error {
 		return cfg.VConfig.GetViper().UnmarshalKey(k, &c)
 	})
 	logger.Debug("minio")
@@ -24,7 +24,7 @@ type impl struct {
 	*minio.Client
 }
 
-func initialize() oss.StorageTransmitter {
+func initialize() define.StorageTransmitter {
 	var (
 		err    error
 		client *minio.Client

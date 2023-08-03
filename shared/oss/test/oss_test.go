@@ -9,7 +9,6 @@ import (
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/oss"
 	// Required Import
-	_ "tuzi-tiktok/oss/it"
 )
 
 var testFilePath = "E:\\Merge\\Tuzi-TikTok\\lfs\\tiktok\\2.png"

@@ -9,8 +9,8 @@ import (
 
 /*
  This file will register all the routes of the services in the master idl.
- And it will update automatically when you use the "update" command for the idl.
- So don't modify the contents of the file, or your code will be deleted when it is updated.
+ And internal will update automatically when you use the "update" command for the idl.
+ So don't modify the contents of the file, or your code will be deleted when internal is updated.
 */
 
 // Register register routes based on the IDL 'api.${HTTP Method}' annotation.

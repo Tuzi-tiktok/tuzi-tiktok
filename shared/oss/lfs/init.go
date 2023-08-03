@@ -7,7 +7,7 @@ import (
 	"strings"
 	cfg "tuzi-tiktok/config"
 	"tuzi-tiktok/logger"
-	"tuzi-tiktok/oss"
+	"tuzi-tiktok/oss/internal/define"
 )
 
 const Name = "lfs"
@@ -16,14 +16,14 @@ const Name = "lfs"
 func init() {
 	logger.Debug("lfs")
 	//	TODO Load Config Form CC
-	_ = oss.Register(Name, initialize, func(k string) error {
+	_ = define.Register(Name, initialize, func(k string) error {
 		return cfg.VConfig.GetViper().UnmarshalKey(k, &c)
 	})
 }
 
 type impl struct{}
 
-func initialize() oss.StorageTransmitter {
+func initialize() define.StorageTransmitter {
 	if c.StoragePath == "" {
 		c.StoragePath = os.TempDir()
 	}

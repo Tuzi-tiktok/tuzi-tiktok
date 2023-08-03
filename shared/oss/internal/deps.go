@@ -1,11 +1,12 @@
-package it
+package internal
 
 //  Imitation SPI mechanism
 import (
 	"strings"
 	cfg "tuzi-tiktok/config"
 	"tuzi-tiktok/logger"
-	. "tuzi-tiktok/oss"
+	. "tuzi-tiktok/oss/internal/define"
+
 	//  Deps List
 	_ "tuzi-tiktok/oss/lfs"
 	_ "tuzi-tiktok/oss/minio"

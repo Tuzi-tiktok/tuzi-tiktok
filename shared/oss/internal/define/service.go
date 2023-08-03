@@ -1,4 +1,4 @@
-package oss
+package define
 
 import (
 	"errors"
@@ -7,6 +7,11 @@ import (
 )
 
 const defaultImpl = "lfs"
+
+var (
+	Candidates   = make(map[ImplType]*CI, 2)
+	STransmitter StorageTransmitter
+)
 
 type ImplType string
 
@@ -53,5 +58,5 @@ func SetUsing(t ImplType) {
 		logger.Debug("The corresponding configuration is not matched")
 		ci = Candidates[defaultImpl]
 	}
-	sTransmitter = ci.C()
+	STransmitter = ci.C()
 }
