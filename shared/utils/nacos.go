@@ -43,11 +43,22 @@ func NewNacosNamingClient(para vo.NacosClientParam) naming_client.INamingClient 
 	return cli
 }
 
-func NewClientOptions() []client.Option {
+type ExtOption client.Option
+
+func NewClientOptions(c ...ExtOption) []client.Option {
+
+	//namingClient := NewNacosNamingClient(NewNacosClientParam())
+	//return []client.Option{
+	//	client.WithResolver(resolver.NewNacosResolver(namingClient)),
+	//}
 	namingClient := NewNacosNamingClient(NewNacosClientParam())
-	return []client.Option{
-		client.WithResolver(resolver.NewNacosResolver(namingClient)),
+	options := make([]client.Option, len(c))
+	for i := range options {
+		options[i] = client.Option(c[i])
 	}
+	return append(options, []client.Option{
+		client.WithResolver(resolver.NewNacosResolver(namingClient)),
+	}...)
 }
 
 func NewServerOptions(serverName string) []server.Option {
