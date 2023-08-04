@@ -5,8 +5,6 @@ import (
 	"net"
 )
 
-const UnknownIpAddr = "-"
-
 func RandomAvailablePort() int {
 	l, err := net.Listen("tcp", ":0")
 	if err != nil {

@@ -8,7 +8,6 @@ import (
 	"testing"
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/oss"
-	// Required Import
 )
 
 var testFilePath = "E:\\Merge\\Tuzi-TikTok\\lfs\\tiktok\\2.png"
