@@ -12,6 +12,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"net"
+	"os"
 	. "tuzi-tiktok/config"
 	"tuzi-tiktok/logger"
 )
@@ -22,6 +23,8 @@ func NewNacosClientParam() vo.NacosClientParam {
 		constant.WithTimeoutMs(5000),
 		constant.WithNotLoadCacheAtStart(true),
 		constant.WithUpdateCacheWhenEmpty(true),
+		constant.WithLogDir(os.TempDir()),
+		constant.WithLogStdout(false),
 	)
 	serverConfigs := []constant.ServerConfig{
 		{
