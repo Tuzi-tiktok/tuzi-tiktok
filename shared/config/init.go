@@ -3,11 +3,12 @@ package cfg
 import (
 	"bytes"
 	"fmt"
-	"github.com/nacos-group/nacos-sdk-go/v2/clients"
-	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
-	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/viper"
 	"log"
+	"os"
 )
 
 // localConfig TODO 用于解决远程配置 只能修改进行覆盖不能删除
@@ -18,7 +19,7 @@ func init() {
 	log.Println("- Load Config")
 	loadLocalConfig()
 	// TODO Simple Dev
-	//loadRemoteConfig()
+	loadRemoteConfig()
 	log.Println("- Load Completed")
 	// TODO DEBUG
 	log.Printf("Config Keys %v", VConfig.viper.AllKeys())
@@ -67,6 +68,9 @@ func loadRemoteConfig() {
 		constant.WithNamespaceId(Registration.NamespaceId),
 		constant.WithTimeoutMs(5000),
 		constant.WithLogLevel("debug"),
+		constant.WithLogDir(os.TempDir()),
+		constant.WithNotLoadCacheAtStart(true),
+		constant.WithLogStdout(false),
 	)
 	serverConfigs := []constant.ServerConfig{
 		{
