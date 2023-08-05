@@ -69,6 +69,7 @@ func loadRemoteConfig() {
 		constant.WithTimeoutMs(5000),
 		constant.WithLogLevel("debug"),
 		constant.WithLogDir(os.TempDir()),
+		constant.WithCacheDir(os.TempDir()),
 		constant.WithNotLoadCacheAtStart(true),
 		constant.WithLogStdout(false),
 	)

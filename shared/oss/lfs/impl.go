@@ -38,6 +38,7 @@ func (i *impl) PutObject(k string, reader io.Reader) error {
 	mode := os.O_RDWR | os.O_CREATE | os.O_TRUNC
 	pth := path.Join(dir, f)
 	file, err := os.OpenFile(pth, mode, 0666)
+	defer file.Close()
 	length, err := io.CopyBuffer(file, reader, make([]byte, bufSz))
 	if err == nil {
 		logger.Debugf("LFS Written %v %v", length, file.Name())

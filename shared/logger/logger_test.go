@@ -1,6 +1,8 @@
 package logger
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestInit(t *testing.T) {
 	logger.Debug("Debug")
