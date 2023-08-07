@@ -25,3 +25,9 @@ func (s *AuthInfoServiceImpl) GetUserInfo(ctx context.Context, req *auth.UserInf
 	// TODO: Your code here...
 	return
 }
+
+// TokenVerify implements the AuthInfoServiceImpl interface.
+func (s *AuthInfoServiceImpl) TokenVerify(ctx context.Context, req *auth.TokenVerifyRequest) (resp *auth.TokenVerifyResponse, err error) {
+	// TODO: Your code here...
+	return
+}

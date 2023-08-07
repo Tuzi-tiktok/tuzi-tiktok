@@ -14,6 +14,7 @@ type Client interface {
 	Login(ctx context.Context, Req *auth.UserLoginRequest, callOptions ...callopt.Option) (r *auth.UserRegisterResponse, err error)
 	Register(ctx context.Context, Req *auth.UserRegisterRequest, callOptions ...callopt.Option) (r *auth.UserRegisterResponse, err error)
 	GetUserInfo(ctx context.Context, Req *auth.UserInfoRequest, callOptions ...callopt.Option) (r *auth.UserInfoResponse, err error)
+	TokenVerify(ctx context.Context, Req *auth.TokenVerifyRequest, callOptions ...callopt.Option) (r *auth.TokenVerifyResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -58,4 +59,9 @@ func (p *kAuthInfoServiceClient) Register(ctx context.Context, Req *auth.UserReg
 func (p *kAuthInfoServiceClient) GetUserInfo(ctx context.Context, Req *auth.UserInfoRequest, callOptions ...callopt.Option) (r *auth.UserInfoResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetUserInfo(ctx, Req)
+}
+
+func (p *kAuthInfoServiceClient) TokenVerify(ctx context.Context, Req *auth.TokenVerifyRequest, callOptions ...callopt.Option) (r *auth.TokenVerifyResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.TokenVerify(ctx, Req)
 }

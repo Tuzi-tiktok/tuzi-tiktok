@@ -55,6 +55,15 @@ message User {
   optional int64 favorite_count = 11; //点赞数量
 }
 
+message TokenVerifyRequest {
+  string token = 1; // 用户鉴权token
+}
+
+message TokenVerifyResponse{
+  int32 status_code = 1; // 状态码，0-成功，1-过期，2-无效
+  optional string status_msg = 2; // 返回状态描述
+  int64 user_id = 3; // 用户id
+}
 
 
 service AuthInfoService {
@@ -64,6 +73,9 @@ service AuthInfoService {
 
   }
   rpc GetUserInfo(UserInfoRequest) returns (UserInfoResponse){
+
+  }
+  rpc TokenVerify(TokenVerifyRequest) returns (TokenVerifyResponse){
 
   }
 }

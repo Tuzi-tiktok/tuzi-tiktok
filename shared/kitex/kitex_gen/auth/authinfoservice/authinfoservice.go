@@ -25,6 +25,7 @@ func NewServiceInfo() *kitex.ServiceInfo {
 		"Login":       kitex.NewMethodInfo(loginHandler, newLoginArgs, newLoginResult, false),
 		"Register":    kitex.NewMethodInfo(registerHandler, newRegisterArgs, newRegisterResult, false),
 		"GetUserInfo": kitex.NewMethodInfo(getUserInfoHandler, newGetUserInfoArgs, newGetUserInfoResult, false),
+		"TokenVerify": kitex.NewMethodInfo(tokenVerifyHandler, newTokenVerifyArgs, newTokenVerifyResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName": "idl",
@@ -499,6 +500,159 @@ func (p *GetUserInfoResult) GetResult() interface{} {
 	return p.Success
 }
 
+func tokenVerifyHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(auth.TokenVerifyRequest)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(auth.AuthInfoService).TokenVerify(ctx, req)
+		if err != nil {
+			return err
+		}
+		if err := st.SendMsg(resp); err != nil {
+			return err
+		}
+	case *TokenVerifyArgs:
+		success, err := handler.(auth.AuthInfoService).TokenVerify(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*TokenVerifyResult)
+		realResult.Success = success
+	}
+	return nil
+}
+func newTokenVerifyArgs() interface{} {
+	return &TokenVerifyArgs{}
+}
+
+func newTokenVerifyResult() interface{} {
+	return &TokenVerifyResult{}
+}
+
+type TokenVerifyArgs struct {
+	Req *auth.TokenVerifyRequest
+}
+
+func (p *TokenVerifyArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(auth.TokenVerifyRequest)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *TokenVerifyArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *TokenVerifyArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *TokenVerifyArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, fmt.Errorf("No req in TokenVerifyArgs")
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *TokenVerifyArgs) Unmarshal(in []byte) error {
+	msg := new(auth.TokenVerifyRequest)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var TokenVerifyArgs_Req_DEFAULT *auth.TokenVerifyRequest
+
+func (p *TokenVerifyArgs) GetReq() *auth.TokenVerifyRequest {
+	if !p.IsSetReq() {
+		return TokenVerifyArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *TokenVerifyArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *TokenVerifyArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type TokenVerifyResult struct {
+	Success *auth.TokenVerifyResponse
+}
+
+var TokenVerifyResult_Success_DEFAULT *auth.TokenVerifyResponse
+
+func (p *TokenVerifyResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(auth.TokenVerifyResponse)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *TokenVerifyResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *TokenVerifyResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *TokenVerifyResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, fmt.Errorf("No req in TokenVerifyResult")
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *TokenVerifyResult) Unmarshal(in []byte) error {
+	msg := new(auth.TokenVerifyResponse)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *TokenVerifyResult) GetSuccess() *auth.TokenVerifyResponse {
+	if !p.IsSetSuccess() {
+		return TokenVerifyResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *TokenVerifyResult) SetSuccess(x interface{}) {
+	p.Success = x.(*auth.TokenVerifyResponse)
+}
+
+func (p *TokenVerifyResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *TokenVerifyResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -534,6 +688,16 @@ func (p *kClient) GetUserInfo(ctx context.Context, Req *auth.UserInfoRequest) (r
 	_args.Req = Req
 	var _result GetUserInfoResult
 	if err = p.c.Call(ctx, "GetUserInfo", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) TokenVerify(ctx context.Context, Req *auth.TokenVerifyRequest) (r *auth.TokenVerifyResponse, err error) {
+	var _args TokenVerifyArgs
+	_args.Req = Req
+	var _result TokenVerifyResult
+	if err = p.c.Call(ctx, "TokenVerify", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
