@@ -24,6 +24,7 @@ func NewNacosClientParam() vo.NacosClientParam {
 		constant.WithNotLoadCacheAtStart(true),
 		constant.WithUpdateCacheWhenEmpty(true),
 		constant.WithLogDir(os.TempDir()),
+		constant.WithCacheDir(os.TempDir()),
 		constant.WithLogStdout(false),
 	)
 	serverConfigs := []constant.ServerConfig{
