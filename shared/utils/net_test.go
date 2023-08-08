@@ -13,3 +13,6 @@ func TestRandomAvailablePort(t *testing.T) {
 func TestGetLocalAddr(t *testing.T) {
 	log.Printf("Local Addr  %v", GetLocalAddr())
 }
+func TestGetLocalAddrByRC(t *testing.T) {
+	log.Printf("%v", GetLocalAddrByRC())
+}

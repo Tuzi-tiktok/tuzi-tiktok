@@ -1,7 +1,10 @@
 package utils
 
 import (
+	"fmt"
 	"net"
+	"strings"
+	cfg "tuzi-tiktok/config"
 )
 
 func RandomAvailablePort() int {
@@ -13,13 +16,24 @@ func RandomAvailablePort() int {
 	return l.Addr().(*net.TCPAddr).Port
 }
 
-func GetLocalAddrByRC(addr string) string {
+func GetLocalAddrSingle(addr string) string {
 	dial, err := net.Dial("tcp", addr)
 	if err != nil {
 		panic(err)
 	}
 	defer dial.Close()
+	fmt.Printf(dial.LocalAddr().String())
 	return dial.LocalAddr().String()
+}
+
+func GetLocalAddrByRC() string {
+	dial, err := net.Dial("tcp", fmt.Sprintf("%v:%v", cfg.Registration.Host, cfg.Registration.Port))
+	if err != nil {
+		panic(err)
+	}
+	defer dial.Close()
+	fmt.Println(dial.LocalAddr().String())
+	return strings.Split(dial.LocalAddr().String(), ":")[0]
 }
 
 func GetLocalAddr() string {
