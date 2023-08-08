@@ -27,9 +27,9 @@ func newMessage(db *gorm.DB, opts ...gen.DOOption) message {
 
 	tableName := _message.messageDo.TableName()
 	_message.ALL = field.NewAsterisk(tableName)
-	_message.ID = field.NewUint32(tableName, "id")
-	_message.ToUserID = field.NewUint32(tableName, "to_user_id")
-	_message.FormUserID = field.NewInt32(tableName, "form_user_id")
+	_message.ID = field.NewInt64(tableName, "id")
+	_message.ToUserID = field.NewInt64(tableName, "to_user_id")
+	_message.FormUserID = field.NewInt64(tableName, "form_user_id")
 	_message.Content = field.NewString(tableName, "content")
 	_message.CreatedAt = field.NewTime(tableName, "created_at")
 	_message.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -44,9 +44,9 @@ type message struct {
 	messageDo
 
 	ALL        field.Asterisk
-	ID         field.Uint32
-	ToUserID   field.Uint32 // 消息接收者Id
-	FormUserID field.Int32  // 消息发送者Id
+	ID         field.Int64
+	ToUserID   field.Int64  // 消息接收者id
+	FormUserID field.Int64  // 消息发送者id
 	Content    field.String // 消息内容
 	CreatedAt  field.Time
 	UpdatedAt  field.Time
@@ -67,9 +67,9 @@ func (m message) As(alias string) *message {
 
 func (m *message) updateTableName(table string) *message {
 	m.ALL = field.NewAsterisk(table)
-	m.ID = field.NewUint32(table, "id")
-	m.ToUserID = field.NewUint32(table, "to_user_id")
-	m.FormUserID = field.NewInt32(table, "form_user_id")
+	m.ID = field.NewInt64(table, "id")
+	m.ToUserID = field.NewInt64(table, "to_user_id")
+	m.FormUserID = field.NewInt64(table, "form_user_id")
 	m.Content = field.NewString(table, "content")
 	m.CreatedAt = field.NewTime(table, "created_at")
 	m.UpdatedAt = field.NewTime(table, "updated_at")

@@ -27,13 +27,13 @@ func newVideo(db *gorm.DB, opts ...gen.DOOption) video {
 
 	tableName := _video.videoDo.TableName()
 	_video.ALL = field.NewAsterisk(tableName)
-	_video.ID = field.NewUint32(tableName, "id")
-	_video.AuthorID = field.NewUint32(tableName, "author_id")
+	_video.ID = field.NewInt64(tableName, "id")
+	_video.AuthorID = field.NewInt64(tableName, "author_id")
 	_video.Title = field.NewString(tableName, "title")
 	_video.CoverURL = field.NewString(tableName, "cover_url")
 	_video.PlayURL = field.NewString(tableName, "play_url")
-	_video.FavoriteCount = field.NewUint32(tableName, "favorite_count")
-	_video.CommentCount = field.NewUint32(tableName, "comment_count")
+	_video.FavoriteCount = field.NewInt64(tableName, "favorite_count")
+	_video.CommentCount = field.NewInt64(tableName, "comment_count")
 	_video.CreatedAt = field.NewTime(tableName, "created_at")
 	_video.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_video.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -47,13 +47,13 @@ type video struct {
 	videoDo
 
 	ALL           field.Asterisk
-	ID            field.Uint32 // 主键
-	AuthorID      field.Uint32 // 上传用户Id
+	ID            field.Int64  // 视频id
+	AuthorID      field.Int64  // 上传用户id
 	Title         field.String // 视频标题
 	CoverURL      field.String // 封面url
 	PlayURL       field.String // 视频播放url
-	FavoriteCount field.Uint32 // 点赞数
-	CommentCount  field.Uint32 // 评论数目
+	FavoriteCount field.Int64  // 点赞数
+	CommentCount  field.Int64  // 评论数
 	CreatedAt     field.Time
 	UpdatedAt     field.Time
 	DeletedAt     field.Field
@@ -73,13 +73,13 @@ func (v video) As(alias string) *video {
 
 func (v *video) updateTableName(table string) *video {
 	v.ALL = field.NewAsterisk(table)
-	v.ID = field.NewUint32(table, "id")
-	v.AuthorID = field.NewUint32(table, "author_id")
+	v.ID = field.NewInt64(table, "id")
+	v.AuthorID = field.NewInt64(table, "author_id")
 	v.Title = field.NewString(table, "title")
 	v.CoverURL = field.NewString(table, "cover_url")
 	v.PlayURL = field.NewString(table, "play_url")
-	v.FavoriteCount = field.NewUint32(table, "favorite_count")
-	v.CommentCount = field.NewUint32(table, "comment_count")
+	v.FavoriteCount = field.NewInt64(table, "favorite_count")
+	v.CommentCount = field.NewInt64(table, "comment_count")
 	v.CreatedAt = field.NewTime(table, "created_at")
 	v.UpdatedAt = field.NewTime(table, "updated_at")
 	v.DeletedAt = field.NewField(table, "deleted_at")

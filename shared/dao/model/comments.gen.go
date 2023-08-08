@@ -14,9 +14,9 @@ const TableNameComment = "comments"
 
 // Comment mapped from table <comments>
 type Comment struct {
-	ID        uint32         `gorm:"column:id;primaryKey;autoIncrement:true;comment:主键" json:"id"`     // 主键
-	UID       uint32         `gorm:"column:uid;not null;index:uid,priority:1;comment:用户id" json:"uid"` // 用户id
-	Vid       uint32         `gorm:"column:vid;not null;index:vid,priority:1;comment:视频Id" json:"vid"` // 视频Id
+	ID        int64          `gorm:"column:id;primaryKey;autoIncrement:true;comment:消息id" json:"id"`   // 消息id
+	UID       int64          `gorm:"column:uid;not null;index:uid,priority:1;comment:用户id" json:"uid"` // 用户id
+	Vid       int64          `gorm:"column:vid;not null;index:vid,priority:1;comment:视频id" json:"vid"` // 视频id
 	Content   string         `gorm:"column:content;not null;comment:评论内容" json:"content"`              // 评论内容
 	CreatedAt time.Time      `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt *time.Time     `gorm:"column:updated_at" json:"updated_at"`

@@ -14,9 +14,9 @@ const TableNameRelation = "relations"
 
 // Relation mapped from table <relations>
 type Relation struct {
-	ID          uint32         `gorm:"column:id;primaryKey;autoIncrement:true;comment:主键" json:"id"`                                  // 主键
-	FollowerID  uint32         `gorm:"column:follower_id;not null;index:follower_id,priority:1;comment:关注者id" json:"follower_id"`     // 关注者id
-	FollowingID uint32         `gorm:"column:following_id;not null;index:following_id,priority:1;comment:被关注者id" json:"following_id"` // 被关注者id
+	ID          int64          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	FollowerID  int64          `gorm:"column:follower_id;not null;index:follower_id,priority:1;comment:关注者id" json:"follower_id"`     // 关注者id
+	FollowingID int64          `gorm:"column:following_id;not null;index:following_id,priority:1;comment:被关注者id" json:"following_id"` // 被关注者id
 	CreatedAt   *time.Time     `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   *time.Time     `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"column:deleted_at;default:CURRENT_TIMESTAMP" json:"deleted_at"`

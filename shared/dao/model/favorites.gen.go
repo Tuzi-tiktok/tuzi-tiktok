@@ -14,9 +14,9 @@ const TableNameFavorite = "favorites"
 
 // Favorite mapped from table <favorites>
 type Favorite struct {
-	ID        uint32         `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	UID       uint32         `gorm:"column:uid;not null" json:"uid"`
-	Vid       int32          `gorm:"column:vid;not null" json:"vid"`
+	ID        int64          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	UID       int64          `gorm:"column:uid;not null" json:"uid"`
+	Vid       int64          `gorm:"column:vid;not null" json:"vid"`
 	CreatedAt *time.Time     `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt *time.Time     `gorm:"column:updated_at" json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`

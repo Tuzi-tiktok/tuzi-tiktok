@@ -27,9 +27,9 @@ func newRelation(db *gorm.DB, opts ...gen.DOOption) relation {
 
 	tableName := _relation.relationDo.TableName()
 	_relation.ALL = field.NewAsterisk(tableName)
-	_relation.ID = field.NewUint32(tableName, "id")
-	_relation.FollowerID = field.NewUint32(tableName, "follower_id")
-	_relation.FollowingID = field.NewUint32(tableName, "following_id")
+	_relation.ID = field.NewInt64(tableName, "id")
+	_relation.FollowerID = field.NewInt64(tableName, "follower_id")
+	_relation.FollowingID = field.NewInt64(tableName, "following_id")
 	_relation.CreatedAt = field.NewTime(tableName, "created_at")
 	_relation.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_relation.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -43,9 +43,9 @@ type relation struct {
 	relationDo
 
 	ALL         field.Asterisk
-	ID          field.Uint32 // 主键
-	FollowerID  field.Uint32 // 关注者id
-	FollowingID field.Uint32 // 被关注者id
+	ID          field.Int64
+	FollowerID  field.Int64 // 关注者id
+	FollowingID field.Int64 // 被关注者id
 	CreatedAt   field.Time
 	UpdatedAt   field.Time
 	DeletedAt   field.Field
@@ -65,9 +65,9 @@ func (r relation) As(alias string) *relation {
 
 func (r *relation) updateTableName(table string) *relation {
 	r.ALL = field.NewAsterisk(table)
-	r.ID = field.NewUint32(table, "id")
-	r.FollowerID = field.NewUint32(table, "follower_id")
-	r.FollowingID = field.NewUint32(table, "following_id")
+	r.ID = field.NewInt64(table, "id")
+	r.FollowerID = field.NewInt64(table, "follower_id")
+	r.FollowingID = field.NewInt64(table, "following_id")
 	r.CreatedAt = field.NewTime(table, "created_at")
 	r.UpdatedAt = field.NewTime(table, "updated_at")
 	r.DeletedAt = field.NewField(table, "deleted_at")
