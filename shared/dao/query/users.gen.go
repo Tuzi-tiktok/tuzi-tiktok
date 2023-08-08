@@ -27,11 +27,11 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 
 	tableName := _user.userDo.TableName()
 	_user.ALL = field.NewAsterisk(tableName)
-	_user.ID = field.NewUint32(tableName, "id")
+	_user.ID = field.NewInt64(tableName, "id")
 	_user.Username = field.NewString(tableName, "username")
 	_user.Password = field.NewString(tableName, "password")
-	_user.FollowCount = field.NewUint32(tableName, "follow_count")
-	_user.FollowerCount = field.NewInt32(tableName, "follower_count")
+	_user.FollowCount = field.NewInt64(tableName, "follow_count")
+	_user.FollowerCount = field.NewInt64(tableName, "follower_count")
 	_user.Avatar = field.NewString(tableName, "avatar")
 	_user.BackgroundImage = field.NewString(tableName, "background_image")
 	_user.Signature = field.NewString(tableName, "signature")
@@ -48,11 +48,11 @@ type user struct {
 	userDo
 
 	ALL             field.Asterisk
-	ID              field.Uint32 // 主键ID
+	ID              field.Int64  // 用户id
 	Username        field.String // 用户名
 	Password        field.String // 密码
-	FollowCount     field.Uint32 // 关注数
-	FollowerCount   field.Int32  // 粉丝数
+	FollowCount     field.Int64  // 关注数
+	FollowerCount   field.Int64  // 粉丝数
 	Avatar          field.String // 头像地址
 	BackgroundImage field.String // 用户个人页顶部大图
 	Signature       field.String // 个人签名
@@ -75,11 +75,11 @@ func (u user) As(alias string) *user {
 
 func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
-	u.ID = field.NewUint32(table, "id")
+	u.ID = field.NewInt64(table, "id")
 	u.Username = field.NewString(table, "username")
 	u.Password = field.NewString(table, "password")
-	u.FollowCount = field.NewUint32(table, "follow_count")
-	u.FollowerCount = field.NewInt32(table, "follower_count")
+	u.FollowCount = field.NewInt64(table, "follow_count")
+	u.FollowerCount = field.NewInt64(table, "follower_count")
 	u.Avatar = field.NewString(table, "avatar")
 	u.BackgroundImage = field.NewString(table, "background_image")
 	u.Signature = field.NewString(table, "signature")

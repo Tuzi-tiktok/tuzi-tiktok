@@ -27,9 +27,9 @@ func newFavorite(db *gorm.DB, opts ...gen.DOOption) favorite {
 
 	tableName := _favorite.favoriteDo.TableName()
 	_favorite.ALL = field.NewAsterisk(tableName)
-	_favorite.ID = field.NewUint32(tableName, "id")
-	_favorite.UID = field.NewUint32(tableName, "uid")
-	_favorite.Vid = field.NewInt32(tableName, "vid")
+	_favorite.ID = field.NewInt64(tableName, "id")
+	_favorite.UID = field.NewInt64(tableName, "uid")
+	_favorite.Vid = field.NewInt64(tableName, "vid")
 	_favorite.CreatedAt = field.NewTime(tableName, "created_at")
 	_favorite.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_favorite.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -43,9 +43,9 @@ type favorite struct {
 	favoriteDo
 
 	ALL       field.Asterisk
-	ID        field.Uint32
-	UID       field.Uint32
-	Vid       field.Int32
+	ID        field.Int64
+	UID       field.Int64
+	Vid       field.Int64
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	DeletedAt field.Field
@@ -65,9 +65,9 @@ func (f favorite) As(alias string) *favorite {
 
 func (f *favorite) updateTableName(table string) *favorite {
 	f.ALL = field.NewAsterisk(table)
-	f.ID = field.NewUint32(table, "id")
-	f.UID = field.NewUint32(table, "uid")
-	f.Vid = field.NewInt32(table, "vid")
+	f.ID = field.NewInt64(table, "id")
+	f.UID = field.NewInt64(table, "uid")
+	f.Vid = field.NewInt64(table, "vid")
 	f.CreatedAt = field.NewTime(table, "created_at")
 	f.UpdatedAt = field.NewTime(table, "updated_at")
 	f.DeletedAt = field.NewField(table, "deleted_at")

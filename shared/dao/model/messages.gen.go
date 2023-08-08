@@ -14,9 +14,9 @@ const TableNameMessage = "messages"
 
 // Message mapped from table <messages>
 type Message struct {
-	ID         uint32         `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	ToUserID   uint32         `gorm:"column:to_user_id;not null;comment:消息接收者Id" json:"to_user_id"` // 消息接收者Id
-	FormUserID *int32         `gorm:"column:form_user_id;comment:消息发送者Id" json:"form_user_id"`      // 消息发送者Id
+	ID         int64          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	ToUserID   int64          `gorm:"column:to_user_id;not null;comment:消息接收者id" json:"to_user_id"` // 消息接收者id
+	FormUserID *int64         `gorm:"column:form_user_id;comment:消息发送者id" json:"form_user_id"`      // 消息发送者id
 	Content    *string        `gorm:"column:content;comment:消息内容" json:"content"`                   // 消息内容
 	CreatedAt  *time.Time     `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt  *time.Time     `gorm:"column:updated_at" json:"updated_at"`
