@@ -4,11 +4,26 @@ package auth
 
 import (
 	"context"
+	"log"
+	"tuzi-tiktok/kitex/kitex_gen/auth/authinfoservice"
+	"tuzi-tiktok/utils"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	auth "tuzi-tiktok/gateway/biz/model/auth"
+	rpcAuth "tuzi-tiktok/kitex/kitex_gen/auth"
 )
+
+var authClient authinfoservice.Client
+
+func init() {
+	var err error
+	//authClient, err = authinfoservice.NewClient("auth-service", client.WithHostPorts("127.0.0.1:8888"))
+	authClient, err = utils.NewAuth()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 // Login .
 // @router /douyin/user/login/ [POST]
@@ -20,7 +35,22 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	resp := new(auth.UserRegisterResponse)
+
+	loginResp, err := authClient.Login(ctx, &rpcAuth.UserLoginRequest{
+		Username: req.Username,
+		Password: req.Password,
+	})
+	if err != nil {
+		c.String(consts.StatusServiceUnavailable, err.Error())
+		return
+	}
+
+	resp := new(auth.UserLoginResponse)
+	resp.StatusCode = loginResp.GetStatusCode()
+	msg := loginResp.GetStatusMsg()
+	resp.StatusMsg = &msg
+	resp.UserId = loginResp.GetUserId()
+	resp.Token = loginResp.GetToken()
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -36,7 +66,21 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	registerResp, err := authClient.Register(ctx, &rpcAuth.UserRegisterRequest{
+		Username: req.Username,
+		Password: req.Password,
+	})
+	if err != nil {
+		c.String(consts.StatusServiceUnavailable, err.Error())
+		return
+	}
+
 	resp := new(auth.UserRegisterResponse)
+	resp.StatusCode = registerResp.GetStatusCode()
+	msg := registerResp.GetStatusMsg()
+	resp.StatusMsg = &msg
+	resp.UserId = registerResp.GetUserId()
+	resp.Token = registerResp.GetToken()
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -52,7 +96,33 @@ func GetUserInfo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	userInfoResp, err := authClient.GetUserInfo(ctx, &rpcAuth.UserInfoRequest{
+		UserId: req.UserId,
+		Token:  req.Token,
+	})
+	if err != nil {
+		c.String(consts.StatusServiceUnavailable, err.Error())
+		return
+	}
+
 	resp := new(auth.UserInfoResponse)
+	resp.StatusCode = userInfoResp.GetStatusCode()
+	msg := userInfoResp.GetStatusMsg()
+	resp.StatusMsg = &msg
+	u := userInfoResp.GetUser()
+	resp.User = &auth.User{
+		Id:              u.Id,
+		Name:            u.Name,
+		FollowCount:     u.FollowCount,
+		FollowerCount:   u.FollowerCount,
+		IsFollow:        u.IsFollow,
+		Avatar:          u.Avatar,
+		BackgroundImage: u.BackgroundImage,
+		Signature:       u.Signature,
+		TotalFavorited:  u.TotalFavorited,
+		WorkCount:       u.WorkCount,
+		FavoriteCount:   u.FavoriteCount,
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
