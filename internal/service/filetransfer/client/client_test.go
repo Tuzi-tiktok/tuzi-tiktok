@@ -18,6 +18,6 @@ func TestClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	put := transfer.Put("1.png", open)
+	put := transfer.Put("12anc#13.png", open)
 	logger.Debugf("Res %v", put)
 }

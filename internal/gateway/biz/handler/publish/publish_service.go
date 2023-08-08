@@ -12,19 +12,21 @@ import (
 	"tuzi-tiktok/kitex/kitex_gen/publish/publishservice"
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/service/filetransfer/client"
+	"tuzi-tiktok/utils"
 )
 
 var (
 	transfer client.Transfer
-	pub      publishservice.Client
+	pClient  publishservice.Client
 )
 
 func init() {
+	var err error
 	transfer = client.NewTransfer()
-	//pub, err := utils.NewPublish()
-	//if err != nil {
-	//
-	//}
+	pClient, err = utils.NewPublish()
+	if err != nil {
+		panic(err)
+	}
 }
 
 // PublishVideo .
@@ -40,7 +42,7 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 	form, err := c.MultipartForm()
 	if err != nil || len(form.File) == 0 || len(form.File["data"]) == 0 {
 		logger.Error("MultipartForm Occurrence Error")
-		c.Status(http.StatusBadRequest)
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	video := form.File["data"][0]
@@ -55,15 +57,23 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	//pub, err := utils.NewPublish()
-	_ = &kpublish.PublishRequest{}
-	//res, err := pub.PublishVideo(ctx, p)
-	rp := new(publish.PublishResponse)
-	s := "hhh"
-	rp.StatusMsg = &s
-	rp.StatusCode = 200
 
-	c.JSON(consts.StatusOK, rp)
+	rp := &kpublish.PublishRequest{
+		Title:    req.Title,
+		Token:    req.Token,
+		VideoUrl: r.Url,
+	}
+	rpcResp, err := pClient.PublishVideo(ctx, rp)
+	if err != nil {
+		logger.Error(err)
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+	resp := publish.PublishResponse{
+		StatusCode: rpcResp.StatusCode,
+		StatusMsg:  rpcResp.StatusMsg,
+	}
+	c.JSON(consts.StatusOK, resp)
 }
 
 // GetPublishList .

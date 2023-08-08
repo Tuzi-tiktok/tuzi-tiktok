@@ -31,7 +31,6 @@ func (i *impl) PutObject(k string, reader io.Reader) error {
 	dir, f := path.Split(k)
 	dir = path.Join(c.StoragePath, c.Bucket, dir)
 	err := os.MkdirAll(dir, 0666)
-	logger.Debug("Path Is ", dir)
 	if err != nil {
 		return err
 	}
