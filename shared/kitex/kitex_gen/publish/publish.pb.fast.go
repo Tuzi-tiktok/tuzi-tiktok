@@ -25,6 +25,11 @@ func (x *PublishRequest) FastRead(buf []byte, _type int8, number int32) (offset 
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -45,6 +50,11 @@ func (x *PublishRequest) fastReadField1(buf []byte, _type int8) (offset int, err
 
 func (x *PublishRequest) fastReadField2(buf []byte, _type int8) (offset int, err error) {
 	x.Title, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *PublishRequest) fastReadField3(buf []byte, _type int8) (offset int, err error) {
+	x.VideoUrl, offset, err = fastpb.ReadString(buf, _type)
 	return offset, err
 }
 
@@ -176,6 +186,7 @@ func (x *PublishRequest) FastWrite(buf []byte) (offset int) {
 	}
 	offset += x.fastWriteField1(buf[offset:])
 	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
 	return offset
 }
 
@@ -192,6 +203,14 @@ func (x *PublishRequest) fastWriteField2(buf []byte) (offset int) {
 		return offset
 	}
 	offset += fastpb.WriteString(buf[offset:], 2, x.GetTitle())
+	return offset
+}
+
+func (x *PublishRequest) fastWriteField3(buf []byte) (offset int) {
+	if x.VideoUrl == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 3, x.GetVideoUrl())
 	return offset
 }
 
@@ -287,6 +306,7 @@ func (x *PublishRequest) Size() (n int) {
 	}
 	n += x.sizeField1()
 	n += x.sizeField2()
+	n += x.sizeField3()
 	return n
 }
 
@@ -303,6 +323,14 @@ func (x *PublishRequest) sizeField2() (n int) {
 		return n
 	}
 	n += fastpb.SizeString(2, x.GetTitle())
+	return n
+}
+
+func (x *PublishRequest) sizeField3() (n int) {
+	if x.VideoUrl == "" {
+		return n
+	}
+	n += fastpb.SizeString(3, x.GetVideoUrl())
 	return n
 }
 
@@ -395,6 +423,7 @@ func (x *PublishListResponse) sizeField3() (n int) {
 var fieldIDToName_PublishRequest = map[int32]string{
 	1: "Token",
 	2: "Title",
+	3: "VideoUrl",
 }
 
 var fieldIDToName_PublishResponse = map[int32]string{

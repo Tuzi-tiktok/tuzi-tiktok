@@ -4,17 +4,27 @@ package publish
 
 import (
 	"context"
-	"tuzi-tiktok/service/filetransfer/client"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"net/http"
 	publish "tuzi-tiktok/gateway/biz/model/publish"
+	kpublish "tuzi-tiktok/kitex/kitex_gen/publish"
+	"tuzi-tiktok/kitex/kitex_gen/publish/publishservice"
+	"tuzi-tiktok/logger"
+	"tuzi-tiktok/service/filetransfer/client"
 )
 
-var transfer client.Transfer
+var (
+	transfer client.Transfer
+	pub      publishservice.Client
+)
 
 func init() {
 	transfer = client.NewTransfer()
+	//pub, err := utils.NewPublish()
+	//if err != nil {
+	//
+	//}
 }
 
 // PublishVideo .
@@ -22,22 +32,38 @@ func init() {
 func PublishVideo(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req publish.PublishRequest
-	err = c.BindAndValidate(&req)
+	err = c.Bind(&req)
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
 	form, err := c.MultipartForm()
-	if err != nil {
-
-	}
-	if len(form.File) == 0 {
+	if err != nil || len(form.File) == 0 || len(form.File["data"]) == 0 {
+		logger.Error("MultipartForm Occurrence Error")
+		c.Status(http.StatusBadRequest)
 		return
 	}
+	video := form.File["data"][0]
+	file, err := video.Open()
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	r := transfer.Put(video.Filename, file)
+	if !r.Ok {
+		logger.Error("Error RPC Call")
+		c.Status(http.StatusBadRequest)
+		return
+	}
+	//pub, err := utils.NewPublish()
+	_ = &kpublish.PublishRequest{}
+	//res, err := pub.PublishVideo(ctx, p)
+	rp := new(publish.PublishResponse)
+	s := "hhh"
+	rp.StatusMsg = &s
+	rp.StatusCode = 200
 
-	resp := new(publish.PublishResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	c.JSON(consts.StatusOK, rp)
 }
 
 // GetPublishList .

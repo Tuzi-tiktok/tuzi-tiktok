@@ -25,9 +25,9 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	Init()
+	InitConfig()
 }
-func Init() {
+func InitConfig() {
 	instances, err := utils.DefaultServerSelector(utils.Transfer())
 	if err != nil {
 		logger.Error("Service discovery failure")
