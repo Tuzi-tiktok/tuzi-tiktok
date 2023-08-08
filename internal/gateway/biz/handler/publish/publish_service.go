@@ -4,11 +4,18 @@ package publish
 
 import (
 	"context"
+	"tuzi-tiktok/service/filetransfer/client"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	publish "tuzi-tiktok/gateway/biz/model/publish"
 )
+
+var transfer client.Transfer
+
+func init() {
+	transfer = client.NewTransfer()
+}
 
 // PublishVideo .
 // @router /douyin/publish/action/ [POST]
@@ -18,6 +25,13 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 	err = c.BindAndValidate(&req)
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
+	form, err := c.MultipartForm()
+	if err != nil {
+
+	}
+	if len(form.File) == 0 {
 		return
 	}
 

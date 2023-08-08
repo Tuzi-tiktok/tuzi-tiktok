@@ -1,5 +1,0 @@
-package clients
-
-func NewTransfer() {
-
-}
