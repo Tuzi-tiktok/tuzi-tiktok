@@ -52,12 +52,20 @@ func DefaultNacosClient() naming_client.INamingClient {
 	return NewNacosNamingClient(NewNacosClientParam())
 }
 
-func DefaultServerSelector(serverName string) ([]model.Instance, error) {
+func DefaultServiceSelector(serverName string) ([]model.Instance, error) {
 	cli := DefaultNacosClient()
 	return cli.SelectInstances(vo.SelectInstancesParam{
 		ServiceName: serverName,
 		HealthyOnly: true,
 	})
+}
+func DefaultServiceSubscriber(serverName string, callback func(services []model.SubscribeService, err error)) error {
+	cli := DefaultNacosClient()
+	err := cli.Subscribe(&vo.SubscribeParam{
+		ServiceName:       serverName,
+		SubscribeCallback: callback,
+	})
+	return err
 }
 
 func DefaultServerRegister(serverName string, port uint64) error {

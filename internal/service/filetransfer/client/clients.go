@@ -2,12 +2,12 @@ package client
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	nmodel "github.com/nacos-group/nacos-sdk-go/model"
 	"io"
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/service/filetransfer/model"
@@ -28,19 +28,25 @@ func init() {
 	InitConfig()
 }
 func InitConfig() {
-	instances, err := utils.DefaultServerSelector(utils.Transfer())
+	err := utils.DefaultServiceSubscriber(utils.Transfer(), func(services []nmodel.SubscribeService, err error) {
+		for _, s := range services {
+			if s.Healthy && s.Enable {
+				targetURL = fmt.Sprintf("http://%s:%d/", s.Ip, s.Port)
+				break
+			}
+		}
+		if len(services) == 0 {
+			logger.Debugf("Service Candidate Is Empty")
+			targetURL = ""
+		} else {
+			//logger.Debugf("Transfer Service Update Server Target URL %v", targetURL)
+		}
+	})
 	if err != nil {
-		logger.Error("Service discovery failure")
+		logger.Error("ServiceSubscribe Error \n", err)
 		panic(err)
 	}
-	if len(instances) == 0 {
-		err := errors.New("There is no suitable service ")
-		logger.Error(err)
-		panic(err)
 
-	}
-	ip, port := instances[0].Ip, instances[0].Port
-	targetURL = fmt.Sprintf("http://%s:%d/", ip, port)
 	logger.Debugf("Server Target URL  %v", targetURL)
 }
 
@@ -50,6 +56,11 @@ type Transfer interface {
 type TransferImpl struct{}
 
 func (t TransferImpl) Put(s string, reader io.Reader) (r model.TransResult) {
+	if targetURL == "" {
+		logger.Warnf("Service Candidate is Empty")
+		r.Ok = false
+		return
+	}
 	ctx := context.TODO()
 	req, resp := &protocol.Request{}, &protocol.Response{}
 	req.SetFileReader("data", s, reader)

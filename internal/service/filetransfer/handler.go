@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"path"
+	"strings"
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/oss"
 	"tuzi-tiktok/service/filetransfer/model"
@@ -22,8 +23,9 @@ func Transfer(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 	file := form.File["data"][0]
-	randomKey, ext := ksuid.New().String(), path.Ext(file.Filename)
-	objectName := randomKey + ext
+	dir, s := path.Split(strings.ReplaceAll(file.Filename, "#", "/"))
+	randomKey, ext := ksuid.New().String(), path.Ext(s)
+	objectName := path.Join(dir, randomKey+ext)
 	f, err := file.Open()
 	if err != nil {
 		r.Ok = false
