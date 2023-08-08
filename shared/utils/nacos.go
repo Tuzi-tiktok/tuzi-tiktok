@@ -10,6 +10,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/model"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"net"
 	"os"
@@ -24,6 +25,7 @@ func NewNacosClientParam() vo.NacosClientParam {
 		constant.WithNotLoadCacheAtStart(true),
 		constant.WithUpdateCacheWhenEmpty(true),
 		constant.WithLogDir(os.TempDir()),
+		constant.WithCacheDir(os.TempDir()),
 		constant.WithLogStdout(false),
 	)
 	serverConfigs := []constant.ServerConfig{
@@ -46,6 +48,33 @@ func NewNacosNamingClient(para vo.NacosClientParam) naming_client.INamingClient 
 	return cli
 }
 
+func DefaultNacosClient() naming_client.INamingClient {
+	return NewNacosNamingClient(NewNacosClientParam())
+}
+
+func DefaultServerSelector(serverName string) ([]model.Instance, error) {
+	cli := DefaultNacosClient()
+	return cli.SelectInstances(vo.SelectInstancesParam{
+		ServiceName: serverName,
+		HealthyOnly: true,
+	})
+}
+
+func DefaultServerRegister(serverName string, port uint64) error {
+	cli := DefaultNacosClient()
+	_, err := cli.RegisterInstance(vo.RegisterInstanceParam{
+		Ip:          GetLocalAddr(),
+		Port:        port,
+		Weight:      10,
+		ServiceName: serverName,
+		Healthy:     true,
+		Enable:      true,
+		Ephemeral:   true,
+	})
+	return err
+}
+
+// ExtOption Kitex 适用
 type ExtOption client.Option
 
 func NewClientOptions(c ...ExtOption) []client.Option {

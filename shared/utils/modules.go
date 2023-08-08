@@ -22,3 +22,6 @@ func Publish() string {
 func Relation() string {
 	return "relation-api"
 }
+func Transfer() string {
+	return "transfer-http-api"
+}

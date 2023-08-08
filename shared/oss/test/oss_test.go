@@ -56,6 +56,6 @@ func TestMinioGetAddress(t *testing.T) {
 }
 
 func TestExt(t *testing.T) {
-	ext := path.Ext("a")
+	ext := path.Ext("a.png")
 	logger.Info(ext)
 }

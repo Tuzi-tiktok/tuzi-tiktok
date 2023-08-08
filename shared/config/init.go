@@ -30,9 +30,13 @@ func loadLocalConfig() {
 	v.SetConfigName(DefaultConfigName)
 	v.SetConfigType(DefaultConfigType)
 	v.AddConfigPath(DefaultConfigPath)
-	v.AddConfigPath(CandidateConfigPath)
+
+	for i := range CandidateConfigPath {
+		v.AddConfigPath(CandidateConfigPath[i])
+	}
 	SetDefault(v)
 	if err := v.ReadInConfig(); err != nil {
+		log.Printf("Can't Find Config %v.%v", DefaultConfigName, DefaultConfigType)
 		panic(err)
 	}
 	log.Println(" - Parsing Config For Registry")

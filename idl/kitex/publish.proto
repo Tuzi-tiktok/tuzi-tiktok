@@ -8,6 +8,7 @@ message PublishRequest {
   string token = 1; // 用户鉴权token
 //  bytes data = 2; // 视频数据
   string title = 2; // 视频标题
+  string video_url = 3; // 视频URL
 }
 
 message PublishResponse {

@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"log"
 	"net"
 )
 
@@ -11,7 +10,6 @@ func RandomAvailablePort() int {
 		panic(err)
 	}
 	defer l.Close()
-	log.Println(l.Addr().(*net.TCPAddr))
 	return l.Addr().(*net.TCPAddr).Port
 }
 
