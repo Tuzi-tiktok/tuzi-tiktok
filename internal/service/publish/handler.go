@@ -46,11 +46,9 @@ func (s *PublishServiceImpl) PublishVideo(ctx context.Context, req *publish.Publ
 	resp = new(publish.PublishResponse)
 	//   TODO  Token expires after video upload
 	claims, err := tools.ParseToken(req.Token)
-	var msg string
+
 	if err != nil {
-		msg = err.Error()
-		logger.Debug(msg)
-		resp.StatusMsg = &msg
+		resp.StatusMsg = &consts.InvalidTokenMsg
 		resp.StatusCode = consts.InvalidToken
 		return
 	}
@@ -59,28 +57,28 @@ func (s *PublishServiceImpl) PublishVideo(ctx context.Context, req *publish.Publ
 	if err != nil {
 		return nil, err
 	}
-	v := UploadSnapShot(shot)
-	if !v.Ok {
-		msg = "PublishUploadSnapShotError"
+	result := UploadSnapShot(shot)
+	if !result.Ok {
 		resp.StatusCode = consts.PublishUploadSnapShotError
-		resp.StatusMsg = &msg
+		resp.StatusMsg = &consts.PublishListErrorMsg
 		return
 	}
 
 	video := &model.Video{
 		Title:    req.Title,
 		AuthorID: uid,
-		CoverURL: v.Url,
+		CoverURL: result.Url,
 		PlayURL:  req.VideoUrl,
 	}
 	err = qVideo.Create(video)
 	if err != nil {
 		return nil, err
 	}
-	msg = "Success"
-	resp.StatusCode = consts.Success
-	resp.StatusMsg = &msg
-	return
+
+	return &publish.PublishResponse{
+		StatusCode: consts.Success,
+		StatusMsg:  &consts.SuccessMsg,
+	}, nil
 }
 
 // GetPublishList implements the PublishServiceImpl interface.
@@ -155,31 +153,36 @@ func (s *PublishServiceImpl) GetPublishList(ctx context.Context, req *publish.Pu
 		// 当前用户是否点赞当前视频
 		isFavorite := count != 0
 		followCount, followerCount := user.FollowCount, user.FollowerCount
-		videoList[i] = &feed.Video{
-			Id:           v.ID,
-			PlayUrl:      v.PlayURL,
-			CoverUrl:     v.CoverURL,
-			CommentCount: v.CommentCount,
-			Title:        v.Title,
-			IsFavorite:   isFavorite,
-			Author: &auth.User{
-				Id:              user.ID,
-				Name:            user.Username,
-				FollowCount:     &followCount,
-				FollowerCount:   &followerCount,
-				IsFollow:        isFollow,
-				Avatar:          user.Avatar,
-				BackgroundImage: user.BackgroundImage,
-				Signature:       user.Signature,
-				TotalFavorited:  &totalFavorited,
-				WorkCount:       &videosNums,
-				FavoriteCount:   &favoriteCount,
-			},
-		}
+		MergeStruct(videoList, i, v, isFavorite, user, followCount, followerCount,
+			isFollow, totalFavorited, videosNums, favoriteCount)
 	}
 	return &publish.PublishListResponse{
 		VideoList:  videoList,
 		StatusMsg:  &consts.SuccessMsg,
 		StatusCode: consts.Success,
 	}, nil
+}
+
+func MergeStruct(videoList []*feed.Video, i int, v *model.Video, isFavorite bool, user *model.User, followCount int64, followerCount int64, isFollow bool, totalFavorited int64, videosNums int64, favoriteCount int64) {
+	videoList[i] = &feed.Video{
+		Id:           v.ID,
+		PlayUrl:      v.PlayURL,
+		CoverUrl:     v.CoverURL,
+		CommentCount: v.CommentCount,
+		Title:        v.Title,
+		IsFavorite:   isFavorite,
+		Author: &auth.User{
+			Id:              user.ID,
+			Name:            user.Username,
+			FollowCount:     &followCount,
+			FollowerCount:   &followerCount,
+			IsFollow:        isFollow,
+			Avatar:          user.Avatar,
+			BackgroundImage: user.BackgroundImage,
+			Signature:       user.Signature,
+			TotalFavorited:  &totalFavorited,
+			WorkCount:       &videosNums,
+			FavoriteCount:   &favoriteCount,
+		},
+	}
 }

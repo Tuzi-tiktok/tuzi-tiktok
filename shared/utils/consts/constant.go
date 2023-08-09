@@ -18,9 +18,11 @@ const (
 )
 
 var (
-	SuccessMsg                   = "Success"
-	PublishListErrorMsg          = "PublishListError"
-	PublishTargetUserNotExistMsg = "PublishTargetUserNotExist"
+	SuccessMsg                    = "Success"
+	PublishListErrorMsg           = "PublishListError"
+	PublishTargetUserNotExistMsg  = "PublishTargetUserNotExist"
+	PublishUploadSnapShotErrorMsg = "PublishUploadSnapShotError"
+	InvalidTokenMsg               = "InvalidToken"
 )
 
 const (
