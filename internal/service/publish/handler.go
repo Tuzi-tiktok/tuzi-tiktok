@@ -85,6 +85,7 @@ func (s *PublishServiceImpl) PublishVideo(ctx context.Context, req *publish.Publ
 
 // GetPublishList implements the PublishServiceImpl interface.
 func (s *PublishServiceImpl) GetPublishList(ctx context.Context, req *publish.PublishListRequest) (resp *publish.PublishListResponse, err error) {
+
 	claims, err := tools.ParseToken(req.Token)
 	resp = new(publish.PublishListResponse)
 	var msg string
