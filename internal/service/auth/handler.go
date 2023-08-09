@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"time"
+	commonAuth "tuzi-tiktok/auth"
 	"tuzi-tiktok/dao/model"
 	"tuzi-tiktok/dao/query"
 	auth "tuzi-tiktok/kitex/kitex_gen/auth"
@@ -52,7 +53,7 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 	uid := u[0].ID
 	logger.Infof("user: %s, uid: %d", req.Username, uid)
 
-	payload := tools.TokenPayload{
+	payload := commonAuth.TokenPayload{
 		UID: uid,
 	}
 	exp := time.Now().Add(time.Hour * 24 * 14)
@@ -137,7 +138,7 @@ func (s *AuthInfoServiceImpl) Register(ctx context.Context, req *auth.UserRegist
 	uid := u.ID
 	logger.Infof("user: %s, uid: %d", req.Username, uid)
 
-	payload := tools.TokenPayload{
+	payload := commonAuth.TokenPayload{
 		UID: uid,
 	}
 	exp := time.Now().Add(time.Hour * 24 * 14)

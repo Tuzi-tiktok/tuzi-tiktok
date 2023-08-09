@@ -16,6 +16,7 @@ use (
 	./shared/logger
 	./shared/oss
 	./shared/utils
+	./shared/auth
 )
 
 // Windows System Compatibility Dev
