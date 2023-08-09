@@ -281,6 +281,26 @@ func (s *AuthInfoServiceImpl) GetUserInfo(ctx context.Context, req *auth.UserInf
 
 // TokenVerify implements the AuthInfoServiceImpl interface.
 func (s *AuthInfoServiceImpl) TokenVerify(ctx context.Context, req *auth.TokenVerifyRequest) (resp *auth.TokenVerifyResponse, err error) {
-	// TODO: Your code here...
+	logger.Infof("verify token: %s", req.Token)
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		logger.Errorf("failed to parse token: %s, err: %v", req.Token, err)
+		msg := tools.InvalidTokenMsg
+		resp = &auth.TokenVerifyResponse{
+			StatusCode: tools.InvalidToken,
+			StatusMsg:  &msg,
+		}
+		return
+	}
+
+	logger.Infof("token: %s is valid", req.Token)
+	msg := tools.SuccessMsg
+	resp = &auth.TokenVerifyResponse{
+		StatusCode: tools.Success,
+		StatusMsg:  &msg,
+		UserId:     token.Payload.UID,
+	}
+
 	return
 }
