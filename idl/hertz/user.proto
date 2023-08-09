@@ -59,7 +59,7 @@ message User {
 
 
 service AuthInfoService {
-  rpc Login(UserLoginRequest) returns(UserRegisterResponse) {
+  rpc Login(UserLoginRequest) returns(UserLoginResponse) {
     option (api.post) = "/douyin/user/login/";
   }
   rpc Register(UserRegisterRequest) returns (UserRegisterResponse){

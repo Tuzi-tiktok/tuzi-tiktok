@@ -4,14 +4,13 @@ package auth
 
 import (
 	"context"
-	"log"
-	"tuzi-tiktok/kitex/kitex_gen/auth/authinfoservice"
-	"tuzi-tiktok/utils"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"log"
 	auth "tuzi-tiktok/gateway/biz/model/auth"
 	rpcAuth "tuzi-tiktok/kitex/kitex_gen/auth"
+	"tuzi-tiktok/kitex/kitex_gen/auth/authinfoservice"
+	"tuzi-tiktok/utils"
 )
 
 var authClient authinfoservice.Client
@@ -44,7 +43,6 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusServiceUnavailable, err.Error())
 		return
 	}
-
 	resp := new(auth.UserLoginResponse)
 	resp.StatusCode = loginResp.GetStatusCode()
 	msg := loginResp.GetStatusMsg()
