@@ -59,6 +59,7 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 	_ = &kpublish.PublishRequest{}
 	//res, err := pub.PublishVideo(ctx, p)
 	rp := new(publish.PublishResponse)
+
 	s := "hhh"
 	rp.StatusMsg = &s
 	rp.StatusCode = 200
