@@ -11,21 +11,21 @@ import (
 )
 
 type FavoriteRequest struct {
-	Token      string `json:"token,omitempty" form:"token" query:"token"`                   // 用户鉴权token
-	VideoId    int64  `json:"video_id,omitempty" form:"video_id" query:"video_id"`          // 视频id
-	ActionType int32  `json:"action_type,omitempty" form:"action_type" query:"action_type"` // 1-点赞，2-取消点赞
+	Token      string `json:"token" form:"token" query:"token"`                   // 用户鉴权token
+	VideoId    int64  `json:"video_id" form:"video_id" query:"video_id"`          // 视频id
+	ActionType int32  `json:"action_type" form:"action_type" query:"action_type"` // 1-点赞，2-取消点赞
 }
 type FavoriteResponse struct {
-	StatusCode int32   `json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  *string `json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`    // 返回状态描述
+	StatusCode int32   `json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  *string `json:"status_msg" form:"status_msg" query:"status_msg"`    // 返回状态描述
 }
 type FavoriteListRequest struct {
-	UserId int64  `json:"user_id,omitempty" form:"user_id" query:"user_id"` // 用户id
-	Token  string `json:"token,omitempty" form:"token" query:"token"`       // 用户鉴权token
+	UserId int64  `json:"user_id" form:"user_id" query:"user_id"` // 用户id
+	Token  string `json:"token" form:"token" query:"token"`       // 用户鉴权token
 }
 
 type FavoriteListResponse struct {
-	StatusCode int32         `json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  *string       `json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`    // 返回状态描述
-	VideoList  []*feed.Video `json:"video_list,omitempty" form:"video_list" query:"video_list"`    // 用户点赞视频列表
+	StatusCode int32         `json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  *string       `json:"status_msg" form:"status_msg" query:"status_msg"`    // 返回状态描述
+	VideoList  []*feed.Video `json:"video_list" form:"video_list" query:"video_list"`    // 用户点赞视频列表
 }

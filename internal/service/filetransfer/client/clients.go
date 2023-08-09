@@ -39,15 +39,13 @@ func InitConfig() {
 			logger.Debugf("Service Candidate Is Empty")
 			targetURL = ""
 		} else {
-			//logger.Debugf("Transfer Service Update Server Target URL %v", targetURL)
+			logger.Debugf("Transfer Service Update Server Target URL %v", targetURL)
 		}
 	})
 	if err != nil {
 		logger.Error("ServiceSubscribe Error \n", err)
 		panic(err)
 	}
-
-	logger.Debugf("Server Target URL  %v", targetURL)
 }
 
 type Transfer interface {

@@ -7,33 +7,33 @@
 package message
 
 type MessageChatRequest struct {
-	Token      string `json:"token,omitempty" form:"token" query:"token"`                      // 用户鉴权token
-	ToUserId   int64  `json:"to_user_id,omitempty" form:"to_user_id" query:"to_user_id"`       // 对方用户id
-	PreMsgTime int64  `json:"pre_msg_time,omitempty" form:"pre_msg_time" query:"pre_msg_time"` //上次最新消息的时间（新增字段-apk更新中）
+	Token      string `json:"token" form:"token" query:"token"`                      // 用户鉴权token
+	ToUserId   int64  `json:"to_user_id" form:"to_user_id" query:"to_user_id"`       // 对方用户id
+	PreMsgTime int64  `json:"pre_msg_time" form:"pre_msg_time" query:"pre_msg_time"` //上次最新消息的时间（新增字段-apk更新中）
 }
 
 type MessageChatResponse struct {
-	StatusCode  int32      `json:"status_code,omitempty" form:"status_code" query:"status_code"`    // 状态码，0-成功，其他值-失败
-	StatusMsg   *string    `json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`       // 返回状态描述
-	MessageList []*Message `json:"message_list,omitempty" form:"message_list" query:"message_list"` // 消息列表
+	StatusCode  int32      `json:"status_code" form:"status_code" query:"status_code"`    // 状态码，0-成功，其他值-失败
+	StatusMsg   *string    `json:"status_msg" form:"status_msg" query:"status_msg"`       // 返回状态描述
+	MessageList []*Message `json:"message_list" form:"message_list" query:"message_list"` // 消息列表
 }
 
 type Message struct {
-	Id         int64   `json:"id,omitempty" form:"id" query:"id"`                               // 消息id
-	ToUserId   int64   `json:"to_user_id,omitempty" form:"to_user_id" query:"to_user_id"`       // 该消息接收者的id
-	FromUserId int64   `json:"from_user_id,omitempty" form:"from_user_id" query:"from_user_id"` // 该消息发送者的id
-	Content    string  `json:"content,omitempty" form:"content" query:"content"`                // 消息内容
-	CreateTime *string `json:"create_time,omitempty" form:"create_time" query:"create_time"`    // 消息创建时间
+	Id         int64   `json:"id" form:"id" query:"id"`                               // 消息id
+	ToUserId   int64   `json:"to_user_id" form:"to_user_id" query:"to_user_id"`       // 该消息接收者的id
+	FromUserId int64   `json:"from_user_id" form:"from_user_id" query:"from_user_id"` // 该消息发送者的id
+	Content    string  `json:"content" form:"content" query:"content"`                // 消息内容
+	CreateTime *string `json:"create_time" form:"create_time" query:"create_time"`    // 消息创建时间
 }
 
 type MessageActionRequest struct {
-	Token      string `json:"token,omitempty" form:"token" query:"token"`                   // 用户鉴权token
-	ToUserId   int64  `json:"to_user_id,omitempty" form:"to_user_id" query:"to_user_id"`    // 对方用户id
-	ActionType int32  `json:"action_type,omitempty" form:"action_type" query:"action_type"` // 1-发送消息
-	Content    string `json:"content,omitempty" form:"content" query:"content"`             // 消息内容
+	Token      string `json:"token" form:"token" query:"token"`                   // 用户鉴权token
+	ToUserId   int64  `json:"to_user_id" form:"to_user_id" query:"to_user_id"`    // 对方用户id
+	ActionType int32  `json:"action_type" form:"action_type" query:"action_type"` // 1-发送消息
+	Content    string `json:"content" form:"content" query:"content"`             // 消息内容
 }
 
 type MessageActionResponse struct {
-	StatusCode int32   `json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  *string `json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`    // 返回状态描述
+	StatusCode int32   `json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  *string `json:"status_msg" form:"status_msg" query:"status_msg"`    // 返回状态描述
 }

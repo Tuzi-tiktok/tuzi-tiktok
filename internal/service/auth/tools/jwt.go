@@ -37,6 +37,10 @@ func ParseToken(token string) (claims TokenClaims, err error) {
 		return jwt.ParseECPublicKeyFromPEM([]byte(config.SecretConfig.JWTPublicKey))
 	}, jwt.WithValidMethods([]string{"ES256"}))
 
+	if err != nil {
+		return
+	}
+
 	if claims, ok := t.Claims.(*TokenClaims); ok && t.Valid {
 		return *claims, nil
 	} else {

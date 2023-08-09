@@ -9,7 +9,9 @@ const (
 	configType = "yaml"
 	configPath = "."
 
-	tempConfigPath = "C:\\Users\\Admin\\GolandProjects\\tuzi-tiktok\\internal\\service\\auth\\config"
+	tempConfigPath =
+	//"C:\\Users\\Admin\\GolandProjects\\tuzi-tiktok\\internal\\service\\auth\\config"
+	"E:\\Projektes\\go\\tuzi-tiktok\\internal\\service\\auth\\config\\"
 )
 
 const (

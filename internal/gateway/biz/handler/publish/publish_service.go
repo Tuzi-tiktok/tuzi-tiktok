@@ -7,6 +7,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"net/http"
+	"tuzi-tiktok/gateway/biz/model/auth"
+	feed "tuzi-tiktok/gateway/biz/model/feed"
 	publish "tuzi-tiktok/gateway/biz/model/publish"
 	kpublish "tuzi-tiktok/kitex/kitex_gen/publish"
 	"tuzi-tiktok/kitex/kitex_gen/publish/publishservice"
@@ -57,7 +59,6 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-
 	rp := &kpublish.PublishRequest{
 		Title:    req.Title,
 		Token:    req.Token,
@@ -86,8 +87,46 @@ func GetPublishList(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	r, err := pClient.GetPublishList(ctx, &kpublish.PublishListRequest{
+		Token:  req.Token,
+		UserId: req.UserId,
+	})
+	if err != nil {
+		c.String(consts.StatusBadRequest, err.Error())
+		return
+	}
 
-	resp := new(publish.PublishListResponse)
-
-	c.JSON(consts.StatusOK, resp)
+	videoList := make([]*feed.Video, len(r.VideoList))
+	for i := range videoList {
+		video := r.VideoList[i]
+		videoList[i] = &feed.Video{
+			Id:            video.Id,
+			Title:         video.Title,
+			PlayUrl:       video.PlayUrl,
+			CoverUrl:      video.CoverUrl,
+			CommentCount:  video.CommentCount,
+			FavoriteCount: video.FavoriteCount,
+			IsFavorite:    video.IsFavorite,
+			Author: &auth.User{
+				Id:              video.Author.Id,
+				Name:            video.Author.Name,
+				FollowCount:     video.Author.FollowCount,
+				FollowerCount:   video.Author.FollowerCount,
+				IsFollow:        video.Author.IsFollow,
+				Avatar:          video.Author.Avatar,
+				BackgroundImage: video.Author.BackgroundImage,
+				Signature:       video.Author.Signature,
+				TotalFavorited:  video.Author.TotalFavorited,
+				WorkCount:       video.Author.WorkCount,
+				FavoriteCount:   video.Author.FavoriteCount,
+			},
+		}
+	}
+	resp := publish.PublishListResponse{
+		StatusCode: r.StatusCode,
+		StatusMsg:  r.StatusMsg,
+		VideoList:  videoList,
+	}
+	logger.Debug(resp)
+	c.JSON(consts.StatusOK, &resp)
 }

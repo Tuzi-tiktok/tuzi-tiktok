@@ -19,7 +19,7 @@ func init() {
 	log.Println("- Load Config")
 	loadLocalConfig()
 	// TODO Simple Dev
-	loadRemoteConfig()
+	//loadRemoteConfig()
 	log.Println("- Load Completed")
 	// TODO DEBUG
 	log.Printf("Config Keys %v", VConfig.viper.AllKeys())

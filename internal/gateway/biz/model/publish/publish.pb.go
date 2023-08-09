@@ -11,23 +11,23 @@ import (
 )
 
 type PublishRequest struct {
-	Token string `json:"token,omitempty" form:"token" query:"token"` // 用户鉴权token
+	Token string `json:"token" form:"token" query:"token"` // 用户鉴权token
 	// bytes data = 2; // 视频数据
-	Title string `json:"title,omitempty" form:"title" query:"title"` // 视频标题
+	Title string `json:"title" form:"title" query:"title"` // 视频标题
 }
 
 type PublishResponse struct {
-	StatusCode int32   `json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  *string `json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`    // 返回状态描述
+	StatusCode int32   `json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  *string `json:"status_msg" form:"status_msg" query:"status_msg"`    // 返回状态描述
 }
 
 type PublishListRequest struct {
-	UserId int64  `json:"user_id,omitempty" form:"user_id" query:"user_id"` // 用户id
-	Token  string `json:"token,omitempty" form:"token" query:"token"`       // 用户鉴权token
+	UserId int64  `json:"user_id" form:"user_id" query:"user_id"` // 用户id
+	Token  string `json:"token" form:"token" query:"token"`       // 用户鉴权token
 }
 
 type PublishListResponse struct {
-	StatusCode int32         `json:"status_code,omitempty" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
-	StatusMsg  *string       `json:"status_msg,omitempty" form:"status_msg" query:"status_msg"`    // 返回状态描述
-	VideoList  []*feed.Video `json:"video_list,omitempty" form:"video_list" query:"video_list"`    // 用户发布的视频列表
+	StatusCode int32         `json:"status_code" form:"status_code" query:"status_code"` // 状态码，0-成功，其他值-失败
+	StatusMsg  *string       `json:"status_msg" form:"status_msg" query:"status_msg"`    // 返回状态描述
+	VideoList  []*feed.Video `json:"video_list" form:"video_list" query:"video_list"`    // 用户发布的视频列表
 }
