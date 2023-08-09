@@ -11,7 +11,7 @@ import (
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
-	Login(ctx context.Context, Req *auth.UserLoginRequest, callOptions ...callopt.Option) (r *auth.UserRegisterResponse, err error)
+	Login(ctx context.Context, Req *auth.UserLoginRequest, callOptions ...callopt.Option) (r *auth.UserLoginResponse, err error)
 	Register(ctx context.Context, Req *auth.UserRegisterRequest, callOptions ...callopt.Option) (r *auth.UserRegisterResponse, err error)
 	GetUserInfo(ctx context.Context, Req *auth.UserInfoRequest, callOptions ...callopt.Option) (r *auth.UserInfoResponse, err error)
 	TokenVerify(ctx context.Context, Req *auth.TokenVerifyRequest, callOptions ...callopt.Option) (r *auth.TokenVerifyResponse, err error)
@@ -46,7 +46,7 @@ type kAuthInfoServiceClient struct {
 	*kClient
 }
 
-func (p *kAuthInfoServiceClient) Login(ctx context.Context, Req *auth.UserLoginRequest, callOptions ...callopt.Option) (r *auth.UserRegisterResponse, err error) {
+func (p *kAuthInfoServiceClient) Login(ctx context.Context, Req *auth.UserLoginRequest, callOptions ...callopt.Option) (r *auth.UserLoginResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.Login(ctx, Req)
 }

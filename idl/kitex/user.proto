@@ -67,7 +67,7 @@ message TokenVerifyResponse{
 
 
 service AuthInfoService {
-  rpc Login(UserLoginRequest) returns(UserRegisterResponse) {
+  rpc Login(UserLoginRequest) returns(UserLoginResponse) {
   }
   rpc Register(UserRegisterRequest) returns (UserRegisterResponse){
 
