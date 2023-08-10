@@ -4,8 +4,8 @@ import (
 	"math"
 	"testing"
 	"time"
+	"tuzi-tiktok/secret"
 	"tuzi-tiktok/service/auth/tools"
-	"tuzi-tiktok/utils/secret"
 )
 
 func TestNewToken(t *testing.T) {
