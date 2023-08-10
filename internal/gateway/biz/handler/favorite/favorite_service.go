@@ -4,6 +4,10 @@ package favorite
 
 import (
 	"context"
+	"tuzi-tiktok/gateway/biz/err/global"
+	"tuzi-tiktok/gateway/biz/service"
+	kfavorite "tuzi-tiktok/kitex/kitex_gen/favorite"
+	"tuzi-tiktok/utils/mapstruct"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -15,14 +19,23 @@ import (
 func FavorVideo(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req favorite.FavoriteRequest
-	err = c.BindAndValidate(&req)
+	var handler = "FavorVideo"
+	err = c.Bind(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		return
+	}
+	R, err := service.ServiceSet.Favorite.FavorVideo(ctx, &kfavorite.FavoriteRequest{
+		Token:      req.Token,
+		VideoId:    req.VideoId,
+		ActionType: req.ActionType,
+	})
+	if err != nil {
+		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
 		return
 	}
 
-	resp := new(favorite.FavoriteResponse)
-
+	resp := mapstruct.ToFavoriteResponse(R)
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -31,13 +44,24 @@ func FavorVideo(ctx context.Context, c *app.RequestContext) {
 func GetFavoriteList(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req favorite.FavoriteListRequest
-	err = c.BindAndValidate(&req)
+	var handler = "GetFavoriteList"
+	err = c.Bind(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
 		return
 	}
 
-	resp := new(favorite.FavoriteListResponse)
+	R, err := service.ServiceSet.Favorite.GetFavoriteList(ctx, &kfavorite.FavoriteListRequest{
+		UserId: req.UserId,
+		Token:  req.Token,
+	})
+
+	if err != nil {
+		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		return
+	}
+
+	resp := mapstruct.ToFavoriteListResponse(R)
 
 	c.JSON(consts.StatusOK, resp)
 }

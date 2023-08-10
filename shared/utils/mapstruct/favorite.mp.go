@@ -22,7 +22,7 @@ func ToFavoriteListResponse(k *kfavorite.FavoriteListResponse) *favorite.Favorit
 	}
 }
 
-func ToFavoriteResponse(p *kfavorite.FavoriteListResponse) *favorite.FavoriteResponse {
+func ToFavoriteResponse(p *kfavorite.FavoriteResponse) *favorite.FavoriteResponse {
 	if p == nil {
 		return nil
 	}

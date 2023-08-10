@@ -4,6 +4,7 @@ package auth
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
+	"tuzi-tiktok/gateway/biz/router/control"
 )
 
 func rootMw() []app.HandlerFunc {
@@ -23,7 +24,9 @@ func _userMw() []app.HandlerFunc {
 
 func _getuserinfoMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{
+		control.Authentication(),
+	}
 }
 
 func _loginMw() []app.HandlerFunc {
