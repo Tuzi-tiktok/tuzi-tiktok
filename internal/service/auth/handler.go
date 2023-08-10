@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"time"
-	commonAuth "tuzi-tiktok/auth"
 	"tuzi-tiktok/dao/model"
 	"tuzi-tiktok/dao/query"
 	auth "tuzi-tiktok/kitex/kitex_gen/auth"
 	"tuzi-tiktok/logger"
+	"tuzi-tiktok/secret"
 	"tuzi-tiktok/service/auth/tools"
 )
 
@@ -53,7 +53,7 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 	uid := u[0].ID
 	logger.Infof("user: %s, uid: %d", req.Username, uid)
 
-	payload := commonAuth.TokenPayload{
+	payload := secret.TokenPayload{
 		UID: uid,
 	}
 	exp := time.Now().Add(time.Hour * 24 * 14)
@@ -138,7 +138,7 @@ func (s *AuthInfoServiceImpl) Register(ctx context.Context, req *auth.UserRegist
 	uid := u.ID
 	logger.Infof("user: %s, uid: %d", req.Username, uid)
 
-	payload := commonAuth.TokenPayload{
+	payload := secret.TokenPayload{
 		UID: uid,
 	}
 	exp := time.Now().Add(time.Hour * 24 * 14)
@@ -169,7 +169,7 @@ func (s *AuthInfoServiceImpl) GetUserInfo(ctx context.Context, req *auth.UserInf
 	logger.Infof("get user info, uid: %d", req.UserId)
 
 	// check token
-	c, err := tools.ParseToken(req.Token)
+	c, err := secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Errorf("failed to parse token: %s, err: %v", req.Token, err)
 		msg := tools.InvalidTokenMsg
@@ -284,7 +284,7 @@ func (s *AuthInfoServiceImpl) GetUserInfo(ctx context.Context, req *auth.UserInf
 func (s *AuthInfoServiceImpl) TokenVerify(ctx context.Context, req *auth.TokenVerifyRequest) (resp *auth.TokenVerifyResponse, err error) {
 	logger.Infof("verify token: %s", req.Token)
 
-	token, err := tools.ParseToken(req.Token)
+	token, err := secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Errorf("failed to parse token: %s, err: %v", req.Token, err)
 		msg := tools.InvalidTokenMsg

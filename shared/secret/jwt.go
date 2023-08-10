@@ -1,9 +1,9 @@
-package auth
+package secret
 
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/spf13/viper"
+	cfg "tuzi-tiktok/config"
 )
 
 type TokenPayload struct {
@@ -16,27 +16,14 @@ type TokenClaims struct {
 }
 
 const (
-	configName    = "jwt"
-	configType    = "yaml"
-	configPath    = "."
-	jwtPubConfKey = "JWTPublicKey"
-
-	tempConfigPath = `C:\Users\Admin\GolandProjects\tuzi-tiktok\shared\auth`
+	jwtPubConfKey = "secret.JWTPublicKey"
 )
 
-var JWTPublicKey string
+var jWTPublicKey string
 
 func init() {
-	v := viper.New()
-	v.SetConfigName(configName)
-	v.SetConfigType(configType)
-	v.AddConfigPath(configPath)
-	v.AddConfigPath(tempConfigPath)
-	err := v.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-	err = v.UnmarshalKey(jwtPubConfKey, &JWTPublicKey)
+	v := cfg.VConfig.GetViper()
+	err := v.UnmarshalKey(jwtPubConfKey, &jWTPublicKey)
 	if err != nil {
 		panic(err)
 	}
@@ -44,7 +31,7 @@ func init() {
 
 func ParseToken(token string) (claims TokenClaims, err error) {
 	t, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
-		return jwt.ParseECPublicKeyFromPEM([]byte(JWTPublicKey))
+		return jwt.ParseECPublicKeyFromPEM([]byte(jWTPublicKey))
 	}, jwt.WithValidMethods([]string{"ES256"}))
 
 	if err != nil {

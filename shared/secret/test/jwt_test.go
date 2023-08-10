@@ -2,7 +2,7 @@ package test
 
 import (
 	"testing"
-	"tuzi-tiktok/auth"
+	"tuzi-tiktok/secret"
 )
 
 const (
@@ -10,7 +10,7 @@ const (
 )
 
 func TestParseToken(t *testing.T) {
-	token, err := auth.ParseToken(testToken)
+	token, err := secret.ParseToken(testToken)
 	if err != nil {
 		t.Error(err)
 	} else {

@@ -28,3 +28,9 @@ oss:
     endpoint: "127.0.0.1:9092"
     bucket: tiktok
     storagePath: "E:/Merge/Tuzi-TikTok/lfs"
+secret:
+  JWTPublicKey: |-
+    -----BEGIN EC PUBLIC KEY-----
+    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEB5RL++OQZiutQsytDuw/c7xhSpH1
+    pGbnRJswMRecPsAl+A7Qu7rFx3oUSGdGjelZAmOf966WB4pU9eiLXIAu8Q==
+    -----END EC PUBLIC KEY-----

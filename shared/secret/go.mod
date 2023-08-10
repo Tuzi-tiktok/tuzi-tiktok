@@ -1,4 +1,4 @@
-module tuzi-tiktok/auth
+module tuzi-tiktok/secret
 
 go 1.20
 
