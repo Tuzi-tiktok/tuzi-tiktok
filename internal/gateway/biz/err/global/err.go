@@ -17,7 +17,7 @@ func (u *UniformException) Error() string {
 }
 
 func (u *UniformException) WithError(e error) *UniformException {
-	logger.Errorf("Handler Name is: %v With Err %v", u.HandlerName, e)
+	logger.Errorf("Handler Name is: %v With Err :%v", u.HandlerName, e)
 	u.TraceError = e
 	return u
 }

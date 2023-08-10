@@ -4,6 +4,7 @@ package publish
 
 import (
 	"context"
+	"errors"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"mime/multipart"
@@ -44,7 +45,7 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 
 	r := service.ServiceSet.Transfer.Put(video.Filename, file)
 	if !r.Ok {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithError(errors.New("Transfer error occurred ")).WithHandler(handler))
 		return
 	}
 

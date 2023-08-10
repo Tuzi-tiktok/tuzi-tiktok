@@ -4,6 +4,7 @@ package message
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
+	"tuzi-tiktok/gateway/biz/router/control"
 )
 
 func rootMw() []app.HandlerFunc {
@@ -18,7 +19,9 @@ func _douyinMw() []app.HandlerFunc {
 
 func _messageMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{
+		control.Authentication(),
+	}
 }
 
 func _actionMw() []app.HandlerFunc {

@@ -4,6 +4,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"tuzi-tiktok/gateway/biz/err/global"
@@ -35,7 +36,7 @@ func Login(ctx context.Context, c *app.RequestContext) {
 	}
 
 	if req.Username == "" || req.Password == "" || len(req.Password) > 32 {
-		_ = c.Error(global.ParameterValidationError.WithWarn(err).WithHandler(handlerName))
+		_ = c.Error(global.ParameterValidationError.WithWarn(errors.New("username or password not validated ")).WithHandler(handlerName))
 		return
 	}
 
