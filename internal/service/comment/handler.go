@@ -142,6 +142,57 @@ func (s *CommentServiceImpl) Comment(ctx context.Context, req *comment.CommentRe
 
 // GetCommentList implements the CommentServiceImpl interface.
 func (s *CommentServiceImpl) GetCommentList(ctx context.Context, req *comment.CommentListRequest) (resp *comment.CommentListResponse, err error) {
-	// TODO: Your code here...
-	return
+	logger.Infof("get comment list of video: %d", req.VideoId)
+
+	// check token
+	_, err = secret.ParseToken(req.Token)
+	if err != nil {
+		logger.Infof("failed to parse token, err: %v", err)
+		resp = &comment.CommentListResponse{
+			StatusCode: consts.CommentInvalidToken,
+			StatusMsg:  &consts.CommentInvalidTokenMsg,
+		}
+		return resp, nil
+	}
+
+	// get comment list
+	c, e := qComment.WithContext(ctx).Where(qComment.Vid.Eq(req.VideoId)).Select().Find()
+	if e != nil {
+		logger.Errorf("failed to query comment by vid: %d, err: %v", req.VideoId, err)
+		return nil, e
+	}
+	logger.Infof("get %d comments", len(c))
+
+	var commentList []*comment.Comment
+	for _, v := range c {
+		info, e := authClient.GetUserInfo(ctx, &rpcAuth.UserInfoRequest{
+			UserId: v.UID,
+			Token:  req.Token,
+		})
+		if e != nil {
+			logger.Errorf("failed to get user info, err: %v", e)
+			return nil, e
+		}
+		if info.StatusCode != 0 {
+			logger.Errorf("failed to get user info, status code: %d, status msg: %s", info.StatusCode, *info.StatusMsg)
+			resp = &comment.CommentListResponse{
+				StatusCode: info.StatusCode,
+				StatusMsg:  info.StatusMsg,
+			}
+			return resp, nil
+		}
+		commentList = append(commentList, &comment.Comment{
+			Id:         v.ID,
+			User:       info.User,
+			Content:    v.Content,
+			CreateDate: v.CreatedAt.Format("01-02"),
+		})
+	}
+
+	resp = &comment.CommentListResponse{
+		StatusCode:  consts.CommentSucceed,
+		StatusMsg:   &consts.CommentSucceedMsg,
+		CommentList: commentList,
+	}
+	return resp, nil
 }
