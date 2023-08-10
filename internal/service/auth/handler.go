@@ -10,6 +10,7 @@ import (
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/secret"
 	"tuzi-tiktok/service/auth/tools"
+	consts "tuzi-tiktok/utils/consts/auth"
 )
 
 // AuthInfoServiceImpl implements the last service interface defined in the IDL.
@@ -23,32 +24,25 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 	u, err := user.WithContext(ctx).Where(user.Username.Eq(req.Username)).Select().Find()
 	if err != nil {
 		logger.Errorf("failed to query user by username: %s, err: %v", req.Username, err)
-		msg := tools.ServiceUnavailableMsg
-		resp = &auth.UserLoginResponse{
-			StatusCode: tools.ServiceUnavailable,
-			StatusMsg:  &msg,
-		}
-		return
+		return nil, err
 	}
 	if len(u) == 0 {
 		logger.Infof("user: %s not exist", req.Username)
-		msg := tools.UserNotExistMsg
 		resp = &auth.UserLoginResponse{
-			StatusCode: tools.UserNotExist,
-			StatusMsg:  &msg,
+			StatusCode: consts.AuthUserNotExist,
+			StatusMsg:  &consts.AuthUserNotExistMsg,
 		}
-		return
+		return resp, nil
 	}
 
 	pwd := tools.HashPwd(req.Password)
 	if pwd != u[0].Password {
 		logger.Infof("user: %s password error", req.Username)
-		msg := tools.WrongPwdMsg
 		resp = &auth.UserLoginResponse{
-			StatusCode: tools.WrongPwd,
-			StatusMsg:  &msg,
+			StatusCode: consts.AuthWrongPwd,
+			StatusMsg:  &consts.AuthWrongPwdMsg,
 		}
-		return
+		return resp, nil
 	}
 
 	uid := u[0].ID
@@ -61,24 +55,17 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 	token, err := tools.NewToken(payload, exp)
 	if err != nil {
 		logger.Errorf("failed to generate token for user: %s, err: %v", req.Username, err)
-		msg := tools.InternalServerErrorMsg
-		resp = &auth.UserLoginResponse{
-			StatusCode: tools.InternalServerError,
-			StatusMsg:  &msg,
-		}
-		return
+		return nil, err
 	}
 
 	logger.Infof("login user: %s success", req.Username)
-	msg := tools.SuccessMsg
 	resp = &auth.UserLoginResponse{
-		StatusCode: tools.Success,
-		StatusMsg:  &msg,
+		StatusCode: consts.AuthSucceed,
+		StatusMsg:  &consts.AuthSucceedMsg,
 		UserId:     uid,
 		Token:      token,
 	}
-
-	return
+	return resp, nil
 }
 
 // Register implements the AuthInfoServiceImpl interface.
@@ -90,22 +77,16 @@ func (s *AuthInfoServiceImpl) Register(ctx context.Context, req *auth.UserRegist
 	existedUser, err := user.WithContext(ctx).Where(user.Username.Eq(req.Username)).Select().Find()
 	if err != nil {
 		logger.Errorf("failed to query user by username: %s, err: %v", req.Username, err)
-		msg := tools.ServiceUnavailableMsg
-		resp = &auth.UserRegisterResponse{
-			StatusCode: tools.ServiceUnavailable,
-			StatusMsg:  &msg,
-		}
-		return
+		return nil, err
 	}
 
 	if len(existedUser) > 0 {
 		logger.Infof("user: %s has been registered", req.Username)
-		msg := tools.UserExistedMsg
 		resp = &auth.UserRegisterResponse{
-			StatusCode: tools.UserExisted,
-			StatusMsg:  &msg,
+			StatusCode: consts.AuthUserExisted,
+			StatusMsg:  &consts.AuthUserExistedMsg,
 		}
-		return
+		return resp, nil
 	}
 
 	pwd := tools.HashPwd(req.Password)
@@ -116,12 +97,7 @@ func (s *AuthInfoServiceImpl) Register(ctx context.Context, req *auth.UserRegist
 	err = user.WithContext(ctx).Clauses(clause.Returning{}).Create(&newUser)
 	if err != nil {
 		logger.Errorf("failed to save user: %s, err: %v", req.Username, err)
-		msg := tools.ServiceUnavailableMsg
-		resp = &auth.UserRegisterResponse{
-			StatusCode: tools.ServiceUnavailable,
-			StatusMsg:  &msg,
-		}
-		return
+		return nil, err
 	}
 
 	uid := newUser.ID
@@ -134,23 +110,16 @@ func (s *AuthInfoServiceImpl) Register(ctx context.Context, req *auth.UserRegist
 	token, err := tools.NewToken(payload, exp)
 	if err != nil {
 		logger.Errorf("failed to generate token for user: %s, err: %v", req.Username, err)
-		msg := tools.InternalServerErrorMsg
-		resp = &auth.UserRegisterResponse{
-			StatusCode: tools.InternalServerError,
-			StatusMsg:  &msg,
-		}
-		return
+		return nil, err
 	}
 
-	msg := tools.SuccessMsg
 	resp = &auth.UserRegisterResponse{
-		StatusCode: tools.Success,
-		StatusMsg:  &msg,
+		StatusCode: consts.AuthSucceed,
+		StatusMsg:  &consts.AuthSucceedMsg,
 		UserId:     uid,
 		Token:      token,
 	}
-
-	return
+	return resp, nil
 }
 
 // GetUserInfo implements the AuthInfoServiceImpl interface.
@@ -161,12 +130,11 @@ func (s *AuthInfoServiceImpl) GetUserInfo(ctx context.Context, req *auth.UserInf
 	c, err := secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Errorf("failed to parse token: %s, err: %v", req.Token, err)
-		msg := tools.InvalidTokenMsg
 		resp = &auth.UserInfoResponse{
-			StatusCode: tools.InvalidToken,
-			StatusMsg:  &msg,
+			StatusCode: consts.AuthInvalidToken,
+			StatusMsg:  &consts.AuthInvalidTokenMsg,
 		}
-		return
+		return resp, nil
 	}
 
 	logger.Infof("user %v seeking for user %v info", c.Payload.UID, req.UserId)
@@ -176,21 +144,15 @@ func (s *AuthInfoServiceImpl) GetUserInfo(ctx context.Context, req *auth.UserInf
 	u, err := user.WithContext(ctx).Where(user.ID.Eq(req.UserId)).Select().Find()
 	if err != nil {
 		logger.Errorf("failed to query user by uid: %d, err: %v", req.UserId, err)
-		msg := tools.ServiceUnavailableMsg
-		resp = &auth.UserInfoResponse{
-			StatusCode: tools.ServiceUnavailable,
-			StatusMsg:  &msg,
-		}
-		return
+		return nil, err
 	}
 	if len(u) == 0 {
 		logger.Infof("user: %d not found", req.UserId)
-		msg := tools.UserNotExistMsg
 		resp = &auth.UserInfoResponse{
-			StatusCode: tools.UserNotExist,
-			StatusMsg:  &msg,
+			StatusCode: consts.AuthUserNotExist,
+			StatusMsg:  &consts.AuthUserNotExistMsg,
 		}
-		return
+		return resp, nil
 	}
 
 	// check if the user is followed by the current user
@@ -199,12 +161,7 @@ func (s *AuthInfoServiceImpl) GetUserInfo(ctx context.Context, req *auth.UserInf
 	f, err := follow.WithContext(ctx).Where(follow.FollowerID.Eq(c.Payload.UID), follow.FollowingID.Eq(req.UserId)).Select().Find()
 	if err != nil {
 		logger.Errorf("failed to query follow relation, follower: %d, following: %d, err: %v", c.Payload.UID, req.UserId, err)
-		msg := tools.ServiceUnavailableMsg
-		resp = &auth.UserInfoResponse{
-			StatusCode: tools.ServiceUnavailable,
-			StatusMsg:  &msg,
-		}
-		return
+		return nil, err
 	}
 	if len(f) > 0 {
 		isFollowed = true
@@ -247,10 +204,9 @@ func (s *AuthInfoServiceImpl) GetUserInfo(ctx context.Context, req *auth.UserInf
 	}
 
 	logger.Infof("get user info success, uid: %d", req.UserId)
-	msg := tools.SuccessMsg
 	resp = &auth.UserInfoResponse{
-		StatusCode: tools.Success,
-		StatusMsg:  &msg,
+		StatusCode: consts.AuthSucceed,
+		StatusMsg:  &consts.AuthSucceedMsg,
 		User: &auth.User{
 			Id:              u[0].ID,
 			Name:            u[0].Username,
@@ -265,8 +221,7 @@ func (s *AuthInfoServiceImpl) GetUserInfo(ctx context.Context, req *auth.UserInf
 			FavoriteCount:   favoriteCount,
 		},
 	}
-
-	return
+	return resp, nil
 }
 
 // TokenVerify implements the AuthInfoServiceImpl interface.
@@ -276,21 +231,18 @@ func (s *AuthInfoServiceImpl) TokenVerify(ctx context.Context, req *auth.TokenVe
 	token, err := secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Errorf("failed to parse token: %s, err: %v", req.Token, err)
-		msg := tools.InvalidTokenMsg
 		resp = &auth.TokenVerifyResponse{
-			StatusCode: tools.InvalidToken,
-			StatusMsg:  &msg,
+			StatusCode: consts.AuthInvalidToken,
+			StatusMsg:  &consts.AuthInvalidTokenMsg,
 		}
-		return
+		return resp, nil
 	}
 
 	logger.Infof("token: %s is valid", req.Token)
-	msg := tools.SuccessMsg
 	resp = &auth.TokenVerifyResponse{
-		StatusCode: tools.Success,
-		StatusMsg:  &msg,
+		StatusCode: consts.AuthSucceed,
+		StatusMsg:  &consts.AuthSucceedMsg,
 		UserId:     token.Payload.UID,
 	}
-
-	return
+	return resp, nil
 }
