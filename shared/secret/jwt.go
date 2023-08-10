@@ -27,7 +27,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
 }
 
 func ParseToken(token string) (claims TokenClaims, err error) {

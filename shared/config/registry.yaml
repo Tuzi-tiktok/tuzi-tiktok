@@ -29,13 +29,6 @@ oss:
     bucket: tiktok
     storagePath: "E:/Merge/Tuzi-TikTok/lfs"
 secret:
-  PwdSalt: 'tuzi-8E^BRXb668Rxx7i#oka&m5*!'
-  JWTPrivateKey: |-
-    -----BEGIN EC PRIVATE KEY-----
-    MHcCAQEEIEguqQdW5sWPxHUFvPiY8wenJv7qFn6UUpjs3tJGoQOcoAoGCCqGSM49
-    AwEHoUQDQgAEB5RL++OQZiutQsytDuw/c7xhSpH1pGbnRJswMRecPsAl+A7Qu7rF
-    x3oUSGdGjelZAmOf966WB4pU9eiLXIAu8Q==
-    -----END EC PRIVATE KEY-----
   JWTPublicKey: |-
     -----BEGIN EC PUBLIC KEY-----
     MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEB5RL++OQZiutQsytDuw/c7xhSpH1
