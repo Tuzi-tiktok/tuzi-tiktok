@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"path"
 	"strings"
 )
 
@@ -17,6 +18,7 @@ var localConfig map[string]interface{}
 
 func init() {
 	determineEnv()
+	CandidateConfigPath = path.Join(DeterminePath(), CandidateConfigPath)
 	log.Println(fmt.Sprintf("- Load %v Config", strings.ToUpper(ConfigEnv)))
 	loadLocalConfig()
 	// TODO Simple Dev
@@ -37,10 +39,7 @@ func loadLocalConfig() {
 	v.SetConfigName(DefaultConfigName)
 	v.SetConfigType(DefaultConfigType)
 	v.AddConfigPath(DefaultConfigPath)
-
-	for i := range CandidateConfigPath {
-		v.AddConfigPath(CandidateConfigPath[i])
-	}
+	v.AddConfigPath(CandidateConfigPath)
 	SetDefault(v)
 	if err := v.ReadInConfig(); err != nil {
 		log.Printf("Can't Find Config %v.%v", DefaultConfigName, DefaultConfigType)
