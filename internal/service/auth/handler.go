@@ -14,7 +14,7 @@ import (
 type AuthInfoServiceImpl struct{}
 
 // Login implements the AuthInfoServiceImpl interface.
-func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequest) (resp *auth.UserRegisterResponse, err error) {
+func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequest) (resp *auth.UserLoginResponse, err error) {
 	logger.Infof("login user: %s", req.Username)
 
 	user := query.Q.User
@@ -22,7 +22,7 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 	if err != nil {
 		logger.Errorf("failed to query user by username: %s, err: %v", req.Username, err)
 		msg := tools.ServiceUnavailableMsg
-		resp = &auth.UserRegisterResponse{
+		resp = &auth.UserLoginResponse{
 			StatusCode: tools.ServiceUnavailable,
 			StatusMsg:  &msg,
 		}
@@ -31,7 +31,7 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 	if len(u) == 0 {
 		logger.Infof("user: %s not exist", req.Username)
 		msg := tools.UserNotExistMsg
-		resp = &auth.UserRegisterResponse{
+		resp = &auth.UserLoginResponse{
 			StatusCode: tools.UserNotExist,
 			StatusMsg:  &msg,
 		}
@@ -42,7 +42,7 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 	if pwd != u[0].Password {
 		logger.Infof("user: %s password error", req.Username)
 		msg := tools.WrongPwdMsg
-		resp = &auth.UserRegisterResponse{
+		resp = &auth.UserLoginResponse{
 			StatusCode: tools.WrongPwd,
 			StatusMsg:  &msg,
 		}
@@ -60,7 +60,7 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 	if err != nil {
 		logger.Errorf("failed to generate token for user: %s, err: %v", req.Username, err)
 		msg := tools.InternalServerErrorMsg
-		resp = &auth.UserRegisterResponse{
+		resp = &auth.UserLoginResponse{
 			StatusCode: tools.InternalServerError,
 			StatusMsg:  &msg,
 		}
@@ -69,7 +69,7 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 
 	logger.Infof("login user: %s success", req.Username)
 	msg := tools.SuccessMsg
-	resp = &auth.UserRegisterResponse{
+	resp = &auth.UserLoginResponse{
 		StatusCode: tools.Success,
 		StatusMsg:  &msg,
 		UserId:     uid,
