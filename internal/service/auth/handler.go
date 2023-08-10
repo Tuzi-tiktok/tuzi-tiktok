@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"gorm.io/gorm/clause"
 	"time"
 	"tuzi-tiktok/dao/model"
 	"tuzi-tiktok/dao/query"
@@ -112,7 +113,7 @@ func (s *AuthInfoServiceImpl) Register(ctx context.Context, req *auth.UserRegist
 		Username: req.Username,
 		Password: pwd,
 	}
-	err = user.WithContext(ctx).Save(&newUser)
+	err = user.WithContext(ctx).Clauses(clause.Returning{}).Create(&newUser)
 	if err != nil {
 		logger.Errorf("failed to save user: %s, err: %v", req.Username, err)
 		msg := tools.ServiceUnavailableMsg
@@ -123,20 +124,8 @@ func (s *AuthInfoServiceImpl) Register(ctx context.Context, req *auth.UserRegist
 		return
 	}
 
-	logger.Infof("register user: %s success", req.Username)
-
-	u, err := user.WithContext(ctx).Where(user.Username.Eq(req.Username)).Select().First()
-	if err != nil {
-		logger.Errorf("failed to query user by username: %s, err: %v", req.Username, err)
-		msg := tools.ServiceUnavailableMsg
-		resp = &auth.UserRegisterResponse{
-			StatusCode: tools.ServiceUnavailable,
-			StatusMsg:  &msg,
-		}
-		return
-	}
-	uid := u.ID
-	logger.Infof("user: %s, uid: %d", req.Username, uid)
+	uid := newUser.ID
+	logger.Infof("register user: %v success, uid: %v", req.Username, uid)
 
 	payload := secret.TokenPayload{
 		UID: uid,
