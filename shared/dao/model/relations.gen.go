@@ -19,7 +19,7 @@ type Relation struct {
 	FollowingID int64          `gorm:"column:following_id;not null;index:following_id,priority:1;comment:被关注者id" json:"following_id"` // 被关注者id
 	CreatedAt   *time.Time     `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   *time.Time     `gorm:"column:updated_at" json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"column:deleted_at;default:CURRENT_TIMESTAMP" json:"deleted_at"`
+	DeletedAt   gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
 }
 
 // TableName Relation's table name
