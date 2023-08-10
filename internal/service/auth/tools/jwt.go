@@ -4,21 +4,13 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
+	"tuzi-tiktok/auth"
 	"tuzi-tiktok/service/auth/config"
 	"tuzi-tiktok/utils"
 )
 
-type TokenPayload struct {
-	UID int64
-}
-
-type TokenClaims struct {
-	Payload TokenPayload
-	jwt.RegisteredClaims
-}
-
-func NewToken(tokenPayload TokenPayload, expAt time.Time) (string, error) {
-	claims := TokenClaims{
+func NewToken(tokenPayload auth.TokenPayload, expAt time.Time) (string, error) {
+	claims := auth.TokenClaims{
 		Payload: tokenPayload,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    utils.Auth(),
@@ -32,7 +24,7 @@ func NewToken(tokenPayload TokenPayload, expAt time.Time) (string, error) {
 	return token, err
 }
 
-func ParseToken(token string) (claims TokenClaims, err error) {
+func ParseToken(token string) (claims auth.TokenClaims, err error) {
 	t, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
 		return jwt.ParseECPublicKeyFromPEM([]byte(config.SecretConfig.JWTPublicKey))
 	}, jwt.WithValidMethods([]string{"ES256"}))
@@ -41,9 +33,9 @@ func ParseToken(token string) (claims TokenClaims, err error) {
 		return
 	}
 
-	if claims, ok := t.Claims.(*TokenClaims); ok && t.Valid {
+	if claims, ok := t.Claims.(*auth.TokenClaims); ok && t.Valid {
 		return *claims, nil
 	} else {
-		return TokenClaims{}, fmt.Errorf("invalid token")
+		return auth.TokenClaims{}, fmt.Errorf("invalid token")
 	}
 }

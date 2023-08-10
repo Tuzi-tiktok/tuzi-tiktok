@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"time"
+	commonAuth "tuzi-tiktok/auth"
 	"tuzi-tiktok/dao/model"
 	"tuzi-tiktok/dao/query"
 	auth "tuzi-tiktok/kitex/kitex_gen/auth"
@@ -52,7 +53,7 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 	uid := u[0].ID
 	logger.Infof("user: %s, uid: %d", req.Username, uid)
 
-	payload := tools.TokenPayload{
+	payload := commonAuth.TokenPayload{
 		UID: uid,
 	}
 	exp := time.Now().Add(time.Hour * 24 * 14)
@@ -137,7 +138,7 @@ func (s *AuthInfoServiceImpl) Register(ctx context.Context, req *auth.UserRegist
 	uid := u.ID
 	logger.Infof("user: %s, uid: %d", req.Username, uid)
 
-	payload := tools.TokenPayload{
+	payload := commonAuth.TokenPayload{
 		UID: uid,
 	}
 	exp := time.Now().Add(time.Hour * 24 * 14)
@@ -281,6 +282,26 @@ func (s *AuthInfoServiceImpl) GetUserInfo(ctx context.Context, req *auth.UserInf
 
 // TokenVerify implements the AuthInfoServiceImpl interface.
 func (s *AuthInfoServiceImpl) TokenVerify(ctx context.Context, req *auth.TokenVerifyRequest) (resp *auth.TokenVerifyResponse, err error) {
-	// TODO: Your code here...
+	logger.Infof("verify token: %s", req.Token)
+
+	token, err := tools.ParseToken(req.Token)
+	if err != nil {
+		logger.Errorf("failed to parse token: %s, err: %v", req.Token, err)
+		msg := tools.InvalidTokenMsg
+		resp = &auth.TokenVerifyResponse{
+			StatusCode: tools.InvalidToken,
+			StatusMsg:  &msg,
+		}
+		return
+	}
+
+	logger.Infof("token: %s is valid", req.Token)
+	msg := tools.SuccessMsg
+	resp = &auth.TokenVerifyResponse{
+		StatusCode: tools.Success,
+		StatusMsg:  &msg,
+		UserId:     token.Payload.UID,
+	}
+
 	return
 }
