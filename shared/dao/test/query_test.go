@@ -16,3 +16,13 @@ func TestQuery(t *testing.T) {
 		log.Printf("%v", user)
 	}
 }
+func TestRelation(t *testing.T) {
+	relations, err := query.Relation.Find()
+	if err != nil {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+	for _, user := range relations {
+		log.Printf("%v", user)
+	}
+}

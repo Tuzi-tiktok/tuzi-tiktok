@@ -4,6 +4,10 @@ package comment
 
 import (
 	"context"
+	"tuzi-tiktok/gateway/biz/err/global"
+	"tuzi-tiktok/gateway/biz/service"
+	kcomment "tuzi-tiktok/kitex/kitex_gen/comment"
+	"tuzi-tiktok/utils/mapstruct"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -13,15 +17,30 @@ import (
 // Comment .
 // @router /douyin/comment/action/ [POST]
 func Comment(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req comment.CommentRequest
-	err = c.BindAndValidate(&req)
+	var (
+		req     comment.CommentRequest
+		handler = "Comment"
+	)
+	err := c.Bind(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
 		return
 	}
 
-	resp := new(comment.CommentResponse)
+	R, err := service.ServiceSet.Comment.Comment(ctx, &kcomment.CommentRequest{
+		Token:       req.Token,
+		VideoId:     req.VideoId,
+		ActionType:  req.ActionType,
+		CommentText: req.CommentText,
+		CommentId:   req.CommentId,
+	})
+
+	if err != nil {
+		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		return
+	}
+
+	resp := mapstruct.ToCommentResponse(R)
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -29,15 +48,25 @@ func Comment(ctx context.Context, c *app.RequestContext) {
 // GetCommentList .
 // @router /douyin/comment/list/ [GET]
 func GetCommentList(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req comment.CommentListRequest
-	err = c.BindAndValidate(&req)
+	var handler = "GetCommentList"
+	err := c.Bind(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
 		return
 	}
 
-	resp := new(comment.CommentListResponse)
+	R, err := service.ServiceSet.Comment.GetCommentList(ctx, &kcomment.CommentListRequest{
+		Token:   req.Token,
+		VideoId: req.VideoId,
+	})
+
+	if err != nil {
+		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		return
+	}
+
+	resp := mapstruct.ToCommentListResponse(R)
 
 	c.JSON(consts.StatusOK, resp)
 }

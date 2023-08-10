@@ -4,10 +4,13 @@ package feed
 
 import (
 	"context"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"tuzi-tiktok/gateway/biz/err/global"
 	feed "tuzi-tiktok/gateway/biz/model/feed"
+	"tuzi-tiktok/gateway/biz/service"
+	feed2 "tuzi-tiktok/kitex/kitex_gen/feed"
+	"tuzi-tiktok/utils/mapstruct"
 )
 
 // GetFeedList .
@@ -15,13 +18,21 @@ import (
 func GetFeedList(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req feed.FeedRequest
+	var handler = "GetFeedList"
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
 		return
 	}
 
-	resp := new(feed.FeedResponse)
-
+	R, err := service.ServiceSet.Feed.GetFeedList(ctx, &feed2.FeedRequest{
+		LatestTime: req.LatestTime,
+		Token:      req.Token,
+	})
+	if err != nil {
+		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		return
+	}
+	resp := mapstruct.ToFeedResponse(R)
 	c.JSON(consts.StatusOK, resp)
 }

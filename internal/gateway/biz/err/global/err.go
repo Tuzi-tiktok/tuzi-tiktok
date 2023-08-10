@@ -28,6 +28,11 @@ func (u *UniformException) WithWarn(e error) *UniformException {
 	return u
 }
 
+func (u *UniformException) WithHandler(e string) *UniformException {
+	u.HandlerName = e
+	return u
+}
+
 func NewUException(httpCode int, msg string, code int) *UniformException {
 	return &UniformException{
 		HttpStatusCode:     httpCode,

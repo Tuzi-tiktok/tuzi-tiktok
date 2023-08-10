@@ -6,74 +6,58 @@ import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"net/http"
-	publish "tuzi-tiktok/gateway/biz/model/publish"
+	"mime/multipart"
+	"tuzi-tiktok/gateway/biz/err/global"
+	"tuzi-tiktok/gateway/biz/model/publish"
+	"tuzi-tiktok/gateway/biz/service"
 	kpublish "tuzi-tiktok/kitex/kitex_gen/publish"
-	"tuzi-tiktok/kitex/kitex_gen/publish/publishservice"
-	"tuzi-tiktok/logger"
-	"tuzi-tiktok/service/filetransfer/client"
-	"tuzi-tiktok/utils"
 	"tuzi-tiktok/utils/mapstruct"
 )
-
-var (
-	transfer client.Transfer
-	pClient  publishservice.Client
-)
-
-func init() {
-	var err error
-	transfer = client.NewTransfer()
-	pClient, err = utils.NewPublish()
-	if err != nil {
-		panic(err)
-	}
-}
 
 // PublishVideo .
 // @router /douyin/publish/action/ [POST]
 func PublishVideo(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req publish.PublishRequest
-	err = c.Bind(&req)
+	err := c.Bind(&req)
+	var handler = "PublishVideo"
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
 		return
 	}
 	form, err := c.MultipartForm()
 	if err != nil || len(form.File) == 0 || len(form.File["data"]) == 0 {
-		logger.Error("MultipartForm Occurrence Error")
-		c.String(http.StatusBadRequest, err.Error())
+		_ = c.Error(global.MultipartFormError.WithWarn(err).WithHandler(handler))
 		return
 	}
 	video := form.File["data"][0]
 	file, err := video.Open()
 	if err != nil {
+		_ = c.Error(global.MultipartFileOpenError.WithWarn(err).WithHandler(handler))
 		return
 	}
-	defer file.Close()
-	r := transfer.Put(video.Filename, file)
+	defer func(file multipart.File) {
+		err := file.Close()
+		if err != nil {
+			_ = c.Error(global.MultipartFileCloseError.WithError(err).WithHandler(handler))
+		}
+	}(file)
+
+	r := service.ServiceSet.Transfer.Put(video.Filename, file)
 	if !r.Ok {
-		logger.Error("Error RPC Call")
-		c.Status(http.StatusBadRequest)
+		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
 		return
 	}
 
-	rp := &kpublish.PublishRequest{
+	R, err := service.ServiceSet.Publish.PublishVideo(ctx, &kpublish.PublishRequest{
 		Title:    req.Title,
 		Token:    req.Token,
 		VideoUrl: r.Url,
-	}
-	rpcResp, err := pClient.PublishVideo(ctx, rp)
+	})
 	if err != nil {
-		logger.Error(err)
-		c.String(http.StatusBadRequest, err.Error())
+		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
 		return
 	}
-	resp := publish.PublishResponse{
-		StatusCode: rpcResp.StatusCode,
-		StatusMsg:  rpcResp.StatusMsg,
-	}
+	resp := mapstruct.ToPublishResponse(R)
 	c.JSON(consts.StatusOK, resp)
 
 }
@@ -81,53 +65,21 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 // GetPublishList .
 // @router /douyin/publish/list/ [GET]
 func GetPublishList(ctx context.Context, c *app.RequestContext) {
-	var err error
 	var req publish.PublishListRequest
-	err = c.BindAndValidate(&req)
+	var handler = "GetPublishList"
+	err := c.BindAndValidate(&req)
 	if err != nil {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	r, err := pClient.GetPublishList(ctx, &kpublish.PublishListRequest{
+	r, err := service.ServiceSet.Publish.GetPublishList(ctx, &kpublish.PublishListRequest{
 		Token:  req.Token,
 		UserId: req.UserId,
 	})
 	if err != nil {
-		c.String(consts.StatusBadRequest, err.Error())
+		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
 		return
 	}
 	resp := mapstruct.ToPublishListResponse(r)
-	//videoList := make([]*feed.Video, len(r.VideoList))
-	//for i := range videoList {
-	//	video := r.VideoList[i]
-	//	videoList[i] = &feed.Video{
-	//		Id:            video.Id,
-	//		Title:         video.Title,
-	//		PlayUrl:       video.PlayUrl,
-	//		CoverUrl:      video.CoverUrl,
-	//		CommentCount:  video.CommentCount,
-	//		FavoriteCount: video.FavoriteCount,
-	//		IsFavorite:    video.IsFavorite,
-	//		Author: &auth.User{
-	//			Id:              video.Author.Id,
-	//			Name:            video.Author.Name,
-	//			FollowCount:     video.Author.FollowCount,
-	//			FollowerCount:   video.Author.FollowerCount,
-	//			IsFollow:        video.Author.IsFollow,
-	//			Avatar:          video.Author.Avatar,
-	//			BackgroundImage: video.Author.BackgroundImage,
-	//			Signature:       video.Author.Signature,
-	//			TotalFavorited:  video.Author.TotalFavorited,
-	//			WorkCount:       video.Author.WorkCount,
-	//			FavoriteCount:   video.Author.FavoriteCount,
-	//		},
-	//	}
-	//}
-	//resp := publish.PublishListResponse{
-	//	StatusCode: r.StatusCode,
-	//	StatusMsg:  r.StatusMsg,
-	//	VideoList:  videoList,
-	//}
-	logger.Debug(resp)
 	c.JSON(consts.StatusOK, &resp)
 }
