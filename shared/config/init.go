@@ -9,20 +9,27 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"strings"
 )
 
 // localConfig TODO 用于解决远程配置 只能修改进行覆盖不能删除
 var localConfig map[string]interface{}
 
 func init() {
-	//log.SetFlags(log.Lmicroseconds | log.Ldate)
-	log.Println("- Load Config")
+	determineEnv()
+	log.Println(fmt.Sprintf("- Load %v Config", strings.ToUpper(ConfigEnv)))
 	loadLocalConfig()
 	// TODO Simple Dev
 	//loadRemoteConfig()
 	log.Println("- Load Completed")
-	// TODO DEBUG
-	log.Printf("Config Keys %v", VConfig.viper.AllKeys())
+}
+func determineEnv() bool {
+	env, ok := os.LookupEnv(AppENVIRONMENT)
+	if ok {
+		ConfigEnv = env
+		DefaultConfigName = fmt.Sprintf("%v-%v", DefaultConfigName, env)
+	}
+	return ok
 }
 
 func loadLocalConfig() {
