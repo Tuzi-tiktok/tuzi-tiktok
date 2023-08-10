@@ -4,12 +4,12 @@ import (
 	"math"
 	"testing"
 	"time"
-	"tuzi-tiktok/auth"
 	"tuzi-tiktok/service/auth/tools"
+	"tuzi-tiktok/utils/secret"
 )
 
 func TestNewToken(t *testing.T) {
-	payload := auth.TokenPayload{
+	payload := secret.TokenPayload{
 		UID: math.MaxInt64,
 	}
 	token, err := tools.NewToken(payload, time.Now().Add(time.Hour))
@@ -24,7 +24,7 @@ func TestNewToken(t *testing.T) {
 		t.Error("token parse error")
 	}
 
-	payload = auth.TokenPayload{
+	payload = secret.TokenPayload{
 		UID: 0,
 	}
 	token, err = tools.NewToken(payload, time.Now())
