@@ -31,12 +31,16 @@ func Login(ctx context.Context, c *app.RequestContext) {
 
 	err := c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handlerName))
+		_ = c.Error(global.RequestParameterBindError.
+			WithHandler(handlerName).
+			WithWarn(err))
 		return
 	}
 
 	if req.Username == "" || req.Password == "" || len(req.Password) > 32 {
-		_ = c.Error(global.ParameterValidationError.WithWarn(errors.New("username or password not validated ")).WithHandler(handlerName))
+		_ = c.Error(global.ParameterValidationError.
+			WithHandler(handlerName).
+			WithWarn(errors.New("username or password not validated ")))
 		return
 	}
 
@@ -45,7 +49,9 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		Password: req.Password,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handlerName))
+		_ = c.Error(global.RPCClientCallError.
+			WithHandler(handlerName).
+			WithError(err))
 		return
 	}
 	resp := mapstruct.ToUserLoginResponse(R)
@@ -66,7 +72,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 	if req.Username == "" || req.Password == "" || len(req.Password) > 32 {
-		_ = c.Error(global.ParameterValidationError.WithWarn(err).WithHandler(handlerName))
+		_ = c.Error(global.ParameterValidationError.WithHandler(handlerName).WithWarn(err))
 		return
 	}
 
@@ -75,7 +81,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		Password: req.Password,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handlerName))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handlerName).WithError(err))
 		return
 	}
 	resp := mapstruct.ToUserRegisterResponse(R)
@@ -91,7 +97,7 @@ func GetUserInfo(ctx context.Context, c *app.RequestContext) {
 	)
 	err := c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 	R, err := authClient.GetUserInfo(ctx, &kauth.UserInfoRequest{
@@ -99,7 +105,7 @@ func GetUserInfo(ctx context.Context, c *app.RequestContext) {
 		Token:  req.Token,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 	resp := mapstruct.ToUserInfoResponse(R)

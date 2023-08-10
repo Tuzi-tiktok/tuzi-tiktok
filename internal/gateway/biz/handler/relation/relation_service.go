@@ -20,7 +20,7 @@ func FollowAction(ctx context.Context, c *app.RequestContext) {
 	err := c.Bind(&req)
 	var handler = "FollowAction"
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 	R, err := service.ServiceSet.Relation.FollowAction(ctx, &krelation.RelationRequest{
@@ -29,7 +29,7 @@ func FollowAction(ctx context.Context, c *app.RequestContext) {
 		ActionType: req.ActionType,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 	resp := mapstruct.ToRelationResponse(R)
@@ -44,7 +44,7 @@ func GetFollowList(ctx context.Context, c *app.RequestContext) {
 	var handler = "GetFollowList"
 	err := c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 	R, err := service.ServiceSet.Relation.GetFollowList(ctx, &krelation.RelationFollowListRequest{
@@ -52,7 +52,7 @@ func GetFollowList(ctx context.Context, c *app.RequestContext) {
 		UserId: req.UserId,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 	resp := mapstruct.ToRelationFollowListResponse(R)
@@ -67,7 +67,7 @@ func GetFollowerList(ctx context.Context, c *app.RequestContext) {
 	var handler = "GetFollowerList"
 	err := c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 	R, err := service.ServiceSet.Relation.GetFollowerList(ctx, &krelation.RelationFollowerListRequest{
@@ -75,7 +75,7 @@ func GetFollowerList(ctx context.Context, c *app.RequestContext) {
 		UserId: req.UserId,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 	resp := mapstruct.ToRelationFollowerListResponse(R)
@@ -90,7 +90,7 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 	var handler = "GetFriendList"
 	err := c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 	R, err := service.ServiceSet.Relation.GetFriendList(ctx, &krelation.RelationFriendListRequest{
@@ -98,7 +98,7 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 		UserId: req.UserId,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 	resp := mapstruct.ToRelationFriendListResponse(R)

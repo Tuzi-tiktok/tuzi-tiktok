@@ -21,7 +21,7 @@ func GetFeedList(ctx context.Context, c *app.RequestContext) {
 	var handler = "GetFeedList"
 	err = c.BindAndValidate(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 
@@ -30,7 +30,7 @@ func GetFeedList(ctx context.Context, c *app.RequestContext) {
 		Token:      req.Token,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 	resp := mapstruct.ToFeedResponse(R)

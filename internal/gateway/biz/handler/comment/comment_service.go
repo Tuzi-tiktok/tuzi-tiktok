@@ -23,7 +23,7 @@ func Comment(ctx context.Context, c *app.RequestContext) {
 	)
 	err := c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 
@@ -36,7 +36,7 @@ func Comment(ctx context.Context, c *app.RequestContext) {
 	})
 
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 
@@ -52,7 +52,7 @@ func GetCommentList(ctx context.Context, c *app.RequestContext) {
 	var handler = "GetCommentList"
 	err := c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 
@@ -62,7 +62,7 @@ func GetCommentList(ctx context.Context, c *app.RequestContext) {
 	})
 
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 

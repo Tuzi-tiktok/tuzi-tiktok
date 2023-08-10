@@ -21,7 +21,7 @@ func GetMessageList(ctx context.Context, c *app.RequestContext) {
 	var handler = "GetMessageList"
 	err = c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 
@@ -31,7 +31,7 @@ func GetMessageList(ctx context.Context, c *app.RequestContext) {
 		PreMsgTime: req.PreMsgTime,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 
@@ -47,7 +47,7 @@ func MessageAction(ctx context.Context, c *app.RequestContext) {
 	var handler = "MessageAction"
 	err = c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 
@@ -58,7 +58,7 @@ func MessageAction(ctx context.Context, c *app.RequestContext) {
 		Content:    req.Content,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 	resp := mapstruct.ToMessageActionResponse(R)

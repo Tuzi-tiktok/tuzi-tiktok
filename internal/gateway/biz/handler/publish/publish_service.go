@@ -22,30 +22,30 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 	err := c.Bind(&req)
 	var handler = "PublishVideo"
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 	form, err := c.MultipartForm()
 	if err != nil || len(form.File) == 0 || len(form.File["data"]) == 0 {
-		_ = c.Error(global.MultipartFormError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.MultipartFormError.WithHandler(handler).WithWarn(err))
 		return
 	}
 	video := form.File["data"][0]
 	file, err := video.Open()
 	if err != nil {
-		_ = c.Error(global.MultipartFileOpenError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.MultipartFileOpenError.WithHandler(handler).WithWarn(err))
 		return
 	}
 	defer func(file multipart.File) {
 		err := file.Close()
 		if err != nil {
-			_ = c.Error(global.MultipartFileCloseError.WithError(err).WithHandler(handler))
+			_ = c.Error(global.MultipartFileCloseError.WithHandler(handler).WithError(err))
 		}
 	}(file)
 
 	r := service.ServiceSet.Transfer.Put(video.Filename, file)
 	if !r.Ok {
-		_ = c.Error(global.RPCClientCallError.WithError(errors.New("Transfer error occurred ")).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(errors.New("Transfer error occurred ")))
 		return
 	}
 
@@ -55,7 +55,7 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 		VideoUrl: r.Url,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 	resp := mapstruct.ToPublishResponse(R)
@@ -78,7 +78,7 @@ func GetPublishList(ctx context.Context, c *app.RequestContext) {
 		UserId: req.UserId,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 	resp := mapstruct.ToPublishListResponse(r)

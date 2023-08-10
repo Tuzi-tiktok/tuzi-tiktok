@@ -22,7 +22,7 @@ func FavorVideo(ctx context.Context, c *app.RequestContext) {
 	var handler = "FavorVideo"
 	err = c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 	R, err := service.ServiceSet.Favorite.FavorVideo(ctx, &kfavorite.FavoriteRequest{
@@ -31,7 +31,7 @@ func FavorVideo(ctx context.Context, c *app.RequestContext) {
 		ActionType: req.ActionType,
 	})
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 
@@ -47,7 +47,7 @@ func GetFavoriteList(ctx context.Context, c *app.RequestContext) {
 	var handler = "GetFavoriteList"
 	err = c.Bind(&req)
 	if err != nil {
-		_ = c.Error(global.RequestParameterBindError.WithWarn(err).WithHandler(handler))
+		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
 
@@ -57,7 +57,7 @@ func GetFavoriteList(ctx context.Context, c *app.RequestContext) {
 	})
 
 	if err != nil {
-		_ = c.Error(global.RPCClientCallError.WithError(err).WithHandler(handler))
+		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
 
