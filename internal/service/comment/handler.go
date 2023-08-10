@@ -18,7 +18,6 @@ import (
 var (
 	qVideo     = query.Q.Video
 	qComment   = query.Q.Comment
-	qUser      = query.Q.User
 	authClient authinfoservice.Client
 )
 
