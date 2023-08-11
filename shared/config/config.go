@@ -1,9 +1,8 @@
 package cfg
 
 var (
-	Registration   registration
-	LoggerConfig   loggerConfig
-	DatabaseConfig databaseConfig
+	Registration registration
+	LoggerConfig loggerConfig
 )
 
 type registration struct {
@@ -18,16 +17,6 @@ type loggerConfig struct {
 	Level       string
 	Development bool
 	Encoding    string
-}
-
-type databaseConfig struct {
-	Dsn          string // 数据来源名称
-	Username     string // 用户
-	Password     string // 密码
-	Host         string // 数据库链接
-	Port         uint64 // 数据库端口
-	DataBaseName string // 数据库名
-	Timeout      string // 连接超时
 }
 
 // Named 内置模块命名 (待用)

@@ -53,22 +53,6 @@ func loadLocalConfig() {
 	if err := VConfig.viper.UnmarshalKey(logK, &LoggerConfig); err != nil {
 		panic(err)
 	}
-	log.Println(" - Parsing Config For DataSource")
-	if err := VConfig.viper.UnmarshalKey(databaseK, &DatabaseConfig); err != nil {
-		panic(err)
-	}
-	// Check Dsn Validity
-	if DatabaseConfig.Dsn == "" {
-		log.Println(" - Init Dsn")
-		DatabaseConfig.Dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=%s",
-			DatabaseConfig.Username,
-			DatabaseConfig.Password,
-			DatabaseConfig.Host,
-			DatabaseConfig.Port,
-			DatabaseConfig.DataBaseName,
-			DatabaseConfig.Timeout,
-		)
-	}
 
 }
 
