@@ -1,7 +1,4 @@
-
 #!/bin/bash
-RUN_NAME=
+RUN_NAME=gateway-api
 mkdir -p output/bin
-cp script/* output 2>/dev/null
-chmod +x output/bootstrap.sh
-go build -o output/bin/${RUN_NAME}
+go build -o output/bin/${RUN_NAME} tuzi-tiktok/gateway
