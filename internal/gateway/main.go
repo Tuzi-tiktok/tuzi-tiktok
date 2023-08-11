@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	h := server.Default(server.WithMaxRequestBodySize(1024 * 1024 * 200))
+	h := server.Default(server.WithMaxRequestBodySize(1024*1024*200), server.WithDisablePrintRoute(true))
 	h.Use(err.ErrorHandlerMiddleware())
 	register(h)
 	h.Spin()
