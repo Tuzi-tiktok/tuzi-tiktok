@@ -102,6 +102,8 @@ services:
       dockerfile: Dockerfile
     environment:
       TUZI_ENV: docker
+    ports:
+      - "18888:8888"
 
 networks:
   default:

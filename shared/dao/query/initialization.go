@@ -5,6 +5,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
+	"net"
 	cfg "tuzi-tiktok/config"
 	"tuzi-tiktok/logger"
 )
@@ -31,6 +32,13 @@ func config() {
 	// Check Dsn Validity
 	if DatabaseConfig.Dsn == "" {
 		log.Println(" - Init Dsn")
+		hosts, err := net.LookupHost(DatabaseConfig.Host)
+		if err != nil {
+			log.Println("Error of Dns Resolve this Host")
+			panic(err)
+		}
+		DatabaseConfig.Host = hosts[0]
+
 		DatabaseConfig.Dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&timeout=%s",
 			DatabaseConfig.Username,
 			DatabaseConfig.Password,
