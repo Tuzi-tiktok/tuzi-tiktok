@@ -5,12 +5,11 @@ const (
 	logK              = "log"
 	DefaultConfigType = "yaml"
 	DefaultConfigPath = "."
-	AppENVIRONMENT    = "TUZI_ENV"
 )
 
 var (
 	ConfigEnv         = "Default"
 	DefaultConfigName = "registry"
 	// CandidateConfigPath 临时路径便于开发 配置文件搜索路径
-	CandidateConfigPath = `shared\config`
+	CandidateConfigPath = `shared/config`
 )
