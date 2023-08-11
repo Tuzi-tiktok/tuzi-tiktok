@@ -4,11 +4,9 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"tuzi-tiktok/dao/query"
 )
 
 // Ping .
@@ -16,12 +14,4 @@ func Ping(ctx context.Context, c *app.RequestContext) {
 	c.JSON(consts.StatusOK, utils.H{
 		"message": "pong",
 	})
-	users, err := query.Q.User.Find()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for i, e := range users {
-		fmt.Printf("%v %+v", i, *e)
-	}
 }

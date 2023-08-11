@@ -3,7 +3,6 @@ package cfg
 const (
 	registryK         = "registry"
 	logK              = "log"
-	databaseK         = "database"
 	DefaultConfigType = "yaml"
 	DefaultConfigPath = "."
 	AppENVIRONMENT    = "TUZI_ENV"
