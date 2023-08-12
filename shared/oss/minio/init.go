@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"net/url"
 	cfg "tuzi-tiktok/config"
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/oss/internal/define"
@@ -15,7 +16,11 @@ const Name = "minio"
 func init() {
 
 	_ = define.Register(Name, initialize, func(k string) error {
-		return cfg.VConfig.GetViper().UnmarshalKey(k, &c)
+		err := cfg.VConfig.GetViper().UnmarshalKey(k, &c)
+		if err == nil {
+			base, err = url.JoinPath(c.ExternalURL, c.Bucket)
+		}
+		return err
 	})
 	logger.Debug("minio")
 }

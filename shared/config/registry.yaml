@@ -25,6 +25,7 @@ oss:
 #    accessKey: admin
 #    secretKey: minioadmin
   lfs:
+    externalURL: "http://100.111.163.99:9092"
     endpoint: "127.0.0.1:9092"
     bucket: tiktok
     storagePath: "E:/Merge/Tuzi-TikTok/lfs"

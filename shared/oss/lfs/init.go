@@ -2,6 +2,7 @@ package lfs
 
 import (
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -12,12 +13,18 @@ import (
 
 const Name = "lfs"
 
+var base string
+
 // init Local File System
 func init() {
 	logger.Debug("lfs")
 	//	TODO Load Config Form CC
 	_ = define.Register(Name, initialize, func(k string) error {
-		return cfg.VConfig.GetViper().UnmarshalKey(k, &c)
+		err := cfg.VConfig.GetViper().UnmarshalKey(k, &c)
+		if err == nil {
+			base, err = url.JoinPath(c.ExternalURL, c.Bucket)
+		}
+		return err
 	})
 }
 
@@ -30,7 +37,7 @@ func initialize() define.StorageTransmitter {
 	if c.Bucket == "" {
 		c.Bucket = "default"
 	}
-	logger.Info(c.StoragePath)
+	logger.Info(c)
 	go initFileServer()
 
 	return &impl{}
