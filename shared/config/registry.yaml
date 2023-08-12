@@ -19,11 +19,11 @@ database:
   databaseName: tuzi_tiktok
   timeout: 2000
 oss:
-#  minio:
-#    endpoint: "phablet:9090"
-#    bucket: tiktok
-#    accessKey: admin
-#    secretKey: minioadmin
+  #  minio:
+  #    endpoint: "phablet:9090"
+  #    bucket: tiktok
+  #    accessKey: admin
+  #    secretKey: minioadmin
   lfs:
     externalURL: "http://100.111.163.99:9092"
     endpoint: "127.0.0.1:9092"
@@ -35,3 +35,8 @@ secret:
     MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEB5RL++OQZiutQsytDuw/c7xhSpH1
     pGbnRJswMRecPsAl+A7Qu7rFx3oUSGdGjelZAmOf966WB4pU9eiLXIAu8Q==
     -----END EC PUBLIC KEY-----
+
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
