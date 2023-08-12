@@ -34,7 +34,7 @@ services:
     container_name: "tuzi_gateway"
     build:
       context: ./
-      dockerfile: DockerfileGateway
+      dockerfile: dockers/DockerfileGateway
     ports:
       - "18888:8888"
     environment:
@@ -43,63 +43,63 @@ services:
     container_name: "tuzi_auth"
     build:
       context: ./
-      dockerfile: DockerfileAuth
+      dockerfile: dockers/DockerfileAuth
     environment:
       TUZI_ENV: docker
   comment:
     container_name: "tuzi_comment"
     build:
       context: ./
-      dockerfile: DockerfileCom
+      dockerfile: dockers/DockerfileCom
     environment:
       TUZI_ENV: docker
   favorite:
     container_name: "tuzi_favorite"
     build:
       context: ./
-      dockerfile: DockerfileFav
+      dockerfile: dockers/DockerfileFav
     environment:
       TUZI_ENV: docker
   feed:
     container_name: "tuzi_feed"
     build:
       context: ./
-      dockerfile: DockerfileFee
+      dockerfile: dockers/DockerfileFee
     environment:
       TUZI_ENV: docker
   filetransfer:
     container_name: "tuzi_filetransfer"
     build:
       context: ./
-      dockerfile: DockerfileFt
+      dockerfile: dockers/DockerfileFt
     environment:
       TUZI_ENV: docker
   message:
     container_name: "tuzi_message"
     build:
       context: ./
-      dockerfile: DockerfileMsg
+      dockerfile: dockers/DockerfileMsg
     environment:
       TUZI_ENV: docker
   publish:
     container_name: "tuzi_publish"
     build:
       context: ./
-      dockerfile: DockerfilePub
+      dockerfile: dockers/DockerfilePub
     environment:
       TUZI_ENV: docker
   relation:
     container_name: "tuzi_relation"
     build:
       context: ./
-      dockerfile: DockerfileRel
+      dockerfile: dockers/DockerfileRel
     environment:
       TUZI_ENV: docker
   debug:
     container_name: debug
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: dockers/Dockerfile
     environment:
       TUZI_ENV: docker
     ports:

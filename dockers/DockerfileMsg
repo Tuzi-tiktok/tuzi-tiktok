@@ -1,15 +1,15 @@
 FROM golang:1.20 as bin
 LABEL authors="Aliothmoon"
 WORKDIR /app
-COPY . /app
+COPY .. /app
 # Build all services
 ENV GOPROXY=https://goproxy.cn TUZI_CFG=/app/shared/config TUZI_SEC=/app/internal/service/auth/config
 # Add Layer To Cache
 RUN ["go","work","sync"]
-RUN ["sh", "/app/internal/service/relation/build.sh"]
+RUN ["sh", "/app/internal/service/message/build.sh"]
 
 FROM ubuntu:22.10
 WORKDIR /app
-COPY --from=bin  /app/output/bin/relation-api ./
+COPY --from=bin  /app/output/bin/message-api ./
 COPY --from=bin /app/shared/config/*.yaml ./
-CMD  ["./relation-api"]
+CMD  ["./message-api"]
