@@ -20,6 +20,7 @@ database:
   timeout: 2000
 oss:
   minio:
+    externalURL: "http://100.93.41.99:19090"
     endpoint: "100.93.41.99:19090"
     bucket: tiktok
     accessKey: minio
