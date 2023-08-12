@@ -23,6 +23,10 @@ var (
 	PublishTargetUserNotExistMsg  = "PublishTargetUserNotExist"
 	PublishUploadSnapShotErrorMsg = "PublishUploadSnapShotError"
 	InvalidTokenMsg               = "InvalidToken"
+
+	// relation
+	FollowFailedMsg   = "FollowFail"
+	UnFollowFailedMsg = "UnFollowFail"
 )
 
 const (

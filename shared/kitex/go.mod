@@ -9,7 +9,7 @@ require (
 )
 
 require (
-	github.com/apache/thrift v0.13.0 // indirect
+	github.com/apache/thrift v0.16.0 // indirect
 	github.com/bytedance/gopkg v0.0.0-20230728082804-614d0af6619b // indirect
 	github.com/bytedance/mockey v1.2.1 // indirect
 	github.com/bytedance/sonic v1.8.8 // indirect

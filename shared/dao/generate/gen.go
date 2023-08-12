@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const MysqlDsn = "root:admin@(localhost:3306)/tuzi_tiktok?charset=utf8mb4&parseTime=True&loc=Local"
+const MysqlDsn = "root:admin@(100.93.41.99:3307)/tuzi_tiktok?charset=utf8mb4&parseTime=True&loc=Local"
 
 type Querier interface {
 }
