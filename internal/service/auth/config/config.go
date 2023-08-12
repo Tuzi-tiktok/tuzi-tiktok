@@ -10,7 +10,7 @@ const (
 	configName    = "secret"
 	configType    = "yaml"
 	configPath    = "."
-	srcConfigPath = `internal\service\auth\config`
+	srcConfigPath = `internal/service/auth/config`
 )
 
 const (
@@ -30,7 +30,8 @@ func init() {
 	v.SetConfigName(configName)
 	v.SetConfigType(configType)
 	v.AddConfigPath(configPath)
-	v.AddConfigPath(path.Join(cfg.DeterminePath(), srcConfigPath))
+	v.AddConfigPath(cfg.DetermineSecret())
+	v.AddConfigPath(path.Join(cfg.DetermineSrcPath(), srcConfigPath))
 	err := v.ReadInConfig()
 	if err != nil {
 		panic(err)

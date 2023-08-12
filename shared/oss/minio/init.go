@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"net/url"
 	cfg "tuzi-tiktok/config"
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/oss/internal/define"
@@ -15,7 +16,11 @@ const Name = "minio"
 func init() {
 
 	_ = define.Register(Name, initialize, func(k string) error {
-		return cfg.VConfig.GetViper().UnmarshalKey(k, &c)
+		err := cfg.VConfig.GetViper().UnmarshalKey(k, &c)
+		if err == nil {
+			base, err = url.JoinPath(c.ExternalURL, c.Bucket)
+		}
+		return err
 	})
 	logger.Debug("minio")
 }
@@ -29,6 +34,14 @@ func initialize() define.StorageTransmitter {
 		err    error
 		client *minio.Client
 	)
+	//TODO FIX Host Resolve
+	//hosts, err := net.LookupHost(c.Endpoint)
+	//if err != nil {
+	//	log.Println("Error of Dns Resolve this Host")
+	//	panic(err)
+	//}
+	//c.Endpoint = hosts[0]
+
 	// Initialize minio client object.
 	client, err = minio.New(c.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(c.AccessKey, c.SecretKey, ""),

@@ -42,26 +42,30 @@ func UploadSnapShot(shot io.Reader) fm.TransResult {
 type PublishServiceImpl struct{}
 
 // PublishVideo implements the PublishServiceImpl interface.
-func (s *PublishServiceImpl) PublishVideo(ctx context.Context, req *publish.PublishRequest) (resp *publish.PublishResponse, err error) {
-	resp = new(publish.PublishResponse)
+func (s *PublishServiceImpl) PublishVideo(ctx context.Context, req *publish.PublishRequest) (*publish.PublishResponse, error) {
 	//   TODO  Token expires after video upload
 	claims, err := tools.ParseToken(req.Token)
 
 	if err != nil {
-		resp.StatusMsg = &consts.InvalidTokenMsg
-		resp.StatusCode = consts.InvalidToken
-		return
+		logger.Debug(err)
+		return &publish.PublishResponse{
+			StatusMsg:  &consts.InvalidTokenMsg,
+			StatusCode: consts.InvalidToken,
+		}, nil
 	}
 	uid := claims.Payload.UID
 	shot, err := ffmpeg.GetSnapShots(req.VideoUrl)
 	if err != nil {
+		logger.Debug(err)
 		return nil, err
 	}
 	result := UploadSnapShot(shot)
 	if !result.Ok {
-		resp.StatusCode = consts.PublishUploadSnapShotError
-		resp.StatusMsg = &consts.PublishListErrorMsg
-		return
+		logger.Debug("upload SnapShot error")
+		return &publish.PublishResponse{
+			StatusCode: consts.PublishUploadSnapShotError,
+			StatusMsg:  &consts.PublishListErrorMsg,
+		}, nil
 	}
 
 	video := &model.Video{
@@ -72,6 +76,7 @@ func (s *PublishServiceImpl) PublishVideo(ctx context.Context, req *publish.Publ
 	}
 	err = qVideo.Create(video)
 	if err != nil {
+		logger.Debug(err)
 		return nil, err
 	}
 

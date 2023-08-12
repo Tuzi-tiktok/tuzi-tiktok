@@ -8,6 +8,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/viper"
 	"log"
+	"net"
 	"os"
 	"path"
 	"strings"
@@ -18,7 +19,7 @@ var localConfig map[string]interface{}
 
 func init() {
 	determineEnv()
-	CandidateConfigPath = path.Join(DeterminePath(), CandidateConfigPath)
+	CandidateConfigPath = path.Join(DetermineSrcPath(), CandidateConfigPath)
 	log.Println(fmt.Sprintf("- Load %v Config", strings.ToUpper(ConfigEnv)))
 	loadLocalConfig()
 	// TODO Simple Dev
@@ -39,6 +40,7 @@ func loadLocalConfig() {
 	v.SetConfigName(DefaultConfigName)
 	v.SetConfigType(DefaultConfigType)
 	v.AddConfigPath(DefaultConfigPath)
+	v.AddConfigPath(DetermineConfig())
 	v.AddConfigPath(CandidateConfigPath)
 	SetDefault(v)
 	if err := v.ReadInConfig(); err != nil {
@@ -49,6 +51,14 @@ func loadLocalConfig() {
 	if err := VConfig.viper.UnmarshalKey(registryK, &Registration); err != nil {
 		panic(err)
 	}
+
+	hosts, err := net.LookupHost(Registration.Host)
+	if err != nil {
+		log.Println("Error of Dns Resolve this Host")
+		panic(err)
+	}
+	Registration.Host = hosts[0]
+
 	log.Println(" - Parsing Config For Zap Logger")
 	if err := VConfig.viper.UnmarshalKey(logK, &LoggerConfig); err != nil {
 		panic(err)
