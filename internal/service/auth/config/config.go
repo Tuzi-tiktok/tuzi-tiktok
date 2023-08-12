@@ -10,7 +10,7 @@ const (
 	configName    = "secret"
 	configType    = "yaml"
 	configPath    = "."
-	srcConfigPath = `internal/service/auth/config`
+	srcConfigPath = `C:\Users\Administrator\Desktop\tuzi-tiktok\internal\service\auth\config`
 )
 
 const (

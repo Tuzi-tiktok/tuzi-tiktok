@@ -15,6 +15,7 @@ func TestQuery(t *testing.T) {
 	for _, user := range users {
 		log.Printf("%v", user)
 	}
+
 }
 func TestRelation(t *testing.T) {
 	relations, err := query.Relation.Find()
