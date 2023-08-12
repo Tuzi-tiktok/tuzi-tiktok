@@ -2,6 +2,7 @@ package utils
 
 import (
 	"log"
+	"net"
 	"testing"
 )
 
@@ -15,4 +16,11 @@ func TestGetLocalAddr(t *testing.T) {
 }
 func TestGetLocalAddrByRC(t *testing.T) {
 	log.Printf("%v", GetLocalAddrByRC())
+}
+func TestNsLookup(t *testing.T) {
+	ip, err := net.LookupHost("192.168.2.1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	log.Printf("%v", ip)
 }

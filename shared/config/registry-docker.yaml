@@ -1,0 +1,32 @@
+registry:
+  host: "tuzi_registry"
+  port: 8848
+  namespaceId: "c8bf818f-7660-4590-b763-157cffcd209b"
+  group: "DEFAULT_GROUP"
+  dataId: "bootstrap.yml"
+log:
+  level: "Debug"
+  development: false
+  #   console | json
+  encoding: "console"
+database:
+  #  DSN 优先生效 (如果存在)
+#  dsn: root:admin@(tuzi_database:3306)/tuzi_tiktok?charset=utf8mb4&parseTime=True&loc=Local
+  username: root
+  password: admin
+  host: "tuzi_database"
+  port: 3306
+  databaseName: tuzi_tiktok
+  timeout: 2000
+oss:
+  minio:
+    endpoint: "tuzi_oss:9090"
+    bucket: tiktok
+    accessKey: minio
+    secretKey: minioadmin
+secret:
+  JWTPublicKey: |-
+    -----BEGIN EC PUBLIC KEY-----
+    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEB5RL++OQZiutQsytDuw/c7xhSpH1
+    pGbnRJswMRecPsAl+A7Qu7rFx3oUSGdGjelZAmOf966WB4pU9eiLXIAu8Q==
+    -----END EC PUBLIC KEY-----

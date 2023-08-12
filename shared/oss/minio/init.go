@@ -34,6 +34,14 @@ func initialize() define.StorageTransmitter {
 		err    error
 		client *minio.Client
 	)
+	//TODO FIX Host Resolve
+	//hosts, err := net.LookupHost(c.Endpoint)
+	//if err != nil {
+	//	log.Println("Error of Dns Resolve this Host")
+	//	panic(err)
+	//}
+	//c.Endpoint = hosts[0]
+
 	// Initialize minio client object.
 	client, err = minio.New(c.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(c.AccessKey, c.SecretKey, ""),
