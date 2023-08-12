@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	svr := relation.NewServer(new(RelationServiceImpl), utils.NewServerOptions("relation-api")...)
+	svr := relation.NewServer(new(RelationServiceImpl), utils.NewServerOptions(utils.Relation())...)
 
 	if err := svr.Run(); err != nil {
 		log.Println("server stopped with error:", err)

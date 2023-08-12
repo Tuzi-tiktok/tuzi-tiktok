@@ -33,10 +33,11 @@ func TestGetFavorList(t *testing.T) {
 	fmt.Println(resp)
 }
 
+// 点赞操作
 func TestFavorAction(t *testing.T) {
 	var req favorite.FavoriteRequest
-	req.Token = "123"
-	req.VideoId = 11
+	req.Token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJQYXlsb2FkIjp7IlVJRCI6Nn0sImlzcyI6ImF1dGgtYXBpIiwiZXhwIjoxNjkzMDM3MzQ0fQ._44SDCTKSwBPfo0jXGH1ZE3INlDTxz2CqvEk_biOkDTfrxud9MTH-8iDy0mLYcqNm8P-Ksf5LbZb7ISXhNvWxQ"
+	req.VideoId = 13
 	req.ActionType = 1
 
 	cli, err := utils.NewFavorite()
@@ -53,10 +54,11 @@ func TestFavorAction(t *testing.T) {
 	fmt.Println(resp)
 }
 
+// 取消点赞操作
 func TestUnFavorAction(t *testing.T) {
 	var req favorite.FavoriteRequest
-	req.Token = "123"
-	req.VideoId = 11
+	req.Token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJQYXlsb2FkIjp7IlVJRCI6Nn0sImlzcyI6ImF1dGgtYXBpIiwiZXhwIjoxNjkzMDM3MzQ0fQ._44SDCTKSwBPfo0jXGH1ZE3INlDTxz2CqvEk_biOkDTfrxud9MTH-8iDy0mLYcqNm8P-Ksf5LbZb7ISXhNvWxQ"
+	req.VideoId = 13
 	req.ActionType = 2
 
 	cli, err := utils.NewFavorite()

@@ -24,6 +24,7 @@ func GetFavorList(UserId int64) (resp *favorite.FavoriteListResponse, err error)
 	for _, value := range videos {
 		video, err := v.Where(v.ID.Eq(value.Vid)).First()
 		if err != nil {
+
 			return nil, err
 		}
 		resp.VideoList = append(resp.VideoList, changes.VideoRecord2videoResp(video))

@@ -9,7 +9,7 @@ import (
 	"tuzi-tiktok/utils"
 )
 
-// 得到粉丝的信息
+// 得到粉丝列表
 func TestGetFollowerList(t *testing.T) {
 	var req krelation.RelationFollowerListRequest
 	req.UserId = 1
@@ -30,7 +30,7 @@ func TestGetFollowerList(t *testing.T) {
 	fmt.Println(resp)
 }
 
-// 得到关注人的信息
+// 得到关注列表
 func TestGetFollowList(t *testing.T) {
 	var req krelation.RelationFollowListRequest
 	req.UserId = 3
@@ -56,8 +56,8 @@ func TestGetFollowList(t *testing.T) {
 // 关注
 func TestFollowAction(t *testing.T) {
 	var req krelation.RelationRequest
-	req.Token = "123"
-	req.ToUserId = 10
+	req.Token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJQYXlsb2FkIjp7IlVJRCI6N30sImlzcyI6ImF1dGgtYXBpIiwiZXhwIjoxNjkzMDM4MzU0fQ.Ye8IGvUMq9_7ySrF9U3caUXn8x4iNMshwK3QAIugDVNlHrNFrnqAARtOzsZVqN7E1S-ISNO257CkZYprkaSVWA"
+	req.ToUserId = 6
 	// 1是关注 2是取消关注
 	req.ActionType = 1
 
@@ -81,8 +81,8 @@ func TestFollowAction(t *testing.T) {
 // 取消关注
 func TestUnFollowAction(t *testing.T) {
 	var req krelation.RelationRequest
-	req.Token = "123"
-	req.ToUserId = 10
+	req.Token = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJQYXlsb2FkIjp7IlVJRCI6N30sImlzcyI6ImF1dGgtYXBpIiwiZXhwIjoxNjkzMDM4MzU0fQ.Ye8IGvUMq9_7ySrF9U3caUXn8x4iNMshwK3QAIugDVNlHrNFrnqAARtOzsZVqN7E1S-ISNO257CkZYprkaSVWA"
+	req.ToUserId = 6
 	// 1是关注 2是取消关注
 	req.ActionType = 2
 
@@ -103,10 +103,11 @@ func TestUnFollowAction(t *testing.T) {
 	fmt.Println(resp)
 }
 
+// Get FriendList
 func TestGetFriendList(t *testing.T) {
 	var req krelation.RelationFriendListRequest
 	req.Token = "123"
-	req.UserId = int64(1)
+	req.UserId = int64(7)
 
 	resp := new(krelation.RelationFriendListResponse)
 	clients, err := utils.NewRelation()

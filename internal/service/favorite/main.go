@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	svr := favorite.NewServer(new(FavoriteServiceImpl), utils.NewServerOptions("favorite-api")...)
+	svr := favorite.NewServer(new(FavoriteServiceImpl), utils.NewServerOptions(utils.Favorite())...)
 
 	if err := svr.Run(); err != nil {
 		log.Println("server stopped with error:", err)
