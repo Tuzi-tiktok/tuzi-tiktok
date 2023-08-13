@@ -50,10 +50,14 @@ func (QVideo) GetVideoListWithTime(ctx context.Context, uid int64, lTime int64, 
 	}
 
 	// todo: 存在问题，当last_time超过了数据库中最早时间时，应当从最新的时间戳获取缺少的视频列表
-	mVideos, err := qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Gt(t), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(limit).Find()
+	mVideos, err := qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Lt(t), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(limit).Find()
 	if err != nil {
 		logger.Errorf("Error querying video list, err: %v", err)
 		return nil, time.Now(), err
+	}
+	if len(mVideos) == 0 {
+		logger.Info("The lastTime query is reset to time.Now().")
+		mVideos, err = qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Lt(time.Now()), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(limit).Find()
 	}
 
 	videos, nt, err = mVideo2fVideoMore(uid, t, mVideos)
@@ -135,7 +139,7 @@ func getVideoFavorite(vid int64) int64 {
 // getTotalFavorite 获取作者获得点赞总数
 func getTotalFavorite(aid int64) *int64 {
 	// 获取作者作品vid列表
-	vids, err := qVideo.WithContext(context.Background()).Select(qVideo.AuthorID).Where(qVideo.AuthorID.Eq(aid), qVideo.DeletedAt.IsNull()).Find()
+	vids, err := qVideo.WithContext(context.Background()).Select(qVideo.ID).Where(qVideo.AuthorID.Eq(aid), qVideo.DeletedAt.IsNull()).Find()
 	if err != nil {
 		logger.Errorf("Error querying all video ids of the account, err: %v", err)
 		return nil
@@ -168,7 +172,7 @@ func mVideo2fVideoMore(uid int64, lTime time.Time, mv []*model.Video) ([]*feed.V
 	nt := time.Now()
 
 	for _, m := range mv {
-		if nt.Before(*m.CreatedAt) {
+		if nt.After(*m.CreatedAt) {
 			nt = *m.CreatedAt
 		}
 
@@ -181,6 +185,7 @@ func mVideo2fVideoMore(uid int64, lTime time.Time, mv []*model.Video) ([]*feed.V
 
 // mUser2aUserOne 单个model.User转化为auth.User
 func mUser2aUserOne(uid int64, u *model.User) (a *auth.User) {
+	a = new(auth.User)
 	a.Id = u.ID
 	a.Name = u.Username
 	a.FollowCount = &u.FollowCount
