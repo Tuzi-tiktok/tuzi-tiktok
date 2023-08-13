@@ -1,4 +1,4 @@
 for i in $(find -type f -name build.sh);do
-  echo $i
+  echo $(basename $i)
   sh $i
 done
