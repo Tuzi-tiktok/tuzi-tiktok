@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	message "tuzi-tiktok/kitex/kitex_gen/message/messageservice"
+	"tuzi-tiktok/logger"
 )
 
 func main() {
@@ -11,6 +11,6 @@ func main() {
 	err := svr.Run()
 
 	if err != nil {
-		log.Println(err.Error())
+		logger.Warn("Service Shutdown With Error: %v", err.Error())
 	}
 }

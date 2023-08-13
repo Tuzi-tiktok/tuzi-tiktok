@@ -3,13 +3,18 @@
 package main
 
 import (
+	"context"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"tuzi-tiktok/gateway/biz/err"
+	"tuzi-tiktok/logger"
 )
 
 func main() {
 	h := server.Default(server.WithMaxRequestBodySize(1024*1024*200), server.WithDisablePrintRoute(true))
 	h.Use(err.ErrorHandlerMiddleware())
 	register(h)
+	h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {
+		logger.Warn("Service Shutdown With Error: %v")
+	})
 	h.Spin()
 }

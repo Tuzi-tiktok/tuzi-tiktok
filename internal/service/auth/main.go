@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	auth "tuzi-tiktok/kitex/kitex_gen/auth/authinfoservice"
+	"tuzi-tiktok/logger"
 	"tuzi-tiktok/utils"
 )
 
@@ -13,6 +13,6 @@ func main() {
 	err := svr.Run()
 
 	if err != nil {
-		log.Println(err.Error())
+		logger.Warn("Service Shutdown With Error: %v", err.Error())
 	}
 }

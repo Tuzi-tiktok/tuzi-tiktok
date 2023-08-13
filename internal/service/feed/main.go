@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	feed "tuzi-tiktok/kitex/kitex_gen/feed/feedservice"
+	"tuzi-tiktok/logger"
 	"tuzi-tiktok/utils"
 )
 
@@ -12,6 +12,6 @@ func main() {
 	err := svr.Run()
 
 	if err != nil {
-		log.Println(err.Error())
+		logger.Warn("Service Shutdown With Error: %v", err.Error())
 	}
 }

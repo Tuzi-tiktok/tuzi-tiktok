@@ -8,6 +8,7 @@ import (
 	hu "github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"tuzi-tiktok/logger"
 	"tuzi-tiktok/utils"
 )
 
@@ -37,5 +38,8 @@ func main() {
 	})
 
 	h.PUT("/", Transfer)
+
 	h.Spin()
+	logger.Warn("Service Shutdown With Error")
+
 }
