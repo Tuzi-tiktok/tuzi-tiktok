@@ -18,14 +18,16 @@ func (s *FeedServiceImpl) GetFeedList(ctx context.Context, req *feed.FeedRequest
 	resp = new(feed.FeedResponse)
 
 	var uid int64
-	// check token & get uid
-	claims, err := secret.ParseToken(*req.Token)
-	if err != nil {
-		logger.Errorf("failed to parse token, use a no-user state, err: %v", err)
-		uid = consts.NOUSERSTATE
-	} else {
-		// 从token获取当前用户uid
-		uid = claims.Payload.UID
+	uid = consts.NOUSERSTATE
+	if req.Token != nil {
+		// check token & get uid
+		claims, err := secret.ParseToken(*req.Token)
+		if err != nil {
+			logger.Errorf("failed to parse token, use a no-user state, err: %v", err)
+		} else {
+			// 从token获取当前用户uid
+			uid = claims.Payload.UID
+		}
 	}
 
 	// 判断是否传入获取LatestTime，否，使用当前时间
