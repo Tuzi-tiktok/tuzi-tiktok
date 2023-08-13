@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"time"
 	f "tuzi-tiktok/kitex/kitex_gen/feed"
@@ -21,14 +22,20 @@ func main() {
 }
 
 func getOneVideo(c feed.Client) {
+	t := int64(1655105759)
+
 	feedReq := &f.FeedRequest{
-		LatestTime: nil,
+		LatestTime: &t,
 		Token:      nil,
 	}
 
-	list, err := c.GetFeedList(context.Background(), feedReq, callopt.WithConnectTimeout(3*time.Second))
+	resp, err := c.GetFeedList(context.Background(), feedReq, callopt.WithConnectTimeout(3*time.Second))
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(list)
+	marshal, err := json.Marshal(resp)
+	if err != nil {
+		return
+	}
+	log.Println(string(marshal))
 }
