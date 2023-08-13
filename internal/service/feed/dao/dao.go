@@ -169,7 +169,7 @@ func mVideo2fVideoOne(uid int64, m *model.Video) (f *feed.Video) {
 // mVideo2fVideoMore 切片model.Video转化为feed.Video
 func mVideo2fVideoMore(uid int64, lTime time.Time, mv []*model.Video) ([]*feed.Video, time.Time, error) {
 	fv := make([]*feed.Video, 0)
-	nt := time.Now()
+	nt := lTime
 
 	for _, m := range mv {
 		if nt.After(*m.CreatedAt) {
