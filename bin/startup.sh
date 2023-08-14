@@ -6,7 +6,6 @@ LOG_DIR="./logs"
 
 SERVICES="*-api"
 
-# 检查PID目录是否存在，如果不存在则创建
 if [ ! -d "$PID_DIR" ]; then
   mkdir -p "$PID_DIR"
 fi
@@ -33,7 +32,7 @@ start() {
       return
     fi
   fi
-  nohup $1 >"$LOG_DIR/$app.log" 2>&1 &
+  nohup $1 >>"$LOG_DIR/$app.log" 2>&1 &
   echo $! >"$PID_DIR/$app.pid"
   if [ $? -ne 0 ]; then
     echo "Service $app Start Fail"
@@ -71,7 +70,6 @@ pt() {
   done
 }
 
-# 如果没有提供参数，则启动或停止所有服务
 if [ $# -eq 0 ]; then
   echo "Start All Services"
   # 启动所有服务
@@ -79,7 +77,6 @@ if [ $# -eq 0 ]; then
     start "$service"
   done
 else
-  # 遍历所有参数
   while getopts ":ls:q:" opt; do
     case $opt in
     s)

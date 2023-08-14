@@ -8,6 +8,7 @@ import (
 	hu "github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"tuzi-tiktok/logger"
 	"tuzi-tiktok/utils"
 )
 
@@ -30,6 +31,7 @@ func main() {
 		server.WithTransport(standard.NewTransporter),
 		server.WithMaxRequestBodySize(MaxBodySize),
 		server.WithHostPorts(fmt.Sprintf(":%v", port)),
+		server.WithDisablePrintRoute(true),
 	)
 
 	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
@@ -37,5 +39,8 @@ func main() {
 	})
 
 	h.PUT("/", Transfer)
+
 	h.Spin()
+	logger.Warn("Service Shutdown With Error")
+
 }

@@ -103,8 +103,8 @@ func NewClientOptions(c ...ExtOption) []client.Option {
 
 func NewServerOptions(serverName string) []server.Option {
 	port := RandomAvailablePort()
-	addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf(":%d", port))
-	logger.Infof("Service Port  %v %v", serverName, port)
+	addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%d", GetLocalAddrByRC(), port))
+	logger.Infof("%v Service Port is: %v", serverName, port)
 	if err != nil {
 		panic(err)
 	}
@@ -116,6 +116,9 @@ func NewServerOptions(serverName string) []server.Option {
 		server.WithRegistry(registry.NewNacosRegistry(namingClient)),
 		server.WithServiceAddr(addr),
 	}
+	server.RegisterShutdownHook(func() {
+		logger.Infof("Service %v Start Shutdown", serverName)
+	})
 	return options
 
 }

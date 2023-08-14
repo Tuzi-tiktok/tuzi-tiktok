@@ -2,11 +2,10 @@ package dao
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"tuzi-tiktok/dao/model"
 	"tuzi-tiktok/dao/query"
 	"tuzi-tiktok/kitex/kitex_gen/relation"
+	"tuzi-tiktok/logger"
 	"tuzi-tiktok/utils/changes"
 )
 
@@ -14,16 +13,21 @@ var ctx = context.TODO()
 
 // FollowAction 添加关注
 func FollowAction(follower, following int64) error {
-
+	//can not focus on yourself
+	if follower == following {
+		logger.Infof("user:%d can not focus on yourself", follower)
+		return nil
+	}
 	r := query.Relation
 	//查询关注关系是否存在
 	count, err := r.Where(r.FollowerID.Eq(follower), r.FollowingID.Eq(following)).Count()
 	if count > 0 {
-		return errors.New("followed")
+		logger.Infof("user:%d have followed user:%d", follower, following)
+		return nil
 	}
-
-	relation := model.Relation{FollowerID: int64(follower), FollowingID: int64(following)}
-	err = r.WithContext(ctx).Create(&relation)
+	logger.Infof("user:%d follow user:%d", follower, following)
+	relationRecord := model.Relation{FollowerID: int64(follower), FollowingID: int64(following)}
+	err = r.WithContext(ctx).Create(&relationRecord)
 	if err != nil {
 		return err
 	}
@@ -32,15 +36,21 @@ func FollowAction(follower, following int64) error {
 
 // UnFollowAction 取消关注
 func UnFollowAction(follower, following int64) error {
-
+	//can not focus on yourself
+	if follower == following {
+		logger.Infof("user:%d can not focus on yourself", follower)
+		return nil
+	}
 	r := query.Relation
 	result, err := r.WithContext(ctx).Where(r.FollowerID.Eq(follower), r.FollowingID.Eq(following)).Delete()
 	if result.RowsAffected == 0 {
-		return errors.New("unfollow failed")
+		logger.Infof("user:%d and user:%d relation record not exist", follower, following)
+		return nil
 	}
 	if err != nil {
 		return err
 	}
+	logger.Infof("user:%d unfollow user:%d", follower, following)
 	return nil
 }
 
@@ -55,9 +65,8 @@ func GetFriendList(usrId int64) (resp *relation.RelationFriendListResponse, err 
 	if err != nil {
 		return nil, err
 	}
-
+	
 	for _, v := range result {
-		fmt.Println(v.FollowingID)
 		user, err := u.Where(u.ID.Eq(v.FollowingID)).First()
 		if err != nil {
 			return nil, err
