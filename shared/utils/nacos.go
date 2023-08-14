@@ -103,7 +103,7 @@ func NewClientOptions(c ...ExtOption) []client.Option {
 
 func NewServerOptions(serverName string) []server.Option {
 	port := RandomAvailablePort()
-	addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf(":%d", port))
+	addr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%v:%d", GetLocalAddrByRC(), port))
 	logger.Infof("%v Service Port is: %v", serverName, port)
 	if err != nil {
 		panic(err)
