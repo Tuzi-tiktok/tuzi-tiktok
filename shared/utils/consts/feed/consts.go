@@ -10,8 +10,11 @@ const (
 
 const (
 	FEED_API_SUCCESS = 0
+
+	FEED_API_ERROR = 60001
 )
 
 var (
 	FEED_SUCCESS_MSG = "success"
+	FEED_FAIL_MSG    = "error"
 )
