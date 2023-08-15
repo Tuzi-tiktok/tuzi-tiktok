@@ -22,6 +22,8 @@ func (s *RelationServiceImpl) FollowAction(ctx context.Context, req *relation.Re
 	claims, err := secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Infof("failed to parse token, err: %v", err)
+		resp.StatusCode = consts.RelationTokenParseFailed
+		resp.StatusMsg = &consts.RelationTokenParseFailedMsg
 		return resp, nil
 	}
 	uid := claims.Payload.UID
@@ -31,21 +33,24 @@ func (s *RelationServiceImpl) FollowAction(ctx context.Context, req *relation.Re
 		err := dao.FollowAction(uid, req.ToUserId)
 		if err != nil {
 			logger.Infof("failed to follow action, err: %v", err)
-			resp.StatusCode = consts.RelationActionFailed
-			resp.StatusMsg = &consts.RelationActionFailedMsg
-			return resp, nil
+			return nil, err
 		}
-	} else {
+	} else if req.ActionType == 2 {
 		//取消关注
 		err := dao.UnFollowAction(uid, req.ToUserId)
 		if err != nil {
 			logger.Infof("failed to unfollow action, err: %v", err)
-			resp.StatusCode = consts.RelationActionFailed
-			resp.StatusMsg = &consts.RelationActionFailedMsg
-			return resp, nil
+			return nil, err
 		}
 
+	} else {
+		//unknown action
+		logger.Infof("relation unknown action")
+		resp.StatusCode = consts.RelationUnKnownAction
+		resp.StatusMsg = &consts.RelationUnKnownActionMsg
+		return resp, nil
 	}
+
 	resp.StatusCode = consts.RelationSucceed
 	resp.StatusMsg = &consts.RelationSucceedMsg
 	return
@@ -58,6 +63,8 @@ func (s *RelationServiceImpl) GetFollowList(ctx context.Context, req *relation.R
 	_, err = secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Infof("failed to parse token, err: %v", err)
+		resp.StatusCode = consts.RelationTokenParseFailed
+		resp.StatusMsg = &consts.RelationTokenParseFailedMsg
 		return resp, nil
 	}
 
@@ -67,17 +74,13 @@ func (s *RelationServiceImpl) GetFollowList(ctx context.Context, req *relation.R
 	follows, err := r.Where(r.FollowerID.Eq(req.UserId)).Find()
 	if err != nil {
 		logger.Infof("failed to get follow, err: %v", err)
-		resp.StatusMsg = &consts.RelationFollowFailedMsg
-		resp.StatusMsg = &consts.RelationActionFailedMsg
-		return resp, nil
+		return nil, err
 	}
 	for _, follow := range follows {
 		user, err := u.Where(u.ID.Eq(follow.FollowingID)).First()
 		if err != nil {
 			logger.Infof("failed to query follow details, err: %v", err)
-			resp.StatusMsg = &consts.RelationFollowFailedMsg
-			resp.StatusMsg = &consts.RelationActionFailedMsg
-			return resp, nil
+			return nil, err
 		}
 		resp.UserList = append(resp.UserList, changes.UserRecord2userResp(user))
 	}
@@ -94,6 +97,8 @@ func (s *RelationServiceImpl) GetFollowerList(ctx context.Context, req *relation
 	_, err = secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Infof("failed to parse token, err: %v", err)
+		resp.StatusCode = consts.RelationTokenParseFailed
+		resp.StatusMsg = &consts.RelationTokenParseFailedMsg
 		return resp, nil
 	}
 	resp = new(relation.RelationFollowerListResponse)
@@ -103,17 +108,13 @@ func (s *RelationServiceImpl) GetFollowerList(ctx context.Context, req *relation
 	followers, err := r.Where(r.FollowingID.Eq(req.UserId)).Find()
 	if err != nil {
 		logger.Infof("failed to get followers, err: %v", err)
-		resp.StatusMsg = &consts.RelationFollowFailedMsg
-		resp.StatusMsg = &consts.RelationActionFailedMsg
-		return resp, nil
+		return nil, err
 	}
 	for _, follower := range followers {
 		user, err := u.Where(u.ID.Eq(follower.FollowerID)).First()
 		if err != nil {
 			logger.Infof("failed to get follower details, err: %v", err)
-			resp.StatusMsg = &consts.RelationFollowFailedMsg
-			resp.StatusMsg = &consts.RelationActionFailedMsg
-			return resp, nil
+			return nil, err
 		}
 		resp.UserList = append(resp.UserList, changes.UserRecord2userResp(user))
 	}
@@ -137,9 +138,7 @@ func (s *RelationServiceImpl) GetFriendList(ctx context.Context, req *relation.R
 	resp, err = dao.GetFriendList(req.UserId)
 	if err != nil {
 		logger.Infof("failed to get friend list, err: %v", err)
-		resp.StatusMsg = &consts.RelationFollowFailedMsg
-		resp.StatusMsg = &consts.RelationActionFailedMsg
-		return resp, nil
+		return nil, err
 	}
 	resp.StatusCode = consts.RelationSucceed
 	resp.StatusMsg = &consts.RelationSucceedMsg

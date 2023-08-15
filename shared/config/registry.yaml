@@ -37,6 +37,6 @@ secret:
     -----END EC PUBLIC KEY-----
 
 redis:
-  addr: "172.22.110.46:6388"
+  addr: "100.93.41.99:6379"
   password: ""
   db: 0

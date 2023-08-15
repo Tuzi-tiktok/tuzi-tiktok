@@ -1,8 +1,10 @@
 package favorite
 
 const (
-	FavorSucceed       = 0
-	FavorGetListFailed = 5002
+	FavorUnKnownAction    = 402
+	FavorTokenParseFailed = 401
+	FavorSucceed          = 0
+	FavorGetListFailed    = 5002
 )
 
 var (
@@ -15,6 +17,8 @@ const (
 )
 
 var (
-	FavorCommonErrorMsg   = "Internal Server Error"
-	FavorGetListFailedMsg = "Failed to get favor list"
+	FavorUnKnownActionMsg    = "Favor UnKnown Action"
+	FavorTokenParseFailedMsg = "Favor Token Parse Failed"
+	FavorCommonErrorMsg      = "Internal Server Error"
+	FavorGetListFailedMsg    = "Failed to get favor list"
 )
