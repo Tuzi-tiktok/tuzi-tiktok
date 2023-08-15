@@ -1,8 +1,10 @@
 package relation
 
 const (
-	RelationSucceed      = 0
-	RelationActionFailed = 500
+	RelationUnKnownAction    = 402
+	RelationTokenParseFailed = 401
+	RelationSucceed          = 0
+	RelationActionFailed     = 500
 )
 
 var (
@@ -15,8 +17,10 @@ const (
 )
 
 var (
-	RelationCommonErrorMsg    = "Internal Server Error"
-	RelationFollowFailedMsg   = "FollowFail"
-	FavorGetFavorListErrorMsg = "Failed to get the likes list"
-	RelationActionFailedMsg   = "Relation Action Failed"
+	RelationUnKnownActionMsg    = "Relation UnKnown Action"
+	RelationTokenParseFailedMsg = "Relation Token Parse Failed Msg"
+	RelationCommonErrorMsg      = "Internal Server Error"
+	RelationFollowFailedMsg     = "FollowFail"
+	FavorGetFavorListErrorMsg   = "Failed to get the likes list"
+	RelationActionFailedMsg     = "Relation Action Failed"
 )

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	favorite "tuzi-tiktok/kitex/kitex_gen/favorite"
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/secret"
@@ -21,32 +20,24 @@ func (s *FavoriteServiceImpl) FavorVideo(ctx context.Context, req *favorite.Favo
 	claims, err := secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Infof("failed to parse token, err: %v", err)
+		resp.StatusCode = consts.FavorTokenParseFailed
+		resp.StatusMsg = &consts.FavorTokenParseFailedMsg
 		return resp, nil
 	}
 	uid := claims.Payload.UID
 
 	logger.Infof("user: %d favor action video: %d", uid, req.VideoId)
-	if req.ActionType == 1 {
-		//点赞操作
-		err := dao.FavorAction(uid, req.VideoId)
-		if err != nil {
-			logger.Errorf("failed to favor action, err: %v", err)
-			return nil, err
-		}
-	} else {
-		//取消点赞操作
-		err = dao.UnFavorAction(uid, req.VideoId)
-		if err != nil {
-			logger.Errorf("failed to cancel favor action, err: %v", err)
-			return nil, err
-		}
+	//unknown action
+	if req.ActionType != 1 && req.ActionType != 2 {
+		logger.Infof("favor unknown action")
+		resp.StatusCode = consts.FavorUnKnownAction
+		resp.StatusMsg = &consts.FavorUnKnownActionMsg
+		return resp, nil
 	}
 	err = dao.UpdateLike(uid, req.VideoId, req.ActionType)
 	if err != nil {
 		logger.Errorf("favor redis error", err.Error())
-		resp.StatusCode = consts.FavorGetFavorListError
-		resp.StatusMsg = &consts.FavorGetListFailedMsg
-		return
+		return nil, err
 	}
 	resp.StatusCode = consts.FavorSucceed
 	resp.StatusMsg = &consts.FavorSucceedMsg
@@ -60,17 +51,16 @@ func (s *FavoriteServiceImpl) GetFavoriteList(ctx context.Context, req *favorite
 	_, err = secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Errorf("failed to parse token, err: %v", err)
+		resp.StatusCode = consts.FavorTokenParseFailed
+		resp.StatusMsg = &consts.FavorTokenParseFailedMsg
 		return resp, nil
 	}
-	fmt.Println(req.UserId)
 
 	resp = new(favorite.FavoriteListResponse)
 	resp, err = dao.GetFavorList(req.UserId)
 	if err != nil {
 		logger.Errorf("failed to get favor list, err: %v", err)
-		resp.StatusCode = consts.FavorGetListFailed
-		resp.StatusMsg = &consts.FavorGetListFailedMsg
-		return resp, nil
+		return nil, err
 	}
 	resp.StatusCode = consts.FavorSucceed
 	resp.StatusMsg = &consts.FavorSucceedMsg
