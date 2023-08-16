@@ -27,30 +27,45 @@ func (s *FeedServiceImpl) GetFeedList(ctx context.Context, req *feed.FeedRequest
 		} else {
 			// 从token获取当前用户uid
 			uid = claims.Payload.UID
+			logger.Infof("success to get uid : %d ", uid)
 		}
 	}
 
-	// 判断是否传入获取LatestTime，否，使用当前时间
-	if req.GetLatestTime() == 0 {
-		now := time.Now().Unix()
-		req.LatestTime = &now
-	}
+	logger.Debugf("get param latest_time:  %v", req.GetLatestTime())
+
+	t := transformTimeToSecond(req.GetLatestTime())
 
 	var vl []*feed.Video
-	var t time.Time
-	vl, t, err = dao.Video.GetVideoListWithTime(ctx, uid, req.GetLatestTime(), consts.DEAULT_VIDEO_LIST_LIMIST)
+	vl, t, err = dao.Video.GetVideoListWithTime(ctx, dao.QueryOption{
+		Uid:   uid,
+		Ltime: t,
+		Limit: consts.DEAULT_VIDEO_LIST_LIMIST,
+	})
+	if err != nil {
+		resp.StatusCode = consts.FEED_API_ERROR
+		resp.StatusMsg = &consts.FEED_FAIL_MSG
+
+		return resp, err
+	}
 
 	resp.VideoList = vl
 
-	nt := t.Unix()
+	// 获取毫米级时间戳
+	nt := t.UnixMilli()
 	resp.NextTime = &nt
-
-	if err != nil {
-		return resp, err
-	}
 
 	resp.StatusCode = consts.FEED_API_SUCCESS
 	resp.StatusMsg = &consts.FEED_SUCCESS_MSG
 
 	return
+}
+
+// transformTimeToSecond 转化为秒级时间
+func transformTimeToSecond(ms int64) time.Time {
+	if ms == 0 {
+		return time.Now().Truncate(time.Second)
+	}
+	seconds := ms / 1000
+
+	return time.Unix(seconds, 0)
 }
