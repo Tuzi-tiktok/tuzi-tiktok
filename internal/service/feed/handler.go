@@ -39,7 +39,7 @@ func (s *FeedServiceImpl) GetFeedList(ctx context.Context, req *feed.FeedRequest
 	vl, t, err = dao.Video.GetVideoListWithTime(ctx, dao.QueryOption{
 		Uid:   uid,
 		Ltime: t,
-		Limit: 2,
+		Limit: consts.DEAULT_VIDEO_LIST_LIMIST,
 	})
 	if err != nil {
 		resp.StatusCode = consts.FEED_API_ERROR
