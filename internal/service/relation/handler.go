@@ -27,6 +27,14 @@ func (s *RelationServiceImpl) FollowAction(ctx context.Context, req *relation.Re
 		return resp, nil
 	}
 	uid := claims.Payload.UID
+	//can not focus on yourself
+	if uid == req.ToUserId {
+		logger.Infof("user:%d can not focus on yourself", uid)
+		resp.StatusCode = consts.RelationFollowFailed
+		resp.StatusMsg = &consts.RelationFollowFailedMsg
+		return resp, nil
+	}
+
 	logger.Infof("user:%d follow action user:%d", uid, req.ToUserId)
 	if req.ActionType == 1 {
 		//关注
