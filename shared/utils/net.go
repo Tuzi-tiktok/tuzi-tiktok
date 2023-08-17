@@ -32,7 +32,6 @@ func GetLocalAddrByRC() string {
 		panic(err)
 	}
 	defer dial.Close()
-	fmt.Println(dial.LocalAddr().String())
 	return strings.Split(dial.LocalAddr().String(), ":")[0]
 }
 
