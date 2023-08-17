@@ -10,6 +10,7 @@ import (
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/redis"
 	"tuzi-tiktok/utils/changes"
+	consts "tuzi-tiktok/utils/consts/favorite"
 )
 
 var f = query.Favorite
@@ -19,7 +20,7 @@ var ctx = context.TODO()
 // GetFavorList 得到点赞列表
 func GetFavorList(UserId int64) (resp *favorite.FavoriteListResponse, err error) {
 	resp = new(favorite.FavoriteListResponse)
-	videos, err := f.Where(f.UID.Eq(UserId)).Find()
+	videos, err := f.Debug().Where(f.UID.Eq(UserId)).Find()
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +41,7 @@ func GetFavorList(UserId int64) (resp *favorite.FavoriteListResponse, err error)
 func FavorAction(uid, vid int64) error {
 
 	//查询点赞关系是否存在
-	count, err := f.Where(f.UID.Eq(uid), f.Vid.Eq(vid)).Count()
+	count, err := f.Where(f.UID.Eq(uid), f.Vid.Eq(vid), f.DeletedAt.IsNull()).Count()
 	if err != nil {
 		logger.Errorf("query favor record error", err.Error())
 		return err
@@ -197,70 +198,77 @@ func UnFavorAction(uid, vid int64) error {
 //	return nil
 //}
 
-func UpdateLike(uid, vid int64, actionType int32) error {
+func UpdateLike(uid, vid int64, actionType int32) (resp *favorite.FavoriteResponse, err error) {
+	resp = new(favorite.FavoriteResponse)
 	//判断当前用户是否点过赞
 	var key string = "video:liked:" + strconv.Itoa(int(vid))
 	ok, err := redis.IRC.SIsMember(context.Background(), key, uid).Result()
 	if err != nil {
-		return err
+		return nil, err
 	}
+
 	// actionType == 1 点赞
 	if actionType == 1 {
-
-		//用户已经点赞
+		//用户点赞过了
 		if ok {
 			logger.Infof("user:%d has liked video:%d", uid, vid)
-			return nil
+			resp.StatusCode = consts.FavorHaveLiked
+			resp.StatusMsg = &consts.FavorHaveLikedMsg
+			return resp, nil
 		}
 		//数据库点赞数+1
 		result, err := v.Where(v.ID.Eq(vid)).Update(v.FavoriteCount, v.FavoriteCount.Add(1))
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if result.RowsAffected == 0 {
 			logger.Infof("not video record")
-			return errors.New("not video record")
+			return nil, errors.New("not video record")
 		}
 		//点赞关系存入数据库
 		favor := model.Favorite{UID: uid, Vid: vid}
 		err = f.WithContext(ctx).Create(&favor)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		//保存用户到redis set集合
 		err = redis.IRC.SAdd(context.Background(), key, uid).Err()
 		if err != nil {
-			return err
+			return nil, err
 		}
 		//取消点赞 actionType == 2
 	} else if actionType == 2 {
-		//用户原本没有点赞，不能够执行取消点赞的操作
 		if !ok {
-			logger.Infof("user:%d hasn't liked video:%d", uid, vid)
-			return nil
+			logger.Infof("user:%d like video:%d not exist", uid, vid)
+			resp.StatusCode = consts.FavorRecordNotExist
+			resp.StatusMsg = &consts.FavorRecordNotExistMsg
+			return resp, nil
 		}
 		//数据库点赞数-1
 		v := query.Video
-		_, err = v.Where(v.ID.Eq(vid)).Update(v.FavoriteCount, v.FavoriteCount.Sub(1))
+		result, err := v.Where(v.ID.Eq(vid)).Update(v.FavoriteCount, v.FavoriteCount.Sub(1))
 		if err != nil {
-			return err
+			return nil, err
+		}
+		if result.RowsAffected == 0 {
+			return nil, errors.New("video record not exist")
 		}
 		//删除点赞关系
-		result, err := f.WithContext(ctx).Where(f.UID.Eq(uid), f.Vid.Eq(vid)).Delete()
+		result, err = f.WithContext(ctx).Where(f.UID.Eq(uid), f.Vid.Eq(vid)).Delete()
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if result.RowsAffected == 0 {
 			logger.Infof("user:%d and video:%d record not exist", uid, vid)
-			return errors.New("record not exist")
+			return nil, errors.New("record not exist")
 		}
 
 		//把用户从redis的集合中移除
 		err = redis.IRC.SRem(context.Background(), key, uid).Err()
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return nil, nil
 }
