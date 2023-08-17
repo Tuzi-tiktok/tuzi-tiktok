@@ -34,10 +34,14 @@ func (s *FavoriteServiceImpl) FavorVideo(ctx context.Context, req *favorite.Favo
 		resp.StatusMsg = &consts.FavorUnKnownActionMsg
 		return resp, nil
 	}
-	err = dao.UpdateLike(uid, req.VideoId, req.ActionType)
+	var resp2 *favorite.FavoriteResponse
+	resp2, err = dao.UpdateLike(uid, req.VideoId, req.ActionType)
 	if err != nil {
 		logger.Errorf("favor redis error", err.Error())
 		return nil, err
+	}
+	if resp2 != nil {
+		return resp2, nil
 	}
 	resp.StatusCode = consts.FavorSucceed
 	resp.StatusMsg = &consts.FavorSucceedMsg
