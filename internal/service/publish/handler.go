@@ -91,13 +91,9 @@ func (s *PublishServiceImpl) GetPublishList(ctx context.Context, req *publish.Pu
 
 	claims, err := tools.ParseToken(req.Token)
 	resp = new(publish.PublishListResponse)
-	var msg string
+	isTourist := false
 	if err != nil {
-		msg = err.Error()
-		logger.Debug(msg)
-		resp.StatusMsg = &msg
-		resp.StatusCode = consts.InvalidToken
-		return nil, err
+		isTourist = true
 	}
 	currentUid, targetId := claims.Payload.UID, req.UserId
 
@@ -124,14 +120,17 @@ func (s *PublishServiceImpl) GetPublishList(ctx context.Context, req *publish.Pu
 	}
 
 	user := users[0]
-
-	// 查询当前用户是否关注目标用户
-	count, err := qRelation.Where(qRelation.FollowerID.Eq(currentUid), qRelation.FollowingID.Eq(targetId)).Count()
-	isFollow := count != 0
-	if err != nil {
-		logger.Warn(err)
-		return nil, err
+	isFollow := false
+	if !isTourist {
+		// 查询当前用户是否关注目标用户
+		count, err := qRelation.Where(qRelation.FollowerID.Eq(currentUid), qRelation.FollowingID.Eq(targetId)).Count()
+		if err != nil {
+			logger.Warn(err)
+			return nil, err
+		}
+		isFollow = count != 0
 	}
+
 	// 目标用户获赞数目
 	vids := make([]int64, videosNums)
 	for i := range vids {
@@ -151,12 +150,15 @@ func (s *PublishServiceImpl) GetPublishList(ctx context.Context, req *publish.Pu
 	videoList := make([]*feed.Video, videosNums)
 	for i := range videos {
 		v := videos[i]
-		count, err := qFavorite.Where(qFavorite.UID.Eq(currentUid), qFavorite.Vid.Eq(v.ID)).Count()
-		if err != nil {
-			return nil, err
+		isFavorite := false
+		if !isTourist {
+			count, err := qFavorite.Where(qFavorite.UID.Eq(currentUid), qFavorite.Vid.Eq(v.ID)).Count()
+			if err != nil {
+				return nil, err
+			}
+			// 当前用户是否点赞当前视频
+			isFavorite = count != 0
 		}
-		// 当前用户是否点赞当前视频
-		isFavorite := count != 0
 		followCount, followerCount := user.FollowCount, user.FollowerCount
 		MergeStruct(videoList, i, v, isFavorite, user, followCount, followerCount,
 			isFollow, totalFavorited, videosNums, favoriteCount)
