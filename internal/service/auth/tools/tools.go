@@ -1,10 +1,8 @@
 package tools
 
 import (
-	"encoding/json"
 	"io"
 	"net/http"
-	"strings"
 )
 
 type RandomImageResp struct {
@@ -15,19 +13,13 @@ type RandomImageResp struct {
 }
 
 func GetRandomImage() (string, error) {
-	resp, err := http.Get("https://www.dmoe.cc/random.php?return=json")
+	resp, err := http.Get("https://www.dmoe.cc/random.php")
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
 
-	var data RandomImageResp
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.ReplaceAll(data.Imgurl, "\\", ""), nil
+	return resp.Request.URL.String(), nil
 }
 
 func GetRandomSentence() (string, error) {
