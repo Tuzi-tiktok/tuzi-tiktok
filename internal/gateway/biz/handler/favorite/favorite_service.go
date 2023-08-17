@@ -20,6 +20,7 @@ func FavorVideo(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req favorite.FavoriteRequest
 	var handler = "FavorVideo"
+	// TODO Bind Action Type Enum 0 1
 	err = c.Bind(&req)
 	if err != nil {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
