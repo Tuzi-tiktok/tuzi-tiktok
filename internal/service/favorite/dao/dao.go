@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"tuzi-tiktok/dao/model"
 	"tuzi-tiktok/dao/query"
@@ -212,10 +213,13 @@ func UpdateLike(uid, vid int64, actionType int32) error {
 			return nil
 		}
 		//数据库点赞数+1
-		v := query.Video
-		_, err = v.Where(v.ID.Eq(vid)).Update(v.FavoriteCount, v.FavoriteCount.Add(1))
+		result, err := v.Where(v.ID.Eq(vid)).Update(v.FavoriteCount, v.FavoriteCount.Add(1))
 		if err != nil {
 			return err
+		}
+		if result.RowsAffected == 0 {
+			logger.Infof("not video record")
+			return errors.New("not video record")
 		}
 		//点赞关系存入数据库
 		favor := model.Favorite{UID: uid, Vid: vid}
@@ -224,7 +228,7 @@ func UpdateLike(uid, vid int64, actionType int32) error {
 			return err
 		}
 		//保存用户到redis set集合
-		err := redis.IRC.SAdd(context.Background(), key, uid).Err()
+		err = redis.IRC.SAdd(context.Background(), key, uid).Err()
 		if err != nil {
 			return err
 		}
@@ -242,9 +246,13 @@ func UpdateLike(uid, vid int64, actionType int32) error {
 			return err
 		}
 		//删除点赞关系
-		_, err := f.WithContext(ctx).Where(f.UID.Eq(uid), f.Vid.Eq(vid)).Delete()
+		result, err := f.WithContext(ctx).Where(f.UID.Eq(uid), f.Vid.Eq(vid)).Delete()
 		if err != nil {
 			return err
+		}
+		if result.RowsAffected == 0 {
+			logger.Infof("user:%d and video:%d record not exist", uid, vid)
+			return errors.New("record not exist")
 		}
 
 		//把用户从redis的集合中移除
