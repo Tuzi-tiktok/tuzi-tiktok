@@ -5,13 +5,6 @@ import (
 	"net/http"
 )
 
-type RandomImageResp struct {
-	Code   string `json:"code"`
-	Imgurl string `json:"imgurl"`
-	Width  string `json:"width"`
-	Height string `json:"height"`
-}
-
 func GetRandomImage() (string, error) {
 	resp, err := http.Get("https://www.dmoe.cc/random.php")
 	if err != nil {
