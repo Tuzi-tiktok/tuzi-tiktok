@@ -47,7 +47,7 @@ func (i *impl) PutObject(k string, reader io.Reader) error {
 		PartSize:    1024 * 1024 * 5,
 	}
 	info, err := i.Client.PutObject(ctx, c.Bucket, k, reader, -1, options)
-	logger.Debug(info.Key, info.Size)
+	logger.Debugf("%v  File Size is %v MB", info.Key, float64(info.Size)/1024/1024)
 	return err
 }
 
