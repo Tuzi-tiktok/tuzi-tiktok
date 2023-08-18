@@ -20,7 +20,7 @@ func Authentication() app.HandlerFunc {
 		var t TokenEq
 		err := ctx.Bind(&t)
 		if err != nil || t.Token == "" {
-			_ = ctx.Error(global.TokenNotFound.WithHandler(handler))
+			_ = ctx.Error(global.TokenNotFound.WithHandler(handler).WithWarn(err))
 			ctx.Abort()
 			return
 		}
