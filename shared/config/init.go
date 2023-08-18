@@ -117,8 +117,6 @@ func LookupRegistryHost() {
 }
 
 func ComponentInitialization() {
-	log.Println(VConfig.GetViper().AllKeys())
-
 	log.Println(" - Parsing Config For Zap Logger")
 	if err := VConfig.viper.UnmarshalKey(logK, &LoggerConfig); err != nil {
 		panic(err)
