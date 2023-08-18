@@ -125,7 +125,11 @@ func (s *CommentServiceImpl) Comment(ctx context.Context, req *comment.CommentRe
 		}
 		if info.RowsAffected == 0 {
 			logger.Infof("comment: %d not exist", *req.CommentId)
-			// TODO
+			resp = &comment.CommentResponse{
+				StatusCode: consts.CommentNotExist,
+				StatusMsg:  &consts.CommentNotExistMsg,
+			}
+			return resp, nil
 		}
 		logger.Infof("comment: %d deleted", *req.CommentId)
 

@@ -10,14 +10,16 @@ var (
 
 const (
 	CommentCommonError   = 500
-	CommentInvalidToken  = 403
-	CommentVideoNotExist = 404
 	CommentUnknownAction = 400
+	CommentInvalidToken  = 403
+	CommentVideoNotExist = 4040
+	CommentNotExist      = 4041
 )
 
 var (
 	CommentCommonErrorMsg   = "Internal Server Error"
+	CommentUnknownActionMsg = "Unknown action type"
 	CommentInvalidTokenMsg  = "Invalid token"
 	CommentVideoNotExistMsg = "Video does not exist"
-	CommentUnknownActionMsg = "Unknown action type"
+	CommentNotExistMsg      = "Comment does not exist"
 )
