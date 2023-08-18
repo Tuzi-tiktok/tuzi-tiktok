@@ -31,7 +31,7 @@ func (s *FeedServiceImpl) GetFeedList(ctx context.Context, req *feed.FeedRequest
 		}
 	}
 
-	logger.Debugf("get param latest_time:  %v", req.GetLatestTime())
+	logger.Infof("get param latest_time:  %v", req.GetLatestTime())
 
 	t := transformTimeToSecond(req.GetLatestTime())
 
