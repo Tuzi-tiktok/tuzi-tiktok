@@ -10,7 +10,17 @@ import (
 var qFavorite = query.Favorite
 
 func TestIsFavorite(t *testing.T) {
-	count, err := qFavorite.WithContext(context.Background()).Where(qFavorite.UID.Eq(1), qFavorite.Vid.Eq(3), qFavorite.DeletedAt.IsNull()).Count()
+	var uid int64
+	var vid int64
+	uid = 4
+	vid = 1
+	dInfo, _ := qFavorite.WithContext(context.Background()).
+		Where(qFavorite.UID.Eq(uid)).
+		// Where(qFavorite.Vid.Eq(vid)).
+		Delete()
+	log.Printf("delete %v ", dInfo)
+
+	count, err := qFavorite.WithContext(context.Background()).Where(qFavorite.UID.Eq(uid), qFavorite.Vid.Eq(vid), qFavorite.DeletedAt.IsNull()).Count()
 	if err != nil {
 		return
 	}
