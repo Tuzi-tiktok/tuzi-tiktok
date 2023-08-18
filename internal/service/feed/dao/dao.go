@@ -34,7 +34,7 @@ type QueryOption struct {
 	Limit int
 }
 
-var isLogin bool
+var isLogin = true
 
 // GetVideoListWithTime 根据本次时间逆序查找limit数量的video列表
 func (QVideo) GetVideoListWithTime(ctx context.Context, q QueryOption) ([]*feed.Video, time.Time, error) {
@@ -43,7 +43,12 @@ func (QVideo) GetVideoListWithTime(ctx context.Context, q QueryOption) ([]*feed.
 		isLogin = false
 	}
 
-	mVideos, err := qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Lt(q.Ltime), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(q.Limit).Find()
+	logger.Debugf("entry func GetVideoListWithTime() && user is login %v", isLogin)
+
+	mVideos, err := qVideo.WithContext(ctx).
+		Where(qVideo.CreatedAt.Lt(q.Ltime)).
+		Order(qVideo.CreatedAt.Desc()).
+		Limit(q.Limit).Find()
 	if err != nil {
 		logger.Errorf("Error querying video list, err: %v", err)
 		return nil, q.Ltime, err
@@ -51,17 +56,22 @@ func (QVideo) GetVideoListWithTime(ctx context.Context, q QueryOption) ([]*feed.
 
 	var nt time.Time
 	switch len(mVideos) {
-	case q.Limit: logger.Infof("The length of the videoList was successfully queried as %d.", q.Limit)
+	case q.Limit:
+		logger.Infof("The length of the videoList was successfully queried as %d.", q.Limit)
 	case 0:
 		logger.Info("The last_time param is reset to time.Now().")
 		t := time.Now().Truncate(time.Second)
-		mVideos, err = qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Lt(t), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(q.Limit).Find()
+		mVideos, err = qVideo.WithContext(ctx).
+			Where(qVideo.CreatedAt.Lt(t)).
+			Order(qVideo.CreatedAt.Desc()).
+			Limit(q.Limit).
+			Find()
 		if err != nil {
 			logger.Errorf("Error querying video list, err: %v", err)
 			return nil, t, err
 		}
 		nt = t
-	default: 
+	default:
 		// 长度不足
 		nt = time.Now().Truncate(time.Second)
 	}
@@ -72,24 +82,17 @@ func (QVideo) GetVideoListWithTime(ctx context.Context, q QueryOption) ([]*feed.
 		})
 		nt = *mVideos[0].CreatedAt
 	}
-	
-	// if len(mVideos) == 0 {
-	// 	logger.Info("The last_time param is reset to time.Now().")
-	// 	t := time.Now().Truncate(time.Second)
-	// 	mVideos, err = qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Lt(t), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(q.Limit).Find()
-	// 	if err != nil {
-	// 		logger.Errorf("Error querying video list, err: %v", err)
-	// 		return nil, t, err
-	// 	}
-	// }
+
 	videos, err := mVideo2fVideoMore(q, mVideos)
-	
+
 	return videos, nt, err
 }
 
 // countVideos 统计作品数量
 func countVideos(aid int64) *int64 {
-	count, err := qVideo.WithContext(context.Background()).Where(qVideo.AuthorID.Eq(aid), qVideo.DeletedAt.IsNull()).Count()
+	count, err := qVideo.WithContext(context.Background()).
+		Where(qVideo.AuthorID.Eq(aid)).
+		Count()
 	if err != nil {
 		logger.Errorf("Error Querying the number of works, err: %v", err)
 		//todo: 修改？当发生错误时，返回0
@@ -101,7 +104,9 @@ func countVideos(aid int64) *int64 {
 // getUserInfo 根据获取用户（作者）信息
 func getUserInfoByAuthorID(aid int64) (u *model.User) {
 	// todo: 从redis获取userInfo(?)
-	u, err := qUser.WithContext(context.Background()).Where(qUser.ID.Eq(aid), qUser.DeletedAt.IsNull()).First()
+	u, err := qUser.WithContext(context.Background()).
+		Where(qUser.ID.Eq(aid)).
+		First()
 	if err != nil {
 		logger.Errorf("Error querying user, err: %v", err)
 		return nil
@@ -115,7 +120,9 @@ func isFollower(uid int64, aid int64) bool {
 		return false
 	}
 
-	find, err := qRelation.WithContext(context.Background()).Where(qRelation.FollowerID.Eq(uid), qRelation.FollowingID.Eq(aid), qRelation.DeletedAt.IsNull()).Count()
+	find, err := qRelation.WithContext(context.Background()).
+		Where(qRelation.FollowerID.Eq(uid), qRelation.FollowingID.Eq(aid)).
+		Count()
 	if err != nil {
 		logger.Errorf("Error querying whether the user follows the author, err: %v", err)
 		return false
@@ -129,17 +136,23 @@ func isFavorite(uid int64, vid int64) bool {
 		return false
 	}
 
-	find, err := qFavorite.WithContext(context.Background()).Where(qFavorite.UID.Eq(uid), qFavorite.Vid.Eq(vid), qFavorite.DeletedAt.IsNull()).Count()
+	// logger.Debugf("=================> uid is %d || vid is %d", uid, vid)
+	find, err := qFavorite.WithContext(context.Background()).
+		Where(qFavorite.UID.Eq(uid), qFavorite.Vid.Eq(vid)).
+		Count()
 	if err != nil {
 		logger.Errorf("Error querying if the user has liked the video, err: %v", err)
 		return false
 	}
+	// logger.Debugf("=================> find is %v", find)
 	return find == 1
 }
 
 // getUserFavorite 获取用户获取喜欢视频的数量
 func getUserFavorite(aid int64) *int64 {
-	count, err := qFavorite.WithContext(context.Background()).Where(qFavorite.UID.Eq(aid), qFavorite.DeletedAt.IsNull()).Count()
+	count, err := qFavorite.WithContext(context.Background()).
+		Where(qFavorite.UID.Eq(aid)).
+		Count()
 	if err != nil {
 		logger.Errorf("Error querying the number of videos the user has liked, err: %v", err)
 		return nil
@@ -149,7 +162,9 @@ func getUserFavorite(aid int64) *int64 {
 
 // getVideoFavorite 获取视频获取点赞数量
 func getVideoFavorite(vid int64) int64 {
-	count, err := qFavorite.WithContext(context.Background()).Where(qFavorite.Vid.Eq(vid), qFavorite.DeletedAt.IsNull()).Count()
+	count, err := qFavorite.WithContext(context.Background()).
+		Where(qFavorite.Vid.Eq(vid)).
+		Count()
 	if err != nil {
 		logger.Errorf("Error querying the video to get the number of likes, err: %v", err)
 		return 0
@@ -161,7 +176,10 @@ func getVideoFavorite(vid int64) int64 {
 // getTotalFavorite 获取作者获得点赞总数
 func getTotalFavorite(aid int64) *int64 {
 	// 获取作者作品vid列表
-	vids, err := qVideo.WithContext(context.Background()).Select(qVideo.ID).Where(qVideo.AuthorID.Eq(aid), qVideo.DeletedAt.IsNull()).Find()
+	vids, err := qVideo.WithContext(context.Background()).
+		Select(qVideo.ID).
+		Where(qVideo.AuthorID.Eq(aid)).
+		Find()
 	if err != nil {
 		logger.Errorf("Error querying all video ids of the account, err: %v", err)
 		return nil
@@ -209,6 +227,7 @@ func mVideo2fVideoOne(uid int64, m *model.Video) (f *feed.Video) {
 func mVideo2fVideoMore(q QueryOption, mv []*model.Video) ([]*feed.Video, error) {
 	fv := make([]*feed.Video, 0)
 
+	// logger.Debug("entry func mVideo2fVideoMore()")
 	for _, m := range mv {
 		f := mVideo2fVideoOne(q.Uid, m)
 		fv = append(fv, f)
