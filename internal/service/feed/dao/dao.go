@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"sort"
 	"time"
 	"tuzi-tiktok/dao/model"
 	"tuzi-tiktok/dao/query"
@@ -27,42 +28,63 @@ type QVideo struct{}
 
 var Video = QVideo{}
 
-type login struct {
-	IsLogin bool
+type QueryOption struct {
+	Uid   int64
+	Ltime time.Time
+	Limit int
 }
 
-var p = login{}
+var isLogin bool
 
 // GetVideoListWithTime 根据本次时间逆序查找limit数量的video列表
-func (QVideo) GetVideoListWithTime(ctx context.Context, uid int64, lTime int64, limit int) (videos []*feed.Video, nt time.Time, err error) {
+func (QVideo) GetVideoListWithTime(ctx context.Context, q QueryOption) ([]*feed.Video, time.Time, error) {
 	// 用户状态赋予login.IsLogin
-	if uid == consts.NOUSERSTATE {
-		p.IsLogin = false
+	if q.Uid == consts.NOUSERSTATE {
+		isLogin = false
 	}
 
-	// 转化lTime，时间戳转化为Time
-	t := time.Unix(lTime, 0)
-
-	// 单次返回视频列表为30，当超过30时，使用最大值
-	// todo: 这里多了第二层判断返回视频列表数量的限制，可以考虑去掉
-	if limit > 30 {
-		limit = DefaultVideoListMax
-	}
-
-	// todo: 存在问题，当last_time超过了数据库中最早时间时，应当从最新的时间戳获取缺少的视频列表
-	mVideos, err := qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Lt(t), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(limit).Find()
+	mVideos, err := qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Lt(q.Ltime), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(q.Limit).Find()
 	if err != nil {
 		logger.Errorf("Error querying video list, err: %v", err)
-		return nil, time.Now(), err
-	}
-	if len(mVideos) == 0 {
-		logger.Info("The lastTime query is reset to time.Now().")
-		mVideos, err = qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Lt(time.Now()), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(limit).Find()
+		return nil, q.Ltime, err
 	}
 
-	videos, nt, err = mVideo2fVideoMore(uid, t, mVideos)
-
-	return
+	var nt time.Time
+	switch len(mVideos) {
+	case q.Limit: logger.Infof("The length of the videoList was successfully queried as %d.", q.Limit)
+	case 0:
+		logger.Info("The last_time param is reset to time.Now().")
+		t := time.Now().Truncate(time.Second)
+		mVideos, err = qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Lt(t), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(q.Limit).Find()
+		if err != nil {
+			logger.Errorf("Error querying video list, err: %v", err)
+			return nil, t, err
+		}
+		nt = t
+	default: 
+		// 长度不足
+		nt = time.Now().Truncate(time.Second)
+	}
+	if nt.IsZero() {
+		// 获得视频列表里面发布最早的时间
+		sort.Slice(mVideos, func(i, j int) bool {
+			return mVideos[i].CreatedAt.Before(*mVideos[j].CreatedAt)
+		})
+		nt = *mVideos[0].CreatedAt
+	}
+	
+	// if len(mVideos) == 0 {
+	// 	logger.Info("The last_time param is reset to time.Now().")
+	// 	t := time.Now().Truncate(time.Second)
+	// 	mVideos, err = qVideo.WithContext(ctx).Where(qVideo.CreatedAt.Lt(t), qVideo.DeletedAt.IsNull()).Order(qVideo.CreatedAt.Desc()).Limit(q.Limit).Find()
+	// 	if err != nil {
+	// 		logger.Errorf("Error querying video list, err: %v", err)
+	// 		return nil, t, err
+	// 	}
+	// }
+	videos, err := mVideo2fVideoMore(q, mVideos)
+	
+	return videos, nt, err
 }
 
 // countVideos 统计作品数量
@@ -89,7 +111,7 @@ func getUserInfoByAuthorID(aid int64) (u *model.User) {
 
 // isFollower 判断是否关注该作者
 func isFollower(uid int64, aid int64) bool {
-	if !p.IsLogin {
+	if !isLogin {
 		return false
 	}
 
@@ -103,7 +125,7 @@ func isFollower(uid int64, aid int64) bool {
 
 // isFavorite 判断用户是否点赞该视频
 func isFavorite(uid int64, vid int64) bool {
-	if !p.IsLogin {
+	if !isLogin {
 		return false
 	}
 
@@ -152,37 +174,6 @@ func getTotalFavorite(aid int64) *int64 {
 	return &total
 }
 
-// mVideo2fVideoOne 单个model.Video转化为feed.Video
-func mVideo2fVideoOne(uid int64, m *model.Video) (f *feed.Video) {
-	f = new(feed.Video)
-	f.Id = m.ID
-	f.Author = mUser2aUserOne(uid, getUserInfoByAuthorID(m.AuthorID))
-	f.PlayUrl = m.PlayURL
-	f.CoverUrl = m.CoverURL
-	f.FavoriteCount = m.FavoriteCount
-	f.CommentCount = m.CommentCount
-	f.IsFavorite = isFavorite(uid, m.ID)
-	f.Title = m.Title
-	return
-}
-
-// mVideo2fVideoMore 切片model.Video转化为feed.Video
-func mVideo2fVideoMore(uid int64, lTime time.Time, mv []*model.Video) ([]*feed.Video, time.Time, error) {
-	fv := make([]*feed.Video, 0)
-	nt := lTime
-
-	for _, m := range mv {
-		if nt.After(*m.CreatedAt) {
-			nt = *m.CreatedAt
-		}
-
-		// todo: 感觉这里可以考虑开启协程
-		f := mVideo2fVideoOne(uid, m)
-		fv = append(fv, f)
-	}
-	return fv, nt, nil
-}
-
 // mUser2aUserOne 单个model.User转化为auth.User
 func mUser2aUserOne(uid int64, u *model.User) (a *auth.User) {
 	a = new(auth.User)
@@ -198,4 +189,29 @@ func mUser2aUserOne(uid int64, u *model.User) (a *auth.User) {
 	a.WorkCount = countVideos(u.ID)
 	a.FavoriteCount = getUserFavorite(u.ID)
 	return
+}
+
+// mVideo2fVideoOne 单个model.Video转化为feed.Video
+func mVideo2fVideoOne(uid int64, m *model.Video) (f *feed.Video) {
+	f = new(feed.Video)
+	f.Id = m.ID
+	f.Author = mUser2aUserOne(uid, getUserInfoByAuthorID(m.AuthorID))
+	f.PlayUrl = m.PlayURL
+	f.CoverUrl = m.CoverURL
+	f.FavoriteCount = m.FavoriteCount
+	f.CommentCount = m.CommentCount
+	f.IsFavorite = isFavorite(uid, m.ID)
+	f.Title = m.Title
+	return
+}
+
+// mVideo2fVideoMore 切片model.Video转化为feed.Video
+func mVideo2fVideoMore(q QueryOption, mv []*model.Video) ([]*feed.Video, error) {
+	fv := make([]*feed.Video, 0)
+
+	for _, m := range mv {
+		f := mVideo2fVideoOne(q.Uid, m)
+		fv = append(fv, f)
+	}
+	return fv, nil
 }

@@ -72,6 +72,34 @@ func (s *AuthInfoServiceImpl) Login(ctx context.Context, req *auth.UserLoginRequ
 func (s *AuthInfoServiceImpl) Register(ctx context.Context, req *auth.UserRegisterRequest) (resp *auth.UserRegisterResponse, err error) {
 	logger.Infof("register user: %s", req.Username)
 
+	// TODO: 异步获取随机头像/头图/签名
+	imgCh := make(chan string, 2)
+	go func() {
+		ava, err := tools.GetRandomImage()
+		if err != nil {
+			logger.Errorf("failed to get random avatar, err: %v", err)
+			imgCh <- ""
+		}
+		imgCh <- ava
+	}()
+	go func() {
+		img, err := tools.GetRandomImage()
+		if err != nil {
+			logger.Errorf("failed to get random background image, err: %v", err)
+			imgCh <- ""
+		}
+		imgCh <- img
+	}()
+	strCh := make(chan string, 1)
+	go func() {
+		sig, err := tools.GetRandomSentence()
+		if err != nil {
+			logger.Errorf("failed to get random sentence, err: %v", err)
+			strCh <- ""
+		}
+		strCh <- sig
+	}()
+
 	//resp = &auth.UserRegisterResponse{}
 	user := query.Q.User
 	existedUser, err := user.WithContext(ctx).Where(user.Username.Eq(req.Username)).Select().Find()
@@ -89,10 +117,16 @@ func (s *AuthInfoServiceImpl) Register(ctx context.Context, req *auth.UserRegist
 		return resp, nil
 	}
 
-	pwd := tools.HashPwd(req.Password)
+	ava := <-imgCh
+	img := <-imgCh
+	sig := <-strCh
 	newUser := model.User{
 		Username: req.Username,
-		Password: pwd,
+		Password: tools.HashPwd(req.Password),
+		// TODO: 随机添加一些头像/头图/签名
+		Avatar:          &ava,
+		BackgroundImage: &img,
+		Signature:       &sig,
 	}
 	err = user.WithContext(ctx).Clauses(clause.Returning{}).Create(&newUser)
 	if err != nil {
