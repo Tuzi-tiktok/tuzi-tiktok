@@ -30,80 +30,10 @@ services:
     command: server /data --console-address ":9998" --address ":9090"
     ports:
       - "9998:9998"
-  gateway:
-    container_name: "tuzi_gateway"
-    build:
-      context: ./
-      dockerfile: dockers/DockerfileGateway
+  all:
+    container_name: "tuzi_tiktok"
     ports:
-      - "18888:8888"
-    environment:
-      TUZI_ENV: docker
-  auth:
-    container_name: "tuzi_auth"
-    build:
-      context: ./
-      dockerfile: dockers/DockerfileAuth
-    environment:
-      TUZI_ENV: docker
-  comment:
-    container_name: "tuzi_comment"
-    build:
-      context: ./
-      dockerfile: dockers/DockerfileCom
-    environment:
-      TUZI_ENV: docker
-  favorite:
-    container_name: "tuzi_favorite"
-    build:
-      context: ./
-      dockerfile: dockers/DockerfileFav
-    environment:
-      TUZI_ENV: docker
-  feed:
-    container_name: "tuzi_feed"
-    build:
-      context: ./
-      dockerfile: dockers/DockerfileFee
-    environment:
-      TUZI_ENV: docker
-  filetransfer:
-    container_name: "tuzi_filetransfer"
-    build:
-      context: ./
-      dockerfile: dockers/DockerfileFt
-    environment:
-      TUZI_ENV: docker
-  message:
-    container_name: "tuzi_message"
-    build:
-      context: ./
-      dockerfile: dockers/DockerfileMsg
-    environment:
-      TUZI_ENV: docker
-  publish:
-    container_name: "tuzi_publish"
-    build:
-      context: ./
-      dockerfile: dockers/DockerfilePub
-    environment:
-      TUZI_ENV: docker
-  relation:
-    container_name: "tuzi_relation"
-    build:
-      context: ./
-      dockerfile: dockers/DockerfileRel
-    environment:
-      TUZI_ENV: docker
-  debug:
-    container_name: debug
-    build:
-      context: ./
-      dockerfile: dockers/Dockerfile
-    environment:
-      TUZI_ENV: docker
-    ports:
-      - "18888:8888"
+      - "8888:8888"
 
 networks:
   default:
