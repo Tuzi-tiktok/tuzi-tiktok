@@ -80,8 +80,7 @@ func (s *CommentServiceImpl) Comment(ctx context.Context, req *comment.CommentRe
 		logger.Infof("comment: %d created", c.ID)
 
 		// update video comment count
-		count := v[0].CommentCount + 1
-		_, e = qVideo.WithContext(ctx).Where(qVideo.ID.Eq(vid)).Updates(model.Video{CommentCount: count})
+		_, e = qVideo.WithContext(ctx).Where(qVideo.ID.Eq(vid)).Update(qVideo.CommentCount, qVideo.CommentCount.Add(1))
 		if e != nil {
 			return nil, e
 		}
@@ -134,8 +133,7 @@ func (s *CommentServiceImpl) Comment(ctx context.Context, req *comment.CommentRe
 		logger.Infof("comment: %d deleted", *req.CommentId)
 
 		// update video comment count
-		count := v[0].CommentCount - 1
-		_, e = qVideo.WithContext(ctx).Where(qVideo.ID.Eq(vid)).Updates(model.Video{CommentCount: count})
+		_, e = qVideo.WithContext(ctx).Where(qVideo.ID.Eq(vid)).Update(qVideo.CommentCount, qVideo.CommentCount.Sub(1))
 		if e != nil {
 			return nil, e
 		}
