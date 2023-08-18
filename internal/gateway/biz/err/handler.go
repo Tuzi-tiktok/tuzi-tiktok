@@ -67,7 +67,7 @@ func init() {
 			logger.Error(err)
 			panic(err)
 		}
-		dump, err = os.OpenFile(fmt.Sprintf("dumps/%v.dump", time.Now().Format("2006-01-02 15:04:05")), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+		dump, err = os.OpenFile(fmt.Sprintf("dumps/%v.dump", time.Now().Format("2006-01-02-15:04:05")), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 		mutex = sync.Mutex{}
 		if err != nil {
 			logger.Error(err)
@@ -92,6 +92,8 @@ func DebugDump(tid int, c *app.RequestContext) {
 	rs := strings.Join([]string{
 		"=====================>\n",
 		strconv.Itoa(tid),
+		"----",
+		c.FullPath(),
 		"\n",
 		buf.String(),
 		"\n<=====================\n",
