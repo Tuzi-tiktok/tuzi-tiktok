@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"log"
 	"path"
 	cfg "tuzi-tiktok/config"
 )
@@ -26,6 +27,12 @@ type secretConfig struct {
 }
 
 func init() {
+
+	if rfg := cfg.DetermineRFG(); rfg != "" {
+		extendedRemote()
+		return
+	}
+
 	v := viper.New()
 	v.SetConfigName(configName)
 	v.SetConfigType(configType)
@@ -40,4 +47,12 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	log.Println("- Load Local Secret Key")
+}
+func extendedRemote() {
+	err := cfg.VConfig.GetViper().UnmarshalKey(secretConfigKey, &SecretConfig)
+	if err != nil {
+		panic(err)
+	}
+	log.Println("- Load Remote Secret Key")
 }
