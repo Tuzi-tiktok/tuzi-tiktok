@@ -1,7 +1,9 @@
 package err
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/bytedance/gopkg/lang/fastrand"
@@ -60,6 +62,11 @@ func init() {
 	_, ok := os.LookupEnv("TUZI_DEBUG")
 	if ok {
 		var err error
+		err = os.MkdirAll("dumps", 0666)
+		if err != nil {
+			logger.Error(err)
+			panic(err)
+		}
 		dump, err = os.OpenFile(fmt.Sprintf("dumps/%v.dump", time.Now().Format("2006-01-02 15:04:05")), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 		mutex = sync.Mutex{}
 		if err != nil {
@@ -76,13 +83,23 @@ func DebugDump(tid int, c *app.RequestContext) {
 	mutex.Lock()
 	defer mutex.Unlock()
 	body := c.Response.Body()
+	var buf bytes.Buffer
+	err := json.Indent(&buf, body, "", "\t")
+	if err != nil {
+		logger.Debugf("T: %v %v", tid, err)
+		return
+	}
 	rs := strings.Join([]string{
 		"=====================>\n",
 		strconv.Itoa(tid),
 		"\n",
-		string(body),
-		"<=====================\n",
+		buf.String(),
+		"\n<=====================\n",
 	}, "")
-	_, err := dump.WriteString(rs)
-	logger.Debugf("T: %v %v", tid, err)
+	_, err = dump.WriteString(rs)
+	if err != nil {
+		logger.Debugf("T: %v %v", tid, err)
+		return
+	}
+
 }
