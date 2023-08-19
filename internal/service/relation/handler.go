@@ -38,10 +38,13 @@ func (s *RelationServiceImpl) FollowAction(ctx context.Context, req *relation.Re
 	logger.Infof("user:%d follow action user:%d", uid, req.ToUserId)
 	if req.ActionType == 1 {
 		//关注
-		err := dao.FollowAction(uid, req.ToUserId)
+		resp, err := dao.FollowAction(uid, req.ToUserId)
 		if err != nil {
 			logger.Infof("failed to follow action, err: %v", err)
 			return nil, err
+		}
+		if resp != nil {
+			return resp, nil
 		}
 	} else if req.ActionType == 2 {
 		//取消关注

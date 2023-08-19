@@ -8,48 +8,51 @@ import (
 	"tuzi-tiktok/kitex/kitex_gen/relation"
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/utils/changes"
+	consts "tuzi-tiktok/utils/consts/relation"
 )
 
 var ctx = context.TODO()
 
 // FollowAction 添加关注
-func FollowAction(follower, following int64) error {
-
+func FollowAction(follower, following int64) (resp *relation.RelationResponse, err error) {
+	resp = new(relation.RelationResponse)
 	r := query.Relation
 	//查询关注关系是否存在
 	count, err := r.Where(r.FollowerID.Eq(follower), r.FollowingID.Eq(following)).Count()
 	if count > 0 {
 		logger.Infof("user:%d have followed user:%d", follower, following)
-		return nil
+		resp.StatusCode = consts.RelationSucceed
+		resp.StatusMsg = &consts.RelationSucceedMsg
+		return resp, nil
 	}
 	logger.Infof("user:%d follow user:%d", follower, following)
 	relationRecord := model.Relation{FollowerID: int64(follower), FollowingID: int64(following)}
 	err = r.WithContext(ctx).Create(&relationRecord)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	u := query.User
 	//following follower_count++
 	result, err := u.Where(u.ID.Eq(following)).Update(u.FollowerCount, u.FollowerCount.Add(1))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if result.RowsAffected == 0 {
 		logger.Infof("user:%d record not find", following)
-		return errors.New("follow action record not find")
+		return nil, errors.New("follow action record not find")
 	}
 	//follower follow_count++
 	result, err = u.Where(u.ID.Eq(follower)).Update(u.FollowCount, u.FollowCount.Add(1))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if result.RowsAffected == 0 {
 		logger.Infof("user:%d record not find", following)
-		return errors.New("follow action record not find")
+		return nil, errors.New("follow action record not find")
 	}
 
-	return nil
+	return nil, nil
 }
 
 // UnFollowAction 取消关注
