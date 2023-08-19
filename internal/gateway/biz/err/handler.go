@@ -61,6 +61,7 @@ var (
 func init() {
 	_, ok := os.LookupEnv("TUZI_DEBUG")
 	if ok {
+		logger.Debugf("--> The debug dump mode is enabled")
 		var err error
 		err = os.MkdirAll("dumps", 0666)
 		if err != nil {
