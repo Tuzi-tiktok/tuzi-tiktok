@@ -18,9 +18,7 @@ func init() {
 }
 func InitializeClient() {
 	single.Do(func() {
-		c = &http.Client{CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		}}
+		c = &http.Client{}
 	})
 }
 
