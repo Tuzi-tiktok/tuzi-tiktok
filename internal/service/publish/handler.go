@@ -91,6 +91,7 @@ func (s *PublishServiceImpl) GetPublishList(ctx context.Context, req *publish.Pu
 
 	claims, err := tools.ParseToken(req.Token)
 	resp = new(publish.PublishListResponse)
+	// 默认非游客
 	isTourist := false
 	if err != nil {
 		isTourist = true
@@ -131,15 +132,22 @@ func (s *PublishServiceImpl) GetPublishList(ctx context.Context, req *publish.Pu
 		isFollow = count != 0
 	}
 
-	// 目标用户获赞数目
-	vids := make([]int64, videosNums)
-	for i := range vids {
-		vids[i] = videos[i].ID
+	// 目标用户获赞总数和单个视频获赞数目
+	var totalFavorited int64
+	favoritedCounts := make([]int64, videosNums)
+	for i := 0; i < len(videos); i++ {
+		favoritedCount, err := qFavorite.Where(qFavorite.Vid.Eq(videos[i].ID)).Count()
+		favoritedCounts[i] = favoritedCount
+		if err != nil {
+			return nil, err
+		}
+		totalFavorited += favoritedCount
 	}
-	totalFavorited, err := qFavorite.Where(qFavorite.Vid.In(vids...)).Count()
+
 	if err != nil {
 		return nil, err
 	}
+
 	// 目标用户点赞数目
 	favoriteCount, err := qFavorite.Where(qFavorite.UID.Eq(targetId)).Count()
 	if err != nil {
@@ -160,7 +168,7 @@ func (s *PublishServiceImpl) GetPublishList(ctx context.Context, req *publish.Pu
 			isFavorite = count != 0
 		}
 		followCount, followerCount := user.FollowCount, user.FollowerCount
-		MergeStruct(videoList, i, v, isFavorite, user, followCount, followerCount,
+		MergeStruct(favoritedCounts, videoList, i, v, isFavorite, user, followCount, followerCount,
 			isFollow, totalFavorited, videosNums, favoriteCount)
 	}
 	return &publish.PublishListResponse{
@@ -170,14 +178,15 @@ func (s *PublishServiceImpl) GetPublishList(ctx context.Context, req *publish.Pu
 	}, nil
 }
 
-func MergeStruct(videoList []*feed.Video, i int, v *model.Video, isFavorite bool, user *model.User, followCount int64, followerCount int64, isFollow bool, totalFavorited int64, videosNums int64, favoriteCount int64) {
+func MergeStruct(favoritedCounts []int64, videoList []*feed.Video, i int, v *model.Video, isFavorite bool, user *model.User, followCount int64, followerCount int64, isFollow bool, totalFavorited int64, videosNums int64, favoriteCount int64) {
 	videoList[i] = &feed.Video{
-		Id:           v.ID,
-		PlayUrl:      v.PlayURL,
-		CoverUrl:     v.CoverURL,
-		CommentCount: v.CommentCount,
-		Title:        v.Title,
-		IsFavorite:   isFavorite,
+		Id:            v.ID,
+		PlayUrl:       v.PlayURL,
+		CoverUrl:      v.CoverURL,
+		CommentCount:  v.CommentCount,
+		Title:         v.Title,
+		IsFavorite:    isFavorite,
+		FavoriteCount: favoritedCounts[i],
 		Author: &auth.User{
 			Id:              user.ID,
 			Name:            user.Username,
