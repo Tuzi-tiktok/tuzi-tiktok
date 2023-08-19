@@ -108,7 +108,11 @@ func GetFriendList(usrId int64) (resp *relation.RelationFriendListResponse, err 
 		if err != nil {
 			return nil, err
 		}
-		resp.UserList = append(resp.UserList, changes.UserRecord2friendResp(user))
+		friendResp, err := changes.UserRecord2friendResp(user)
+		if err != nil {
+			return nil, err
+		}
+		resp.UserList = append(resp.UserList, friendResp)
 	}
 
 	return resp, nil
