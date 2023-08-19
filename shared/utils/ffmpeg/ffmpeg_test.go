@@ -2,6 +2,8 @@ package ffmpeg
 
 import (
 	"io"
+	"log"
+	"net/http"
 	"os"
 	"testing"
 )
@@ -22,4 +24,20 @@ func TestGetSnapShots(t *testing.T) {
 		t.Fatal(err)
 		return
 	}
+}
+func TestHttpClient(t *testing.T) {
+	client := http.Client{}
+	response, err := client.Get("https://www.dmoe.cc/random.php")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	code := response.StatusCode
+	log.Println(code)
+	file, err := os.OpenFile("a.png", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer response.Body.Close()
+	io.Copy(file, response.Body)
 }
