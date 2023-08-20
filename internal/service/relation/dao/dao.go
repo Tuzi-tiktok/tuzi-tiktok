@@ -8,7 +8,6 @@ import (
 	"tuzi-tiktok/kitex/kitex_gen/relation"
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/utils/changes"
-	consts "tuzi-tiktok/utils/consts/relation"
 )
 
 var ctx = context.TODO()
@@ -21,9 +20,7 @@ func FollowAction(follower, following int64) (resp *relation.RelationResponse, e
 	count, err := r.Where(r.FollowerID.Eq(follower), r.FollowingID.Eq(following)).Count()
 	if count > 0 {
 		logger.Infof("user:%d have followed user:%d", follower, following)
-		resp.StatusCode = consts.RelationSucceed
-		resp.StatusMsg = &consts.RelationSucceedMsg
-		return resp, nil
+		return nil, errors.New("不要重复关注")
 	}
 	logger.Infof("user:%d follow user:%d", follower, following)
 	relationRecord := model.Relation{FollowerID: int64(follower), FollowingID: int64(following)}
@@ -62,7 +59,7 @@ func UnFollowAction(follower, following int64) error {
 	result, err := r.WithContext(ctx).Where(r.FollowerID.Eq(follower), r.FollowingID.Eq(following)).Delete()
 	if result.RowsAffected == 0 {
 		logger.Infof("user:%d and user:%d relation record not exist", follower, following)
-		return nil
+		return errors.New("关注关系不存在 删除失败")
 	}
 	if err != nil {
 		return err

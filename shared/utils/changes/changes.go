@@ -9,8 +9,8 @@ import (
 	"tuzi-tiktok/logger"
 )
 
-// userId 是req_userId
-
+// UserRecord2userResp  userId 是req_userId
+// 查询用户的记录转换为get follow / follower list的记录
 func UserRecord2userResp(userId int64, user *model.User) (*auth.User, error) {
 
 	userResp := new(auth.User)
@@ -21,7 +21,7 @@ func UserRecord2userResp(userId int64, user *model.User) (*auth.User, error) {
 	userResp.Avatar = user.Avatar
 	userResp.BackgroundImage = user.BackgroundImage
 	userResp.Signature = user.Signature
-	//查询用户是否点赞
+	//查询user是否关注
 	r := query.Relation
 	followRecord, err := r.Where(r.FollowerID.Eq(userId), r.FollowingID.Eq(user.ID)).Count()
 	if err != nil {
@@ -66,6 +66,7 @@ func UserRecord2userResp(userId int64, user *model.User) (*auth.User, error) {
 	return userResp, nil
 }
 
+// UserRecord2friendResp 查询用户的记录转换为get friend list 的记录
 func UserRecord2friendResp(user *model.User) (*relation.FriendUser, error) {
 
 	userResp := new(relation.FriendUser)

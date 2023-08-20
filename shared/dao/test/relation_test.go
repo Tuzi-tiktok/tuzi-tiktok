@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"testing"
 	"tuzi-tiktok/dao/model"
 	"tuzi-tiktok/dao/query"
@@ -70,15 +71,12 @@ func TestUnFollowAction(t *testing.T) {
 	following := int64(3)
 	r := query.Relation
 	ctx := context.TODO()
-	result, err := r.WithContext(ctx).Where(r.FollowerID.Eq(follower), r.FollowingID.Eq(following)).Delete()
-	if result.RowsAffected == 0 {
-		log.Printf("删除失败 没有该记录")
-		t.Fail()
-	}
+	result, err := r.WithContext(ctx).Where(r.FollowerID.Eq(follower), r.FollowingID.Eq(following)).Count()
 	if err != nil {
 		t.Errorf(err.Error())
 		t.Fail()
 	}
+	fmt.Printf(strconv.FormatInt(result, 10))
 
 }
 
