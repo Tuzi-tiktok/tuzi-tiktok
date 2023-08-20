@@ -12,7 +12,7 @@ import (
 // FavoriteServiceImpl implements the last service interface defined in the IDL.
 type FavoriteServiceImpl struct{}
 
-// FavorVideo implements the FavoriteServiceImpl interface.
+// FavorVideo implements the FavoriteServiceImpl interface...
 func (s *FavoriteServiceImpl) FavorVideo(ctx context.Context, req *favorite.FavoriteRequest) (resp *favorite.FavoriteResponse, err error) {
 
 	resp = new(favorite.FavoriteResponse)
