@@ -90,9 +90,9 @@ func DebugDump(c *app.RequestContext) {
 		"=====================>\n",
 		"   ----",
 		c.FullPath(),
-		"----------- request \n",
+		"\n----------- request \n",
 		req,
-		"----------- response \n",
+		"\n----------- response \n",
 		resp.String(),
 		"\n<=====================\n",
 	}, "")
