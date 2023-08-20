@@ -16,6 +16,7 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/henrylee2cn/ameda v1.4.10 // indirect
 	github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 // indirect
+	github.com/hertz-contrib/logger/accesslog v0.0.0-20230619034227-00fc458d8f95 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect
 	github.com/stretchr/testify v1.8.3 // indirect

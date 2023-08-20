@@ -6,11 +6,13 @@ import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"tuzi-tiktok/gateway/biz/err"
+	"tuzi-tiktok/gateway/biz/err/access"
 	"tuzi-tiktok/logger"
 )
 
 func main() {
 	h := server.Default(server.WithMaxRequestBodySize(1024*1024*200), server.WithDisablePrintRoute(true))
+	h.Use(access.ALogMiddleware()...)
 	h.Use(err.ErrorHandlerMiddleware())
 	register(h)
 	h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {
