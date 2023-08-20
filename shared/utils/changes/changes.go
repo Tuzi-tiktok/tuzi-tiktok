@@ -51,6 +51,7 @@ func UserRecord2userResp(userId int64, user *model.User) (*auth.User, error) {
 		return nil, err
 	}
 	userResp.FavoriteCount = &favorCount
+
 	//获赞数量
 	var totalFavor int64
 	results, err := v.Where(v.AuthorID.Eq(user.ID)).Find()

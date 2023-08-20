@@ -145,7 +145,7 @@ func isFavorite(uid int64, vid int64) bool {
 		return false
 	}
 	// logger.Debugf("=================> find is %v", find)
-	return find == 1
+	return find > 0
 }
 
 // getUserFavorite 获取用户获取喜欢视频的数量
