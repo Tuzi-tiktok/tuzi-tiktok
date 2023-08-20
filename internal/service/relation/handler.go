@@ -93,7 +93,7 @@ func (s *RelationServiceImpl) GetFollowList(ctx context.Context, req *relation.R
 			logger.Infof("failed to query follow details, err: %v", err)
 			return nil, err
 		}
-		userResp, err := changes.UserRecord2userResp(user)
+		userResp, err := changes.UserRecord2userResp(req.UserId, user)
 		if err != nil {
 			return nil, err
 		}
@@ -131,7 +131,7 @@ func (s *RelationServiceImpl) GetFollowerList(ctx context.Context, req *relation
 			logger.Infof("failed to get follower details, err: %v", err)
 			return nil, err
 		}
-		userResp, err := changes.UserRecord2userResp(user)
+		userResp, err := changes.UserRecord2userResp(req.UserId, user)
 		if err != nil {
 			return nil, err
 		}

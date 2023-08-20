@@ -6,9 +6,12 @@ import (
 	"tuzi-tiktok/kitex/kitex_gen/auth"
 	"tuzi-tiktok/kitex/kitex_gen/feed"
 	"tuzi-tiktok/kitex/kitex_gen/relation"
+	"tuzi-tiktok/logger"
 )
 
-func UserRecord2userResp(user *model.User) (*auth.User, error) {
+// userId 是req_userId
+
+func UserRecord2userResp(userId int64, user *model.User) (*auth.User, error) {
 
 	userResp := new(auth.User)
 	userResp.Id = user.ID
@@ -18,12 +21,24 @@ func UserRecord2userResp(user *model.User) (*auth.User, error) {
 	userResp.Avatar = user.Avatar
 	userResp.BackgroundImage = user.BackgroundImage
 	userResp.Signature = user.Signature
-	userResp.IsFollow = true
+	//查询用户是否点赞
+	r := query.Relation
+	followRecord, err := r.Where(r.FollowerID.Eq(userId), r.FollowingID.Eq(user.ID)).Count()
+	if err != nil {
+		logger.Infof(err.Error())
+		return nil, err
+	}
+	if followRecord > 0 {
+		userResp.IsFollow = true
+	} else {
+		userResp.IsFollow = false
+	}
 
 	//发布视频数量
 	v := query.Video
 	workCount, err := v.Where(v.AuthorID.Eq(user.ID)).Count()
 	if err != nil {
+		logger.Infof(err.Error())
 		return nil, err
 	}
 	userResp.WorkCount = &workCount
@@ -32,6 +47,7 @@ func UserRecord2userResp(user *model.User) (*auth.User, error) {
 	f := query.Favorite
 	favorCount, err := f.Where(f.UID.Eq(user.ID)).Count()
 	if err != nil {
+		logger.Infof(err.Error())
 		return nil, err
 	}
 	userResp.FavoriteCount = &favorCount
@@ -39,6 +55,7 @@ func UserRecord2userResp(user *model.User) (*auth.User, error) {
 	var totalFavor int64
 	results, err := v.Where(v.AuthorID.Eq(user.ID)).Find()
 	if err != nil {
+		logger.Infof(err.Error())
 		return nil, err
 	}
 	for i := range results {
@@ -48,6 +65,7 @@ func UserRecord2userResp(user *model.User) (*auth.User, error) {
 
 	return userResp, nil
 }
+
 func UserRecord2friendResp(user *model.User) (*relation.FriendUser, error) {
 
 	userResp := new(relation.FriendUser)
@@ -64,6 +82,7 @@ func UserRecord2friendResp(user *model.User) (*relation.FriendUser, error) {
 	v := query.Video
 	workCount, err := v.Where(v.AuthorID.Eq(user.ID)).Count()
 	if err != nil {
+		logger.Infof(err.Error())
 		return nil, err
 	}
 	userResp.WorkCount = &workCount
@@ -72,12 +91,14 @@ func UserRecord2friendResp(user *model.User) (*relation.FriendUser, error) {
 	f := query.Favorite
 	favorCount, err := f.Where(f.UID.Eq(user.ID)).Count()
 	if err != nil {
+		logger.Infof(err.Error())
 		return nil, err
 	}
 	userResp.FavoriteCount = &favorCount
 	//获赞数量
 	results, err := v.Where(v.AuthorID.Eq(user.ID)).Find()
 	if err != nil {
+		logger.Infof(err.Error())
 		return nil, err
 	}
 	var totalFavor int64
@@ -87,15 +108,41 @@ func UserRecord2friendResp(user *model.User) (*relation.FriendUser, error) {
 	userResp.TotalFavorited = &totalFavor
 	return userResp, nil
 }
-func VideoRecord2videoResp(video *model.Video) *feed.Video {
+func VideoRecord2videoResp(userId int64, video *model.Video) (*feed.Video, error) {
 
 	videoResp := new(feed.Video)
 	videoResp.Id = video.ID
-	videoResp.CommentCount = video.CommentCount
+	u := query.User
+	author, err := u.Where(u.ID.Eq(video.AuthorID)).First()
+	if err != nil {
+		logger.Infof(err.Error())
+		return nil, err
+	}
+	videoResp.Author, err = UserRecord2userResp(userId, author)
+	if err != nil {
+		logger.Infof(err.Error())
+		return nil, err
+	}
+
+	videoResp.PlayUrl = video.PlayURL
 	videoResp.CoverUrl = video.CoverURL
 	videoResp.FavoriteCount = video.FavoriteCount
-	videoResp.PlayUrl = video.PlayURL
+	videoResp.CommentCount = video.CommentCount
+
+	// 查询用户是否点赞视频
+	f := query.Favorite
+	favorRecord, err := f.Where(f.UID.Eq(userId), f.Vid.Eq(video.ID)).Count()
+	if err != nil {
+		logger.Infof(err.Error())
+		return nil, err
+	}
+	if favorRecord > 0 {
+		videoResp.IsFavorite = true
+	} else {
+		videoResp.IsFavorite = false
+	}
+
 	videoResp.Title = video.Title
 
-	return videoResp
+	return videoResp, nil
 }
