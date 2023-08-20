@@ -49,7 +49,7 @@ func FavorAction(uid, vid int64) error {
 	}
 	if count > 0 {
 		logger.Infof("user: %d have liked", uid)
-		return nil
+		return errors.New("不要重复点赞")
 	}
 
 	favor := model.Favorite{UID: uid, Vid: vid}
@@ -88,117 +88,6 @@ func UnFavorAction(uid, vid int64) error {
 	return nil
 }
 
-//func UpdateLike(uid, vid int64, actionType int32) error {
-//	logger.Infof("user:%d update like video:%d", uid, vid)
-//
-//	//单独记录视频本身的键的设计
-//	var key string
-//	key = "VideoID:" + strconv.Itoa(int(vid))
-//	//记录用户点赞具体视频的键值设计
-//	var userKey string
-//	userKey = "VideoID_USERID:" + strconv.Itoa(int(vid)) + "-" + strconv.Itoa(int(uid))
-//	exist, err := redis.IRC.Exists(context.Background(), userKey).Result()
-//	if exist == 1 {
-//		logger.Infof("user:%d have favor video:%d", uid, vid)
-//		return nil
-//	}
-//	// 检测id字段是否存在
-//	exist, err = redis.IRC.Exists(context.Background(), key).Result()
-//	if err != nil {
-//		logger.Errorf(err.Error())
-//		return err
-//	}
-//
-//	//视频点赞的键值存在
-//	if exist == 1 {
-//		result, err := redis.IRC.Get(context.Background(), key).Result()
-//		if err != nil {
-//			return err
-//		}
-//		likeNums, err := strconv.Atoi(result)
-//		if err != nil {
-//			return err
-//		}
-//		//用户点赞
-//		if actionType == 1 {
-//			logger.Infof("redis 关注")
-//			//逻辑一:首先视频点赞总数的存储在Redis中
-//			err = redis.IRC.Set(context.Background(), key, likeNums+1, 60*time.Minute).Err()
-//			if err != nil {
-//				return err
-//			}
-//			//逻辑二:在Redis中记录某一个具体用户的点赞情况
-//			err := redis.IRC.Set(context.Background(), userKey, 1, 60*time.Minute).Err()
-//			if err != nil {
-//				return err
-//			}
-//
-//		} else {
-//			//逻辑一:首先视频点赞总数的存储在Redis中
-//			logger.Infof("redis 取消关注")
-//			err := redis.IRC.Set(context.Background(), key, likeNums-1, 60*time.Minute).Err()
-//			if err != nil {
-//				return err
-//			}
-//			//逻辑二:在Redis中记录某一个具体用户的点赞情况
-//			err = redis.IRC.Del(context.Background(), userKey).Err()
-//			if err != nil {
-//				return err
-//			}
-//		}
-//
-//	} else {
-//		/**
-//		  这里是判断Redis中没有相关键值记录，即Redis中没有记录具体的视频点赞总数和某一个用户的点赞情况。
-//
-//		  这里一般是两个情况
-//		  1.该视频从来没有被点赞过 这是第一次，第一次点赞的时候就会设置键值
-//		  2.Redis中相关键值对过期
-//		  **/
-//
-//		//数据库拿数据
-//		v := query.Video
-//		likeCount := 0
-//		err = v.Select(v.FavoriteCount).Where(v.ID.Eq(vid)).Scan(&likeCount)
-//		if err != nil {
-//			return err
-//		}
-//
-//		//用户点赞
-//		if actionType == 1 {
-//			//逻辑二:在Redis中记录某一个具体用户的点赞情况
-//			err := redis.IRC.Set(context.Background(), userKey, 1, 60*time.Minute).Err()
-//			if err != nil {
-//				return err
-//			}
-//
-//			//逻辑一:首先视频点赞总数的存储在Redis中
-//			err = redis.IRC.Set(context.Background(), key, likeCount+1, 60*time.Minute).Err()
-//			if err != nil {
-//				return err
-//			}
-//
-//		} else {
-//			if likeCount == 0 {
-//				logger.Infof("点赞总数为0，无法取消点赞")
-//			} else {
-//				//逻辑一:首先视频点赞总数的存储在Redis中
-//				err := redis.IRC.Set(context.Background(), key, likeCount-1, 10*time.Minute).Err()
-//				if err != nil {
-//					return err
-//				}
-//				//逻辑二:在Redis中记录某一个具体用户的点赞情况
-//				err = redis.IRC.Del(context.Background(), userKey).Err()
-//				if err != nil {
-//					return err
-//				}
-//			}
-//		}
-//	}
-//
-//	return nil
-//}
-
 func UpdateLike(uid, vid int64, actionType int32) (resp *favorite.FavoriteResponse, err error) {
 	resp = new(favorite.FavoriteResponse)
 	//判断当前用户是否点过赞
@@ -213,9 +102,7 @@ func UpdateLike(uid, vid int64, actionType int32) (resp *favorite.FavoriteRespon
 		//用户点赞过了
 		if ok {
 			logger.Infof("user:%d has liked video:%d", uid, vid)
-			resp.StatusCode = consts.FavorHaveLiked
-			resp.StatusMsg = &consts.FavorHaveLikedMsg
-			return resp, nil
+			return nil, errors.New("不要重复点赞")
 		}
 		//数据库点赞数+1
 		result, err := v.Where(v.ID.Eq(vid)).Update(v.FavoriteCount, v.FavoriteCount.Add(1))
@@ -243,7 +130,7 @@ func UpdateLike(uid, vid int64, actionType int32) (resp *favorite.FavoriteRespon
 			logger.Infof("user:%d like video:%d not exist", uid, vid)
 			resp.StatusCode = consts.FavorRecordNotExist
 			resp.StatusMsg = &consts.FavorRecordNotExistMsg
-			return resp, nil
+			return resp, errors.New("点赞关系不存在 无法删除")
 		}
 		//数据库点赞数-1
 		v := query.Video
