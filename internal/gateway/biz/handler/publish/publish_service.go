@@ -8,6 +8,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"mime/multipart"
+	"tuzi-tiktok/gateway/biz/err/access"
 	"tuzi-tiktok/gateway/biz/err/global"
 	"tuzi-tiktok/gateway/biz/model/publish"
 	"tuzi-tiktok/gateway/biz/service"
@@ -49,6 +50,8 @@ func PublishVideo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	access.DebugRecordRequest(c, req)
+
 	R, err := service.ServiceSet.Publish.PublishVideo(ctx, &kpublish.PublishRequest{
 		Title:    req.Title,
 		Token:    req.Token,
@@ -73,7 +76,10 @@ func GetPublishList(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
-	r, err := service.ServiceSet.Publish.GetPublishList(ctx, &kpublish.PublishListRequest{
+
+	access.DebugRecordRequest(c, req)
+
+	R, err := service.ServiceSet.Publish.GetPublishList(ctx, &kpublish.PublishListRequest{
 		Token:  req.Token,
 		UserId: req.UserId,
 	})
@@ -81,6 +87,6 @@ func GetPublishList(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RPCClientCallError.WithHandler(handler).WithError(err))
 		return
 	}
-	resp := mapstruct.ToPublishListResponse(r)
+	resp := mapstruct.ToPublishListResponse(R)
 	c.JSON(consts.StatusOK, &resp)
 }

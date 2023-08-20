@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"tuzi-tiktok/gateway/biz/err/access"
 	"tuzi-tiktok/gateway/biz/err/global"
 	"tuzi-tiktok/gateway/biz/model/auth"
 	"tuzi-tiktok/gateway/biz/service"
@@ -44,6 +45,8 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	access.DebugRecordRequest(c, req)
+
 	R, err := authClient.Login(ctx, &kauth.UserLoginRequest{
 		Username: req.Username,
 		Password: req.Password,
@@ -76,6 +79,8 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	access.DebugRecordRequest(c, req)
+
 	R, err := authClient.Register(ctx, &kauth.UserRegisterRequest{
 		Username: req.Username,
 		Password: req.Password,
@@ -100,6 +105,9 @@ func GetUserInfo(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
+
 	R, err := authClient.GetUserInfo(ctx, &kauth.UserInfoRequest{
 		UserId: req.UserId,
 		Token:  req.Token,

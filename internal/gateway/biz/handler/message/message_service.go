@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"tuzi-tiktok/gateway/biz/err/access"
 	"tuzi-tiktok/gateway/biz/err/global"
 	"tuzi-tiktok/gateway/biz/model/message"
 	"tuzi-tiktok/gateway/biz/service"
@@ -24,6 +25,8 @@ func GetMessageList(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
 
 	R, err := service.ServiceSet.Message.GetMessageList(ctx, &kmessage.MessageChatRequest{
 		Token:      req.Token,

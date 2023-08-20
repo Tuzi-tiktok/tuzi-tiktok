@@ -4,6 +4,7 @@ package comment
 
 import (
 	"context"
+	"tuzi-tiktok/gateway/biz/err/access"
 	"tuzi-tiktok/gateway/biz/err/global"
 	"tuzi-tiktok/gateway/biz/service"
 	kcomment "tuzi-tiktok/kitex/kitex_gen/comment"
@@ -26,6 +27,8 @@ func Comment(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
 
 	R, err := service.ServiceSet.Comment.Comment(ctx, &kcomment.CommentRequest{
 		Token:       req.Token,
@@ -55,6 +58,8 @@ func GetCommentList(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
 
 	R, err := service.ServiceSet.Comment.GetCommentList(ctx, &kcomment.CommentListRequest{
 		Token:   req.Token,

@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"tuzi-tiktok/gateway/biz/err/access"
 	"tuzi-tiktok/gateway/biz/err/global"
 	relation "tuzi-tiktok/gateway/biz/model/relation"
 	"tuzi-tiktok/gateway/biz/service"
@@ -23,6 +24,9 @@ func FollowAction(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
+
 	R, err := service.ServiceSet.Relation.FollowAction(ctx, &krelation.RelationRequest{
 		Token:      req.Token,
 		ToUserId:   req.ToUserId,
@@ -47,6 +51,9 @@ func GetFollowList(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
+
 	R, err := service.ServiceSet.Relation.GetFollowList(ctx, &krelation.RelationFollowListRequest{
 		Token:  req.Token,
 		UserId: req.UserId,
@@ -70,6 +77,9 @@ func GetFollowerList(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
+
 	R, err := service.ServiceSet.Relation.GetFollowerList(ctx, &krelation.RelationFollowerListRequest{
 		Token:  req.Token,
 		UserId: req.UserId,
@@ -93,6 +103,9 @@ func GetFriendList(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
+
 	R, err := service.ServiceSet.Relation.GetFriendList(ctx, &krelation.RelationFriendListRequest{
 		Token:  req.Token,
 		UserId: req.UserId,
