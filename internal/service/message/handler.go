@@ -24,6 +24,14 @@ func (s *MessageServiceImpl) GetMessageList(ctx context.Context, req *message.Me
 		return
 	}
 
+	have := dao.HaveNewMessage(uid, req.ToUserId)
+	if !have {
+		resp.StatusCode = consts.MESSAGE_API_NEW_MESSAGE_NULL
+		resp.StatusMsg = &consts.MESSAGE_NEW_MESSAGE_NULL_MSG
+		resp.MessageList = nil
+		return
+	}
+
 	msgList, err := dao.GetMessageList(ctx, dao.QueryOption{
 		Uid:   uid,
 		ToUid: req.ToUserId,
@@ -39,11 +47,20 @@ func (s *MessageServiceImpl) GetMessageList(ctx context.Context, req *message.Me
 	resp.StatusCode = consts.MESSAGE_API_SUCCESS
 	resp.StatusMsg = &consts.MESSAGE_SUCCESS_MSG
 
+	logger.Debugf("msg list is %v", msgList)
+
 	return
 }
 
 // MessageAction implements the MessageServiceImpl interface.
 func (s *MessageServiceImpl) MessageAction(ctx context.Context, req *message.MessageActionRequest) (resp *message.MessageActionResponse, err error) {
+	// 如果content是空的，无需发送消息
+	if req.Content == "" || req.ActionType != 1 {
+		resp.StatusCode = consts.MESSAGE_API_CONTENT_NULL
+		resp.StatusMsg = &consts.MESSAGE_CONTENT_NULL_MES
+		return
+	}
+
 	resp = new(message.MessageActionResponse)
 
 	uid := parseToken(req.Token)

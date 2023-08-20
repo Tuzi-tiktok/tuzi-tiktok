@@ -30,7 +30,8 @@ func GetFavorList(UserId int64) (resp *favorite.FavoriteListResponse, err error)
 
 			return nil, err
 		}
-		resp.VideoList = append(resp.VideoList, changes.VideoRecord2videoResp(video))
+		VideoResp, err := changes.VideoRecord2videoResp(UserId, video)
+		resp.VideoList = append(resp.VideoList, VideoResp)
 
 	}
 
