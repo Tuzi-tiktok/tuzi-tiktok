@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"tuzi-tiktok/gateway/biz/err/access"
 	"tuzi-tiktok/gateway/biz/err/global"
 	feed "tuzi-tiktok/gateway/biz/model/feed"
 	"tuzi-tiktok/gateway/biz/service"
@@ -19,11 +20,13 @@ func GetFeedList(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req feed.FeedRequest
 	var handler = "GetFeedList"
-	err = c.BindAndValidate(&req)
+	err = c.Bind(&req)
 	if err != nil {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
 
 	R, err := service.ServiceSet.Feed.GetFeedList(ctx, &feed2.FeedRequest{
 		LatestTime: req.LatestTime,

@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/hertz-contrib/pprof"
 	"tuzi-tiktok/gateway/biz/err"
 	"tuzi-tiktok/gateway/biz/err/access"
 	"tuzi-tiktok/logger"
@@ -12,11 +13,20 @@ import (
 
 func main() {
 	h := server.Default(server.WithMaxRequestBodySize(1024*1024*200), server.WithDisablePrintRoute(true))
+	// Access Log middleware
 	h.Use(access.ALogMiddleware()...)
+	// Authentication middleware
 	h.Use(err.ErrorHandlerMiddleware())
+
+	// Add pprof performance profiling
+	pprof.Register(h)
+
+	// Global Router Register
 	register(h)
+
 	h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {
-		logger.Warn("Service Shutdown With Error: %v")
+		logger.Warn("Gateway Service Shutdown ")
 	})
+
 	h.Spin()
 }

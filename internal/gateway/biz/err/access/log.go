@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/hertz-contrib/logger/accesslog"
 	"os"
@@ -19,6 +20,8 @@ var (
 	mutex sync.Mutex
 )
 
+const DebugRequestKey = "DebugRequestKey"
+
 func init() {
 	_, ok := os.LookupEnv("TUZI_DEBUG")
 	if ok {
@@ -29,7 +32,7 @@ func init() {
 			logger.Error(err)
 			panic(err)
 		}
-		dump, err = os.OpenFile(fmt.Sprintf("dumps/%v.dump", time.Now().Format("2006-01-02-15:04:05")), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+		dump, err = os.OpenFile(fmt.Sprintf("dumps/%v.dump", time.Now().Format("01-02-15:04:05")), os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 		mutex = sync.Mutex{}
 		if err != nil {
 			logger.Error(err)
@@ -45,6 +48,7 @@ func ALogMiddleware() []app.HandlerFunc {
 			ctx.Next(c)
 			DebugDump(ctx)
 		},
+
 		accesslog.New(accesslog.WithAccessLogFunc(func(ctx context.Context, format string, v ...interface{}) {
 			logger.Debugf(format, v...)
 		})),
@@ -57,19 +61,39 @@ func DebugDump(c *app.RequestContext) {
 	}
 	mutex.Lock()
 	defer mutex.Unlock()
+
+	// Process Request
+	value, ok := c.Get(DebugRequestKey)
+	req := "Bind Error or The parameter is incorrect"
+	if ok {
+		rq, err := sonic.Marshal(value)
+		if err != nil {
+			logger.Warnf("DebugDump Request Error %v", err)
+		}
+		var r bytes.Buffer
+		err = json.Indent(&r, rq, "", "\t")
+		if err != nil {
+			logger.Warnf("DebugDump %v", err)
+		}
+		req = r.String()
+	}
+
+	// Process Response
 	body := c.Response.Body()
-	var buf bytes.Buffer
-	err := json.Indent(&buf, body, "", "\t")
+	var resp bytes.Buffer
+	err := json.Indent(&resp, body, "", "\t")
 	if err != nil {
 		logger.Warnf("DebugDump %v", err)
 		return
 	}
 	rs := strings.Join([]string{
 		"=====================>\n",
-		"----",
+		"   ----",
 		c.FullPath(),
-		"\n",
-		buf.String(),
+		"----------- request \n",
+		req,
+		"----------- response \n",
+		resp.String(),
 		"\n<=====================\n",
 	}, "")
 	_, err = dump.WriteString(rs)
@@ -78,4 +102,11 @@ func DebugDump(c *app.RequestContext) {
 		return
 	}
 
+}
+
+func DebugRecordRequest(c *app.RequestContext, v any) {
+	if dump == nil {
+		return
+	}
+	c.Set(DebugRequestKey, v)
 }

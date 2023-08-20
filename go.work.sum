@@ -429,6 +429,7 @@ github.com/tidwall/sjson v1.2.4 h1:cuiLzLnaMeBhRmEv00Lpk3tkYrcxpmbU81tAY4Dw0tc=
 github.com/v2pro/plz v0.0.0-20221028024117-e5f9aec5b631 h1:WYq/4UeJfAorBY7ncC31bVxI031x4MUCQvF+z12fIYA=
 github.com/v2pro/quokka v0.0.0-20171201153428-382cb39c6ee6 h1:hb7P11ytAQIcQ7Cq1uQBNTGgKQle7N+jsP4L72ooa7Q=
 github.com/v2pro/wombat v0.0.0-20180402055224-a56dbdcddef2 h1:g9qBO/hKkIHxSkyt0/I7R51pFxzVO1tNIUEwhV2yJ28=
+github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
 github.com/yuin/goldmark v1.4.13 h1:fVcFKWvrslecOb/tg+Cc05dkeYx540o0FuFt3nUVDoE=
 github.com/zeebo/xxh3 v1.0.2 h1:xZmwmqxHZA8AI603jOQ0tMqmBr9lPeFwGg6d+xy9DC0=
 go.etcd.io/etcd/api/v3 v3.5.9 h1:4wSsluwyTbGGmyjJktOf3wFQoTBIURXHnq9n/G/JQHs=

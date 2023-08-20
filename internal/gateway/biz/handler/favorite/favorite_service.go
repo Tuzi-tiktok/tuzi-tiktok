@@ -4,6 +4,7 @@ package favorite
 
 import (
 	"context"
+	"tuzi-tiktok/gateway/biz/err/access"
 	"tuzi-tiktok/gateway/biz/err/global"
 	"tuzi-tiktok/gateway/biz/service"
 	kfavorite "tuzi-tiktok/kitex/kitex_gen/favorite"
@@ -26,6 +27,9 @@ func FavorVideo(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
+
 	R, err := service.ServiceSet.Favorite.FavorVideo(ctx, &kfavorite.FavoriteRequest{
 		Token:      req.Token,
 		VideoId:    req.VideoId,
@@ -51,6 +55,8 @@ func GetFavoriteList(ctx context.Context, c *app.RequestContext) {
 		_ = c.Error(global.RequestParameterBindError.WithHandler(handler).WithWarn(err))
 		return
 	}
+
+	access.DebugRecordRequest(c, req)
 
 	R, err := service.ServiceSet.Favorite.GetFavoriteList(ctx, &kfavorite.FavoriteListRequest{
 		UserId: req.UserId,
