@@ -137,14 +137,14 @@ func isFavorite(uid int64, vid int64) bool {
 	}
 
 	// logger.Debugf("=================> uid is %d || vid is %d", uid, vid)
-	find, err := qFavorite.WithContext(context.Background()).
+	find, err := qFavorite.Debug().
 		Where(qFavorite.UID.Eq(uid), qFavorite.Vid.Eq(vid)).
 		Count()
 	if err != nil {
 		logger.Errorf("Error querying if the user has liked the video, err: %v", err)
 		return false
 	}
-	// logger.Debugf("=================> find is %v", find)
+	logger.Debugf("=================> find is %v", find)
 	return find > 0
 }
 
