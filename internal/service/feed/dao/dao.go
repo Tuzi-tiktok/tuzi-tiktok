@@ -9,7 +9,6 @@ import (
 	"tuzi-tiktok/kitex/kitex_gen/auth"
 	"tuzi-tiktok/kitex/kitex_gen/feed"
 	"tuzi-tiktok/logger"
-	consts "tuzi-tiktok/utils/consts/feed"
 )
 
 const (
@@ -29,21 +28,18 @@ type QVideo struct{}
 var Video = QVideo{}
 
 type QueryOption struct {
-	Uid   int64
-	Ltime time.Time
-	Limit int
+	Uid     int64
+	Ltime   time.Time
+	Limit   int
+	IsLogin bool
 }
 
-var isLogin = true
+var isLogin bool
 
 // GetVideoListWithTime 根据本次时间逆序查找limit数量的video列表
 func (QVideo) GetVideoListWithTime(ctx context.Context, q QueryOption) ([]*feed.Video, time.Time, error) {
-	// 用户状态赋予login.IsLogin
-	if q.Uid == consts.NOUSERSTATE {
-		isLogin = false
-	}
-
-	logger.Debugf("entry func GetVideoListWithTime() && user is login %v", isLogin)
+	isLogin = q.IsLogin
+	logger.Debugf(" user login state is %v", isLogin)
 
 	mVideos, err := qVideo.WithContext(ctx).
 		Where(qVideo.CreatedAt.Lt(q.Ltime)).
@@ -95,7 +91,6 @@ func countVideos(aid int64) *int64 {
 		Count()
 	if err != nil {
 		logger.Errorf("Error Querying the number of works, err: %v", err)
-		//todo: 修改？当发生错误时，返回0
 		return nil
 	}
 	return &count
@@ -117,6 +112,7 @@ func getUserInfoByAuthorID(aid int64) (u *model.User) {
 // isFollower 判断是否关注该作者
 func isFollower(uid int64, aid int64) bool {
 	if !isLogin {
+		// logger.Debug("------------------ > user is no login return false")
 		return false
 	}
 
@@ -127,6 +123,7 @@ func isFollower(uid int64, aid int64) bool {
 		logger.Errorf("Error querying whether the user follows the author, err: %v", err)
 		return false
 	}
+	// logger.Debugf("------------------ > selsect count(*) is %v", find)
 	return find == 1
 }
 
@@ -137,14 +134,14 @@ func isFavorite(uid int64, vid int64) bool {
 	}
 
 	// logger.Debugf("=================> uid is %d || vid is %d", uid, vid)
-	find, err := qFavorite.Debug().
+	find, err := qFavorite.
 		Where(qFavorite.UID.Eq(uid), qFavorite.Vid.Eq(vid)).
 		Count()
 	if err != nil {
 		logger.Errorf("Error querying if the user has liked the video, err: %v", err)
 		return false
 	}
-	logger.Debugf("=================> find is %v", find)
+	// logger.Debugf("=================> find is %v", find)
 	return find > 0
 }
 
