@@ -1,6 +1,8 @@
 package changes
 
 import (
+	"errors"
+	"gorm.io/gorm"
 	"tuzi-tiktok/dao/model"
 	"tuzi-tiktok/dao/query"
 	"tuzi-tiktok/kitex/kitex_gen/auth"
@@ -124,8 +126,14 @@ func GetLatestMsg(reqId, friendId int64) (*string, int64) {
 
 	result, err := m.Where(m.FormUserID.In(reqId, friendId), m.ToUserID.In(reqId, friendId)).Order(m.CreatedAt.Desc()).First()
 	if err != nil {
+		// check error ErrRecordNotFound
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			defaultMsg := "暂未发送信息"
+			return &defaultMsg, 1
+		}
 		logger.Infof(err.Error())
 	}
+
 	var fromUserId int64
 	fromUserId = *result.FormUserID
 	var MsgType int64
