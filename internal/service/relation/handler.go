@@ -74,9 +74,6 @@ func (s *RelationServiceImpl) GetFollowList(ctx context.Context, req *relation.R
 	_, err = secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Infof("failed to parse token, err: %v", err)
-		resp.StatusCode = consts.RelationTokenParseFailed
-		resp.StatusMsg = &consts.RelationTokenParseFailedMsg
-		return resp, nil
 	}
 
 	resp = new(relation.RelationFollowListResponse)
@@ -112,10 +109,8 @@ func (s *RelationServiceImpl) GetFollowerList(ctx context.Context, req *relation
 	_, err = secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Infof("failed to parse token, err: %v", err)
-		resp.StatusCode = consts.RelationTokenParseFailed
-		resp.StatusMsg = &consts.RelationTokenParseFailedMsg
-		return resp, nil
 	}
+	
 	resp = new(relation.RelationFollowerListResponse)
 	r := query.Relation
 	u := query.User

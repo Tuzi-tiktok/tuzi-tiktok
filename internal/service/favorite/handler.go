@@ -54,10 +54,7 @@ func (s *FavoriteServiceImpl) GetFavoriteList(ctx context.Context, req *favorite
 	logger.Infof("get user:%d favorite list", req.UserId)
 	_, err = secret.ParseToken(req.Token)
 	if err != nil {
-		logger.Errorf("failed to parse token, err: %v", err)
-		resp.StatusCode = consts.FavorTokenParseFailed
-		resp.StatusMsg = &consts.FavorTokenParseFailedMsg
-		return resp, nil
+		logger.Infof("failed to parse token, err: %v", err)
 	}
 
 	resp = new(favorite.FavoriteListResponse)
