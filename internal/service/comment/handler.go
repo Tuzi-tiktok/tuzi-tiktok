@@ -159,16 +159,16 @@ func (s *CommentServiceImpl) Comment(ctx context.Context, req *comment.CommentRe
 func (s *CommentServiceImpl) GetCommentList(ctx context.Context, req *comment.CommentListRequest) (resp *comment.CommentListResponse, err error) {
 	logger.Infof("get comment list of video: %d", req.VideoId)
 
-	// check token
-	_, err = secret.ParseToken(req.Token)
-	if err != nil {
-		logger.Infof("failed to parse token, err: %v", err)
-		resp = &comment.CommentListResponse{
-			StatusCode: consts.CommentInvalidToken,
-			StatusMsg:  &consts.CommentInvalidTokenMsg,
-		}
-		return resp, nil
-	}
+	// check token (Support non-logged-in users to view CommentList)
+	//_, err = secret.ParseToken(req.Token)
+	//if err != nil {
+	//	logger.Infof("failed to parse token, err: %v", err)
+	//	resp = &comment.CommentListResponse{
+	//		StatusCode: consts.CommentInvalidToken,
+	//		StatusMsg:  &consts.CommentInvalidTokenMsg,
+	//	}
+	//	return resp, nil
+	//}
 
 	// get comment list
 	c, e := qComment.WithContext(ctx).Where(qComment.Vid.Eq(req.VideoId)).Select().Find()
