@@ -93,9 +93,10 @@ func GetFriendList(usrId int64) (resp *relation.RelationFriendListResponse, err 
 	resp = new(relation.RelationFriendListResponse)
 	u := query.User
 	r := query.Relation
+
 	r2 := r.As("r2")
 	result, err := r.WithContext(ctx).Select(r.FollowingID).LeftJoin(r2, r2.FollowerID.EqCol(r.FollowingID)).
-		Where(r.FollowerID.EqCol(r2.FollowingID), r.FollowerID.Eq(usrId)).Find()
+		Where(r.FollowerID.EqCol(r2.FollowingID), r.FollowerID.Eq(usrId)).Distinct().Find()
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +106,7 @@ func GetFriendList(usrId int64) (resp *relation.RelationFriendListResponse, err 
 		if err != nil {
 			return nil, err
 		}
-		friendResp, err := changes.UserRecord2friendResp(user)
+		friendResp, err := changes.UserRecord2friendResp(usrId, user)
 		if err != nil {
 			return nil, err
 		}
