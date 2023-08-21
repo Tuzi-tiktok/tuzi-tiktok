@@ -19,14 +19,14 @@ func _douyinMw() []app.HandlerFunc {
 
 func _relationMw() []app.HandlerFunc {
 	// your code...
-	return []app.HandlerFunc{
-		control.Authentication(),
-	}
+	return nil
 }
 
 func _actionMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{
+		control.Authentication(),
+	}
 }
 
 func _followactionMw() []app.HandlerFunc {
@@ -66,7 +66,9 @@ func _getfollowerlistMw() []app.HandlerFunc {
 
 func _friendMw() []app.HandlerFunc {
 	// your code...
-	return nil
+	return []app.HandlerFunc{
+		control.Authentication(),
+	}
 }
 
 func _list1Mw() []app.HandlerFunc {
