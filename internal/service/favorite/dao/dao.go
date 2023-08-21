@@ -9,6 +9,7 @@ import (
 	"tuzi-tiktok/kitex/kitex_gen/favorite"
 	"tuzi-tiktok/logger"
 	"tuzi-tiktok/redis"
+	"tuzi-tiktok/secret"
 	"tuzi-tiktok/utils/changes"
 	consts "tuzi-tiktok/utils/consts/favorite"
 )
@@ -18,8 +19,18 @@ var v = query.Video
 var ctx = context.TODO()
 
 // GetFavorList 得到点赞列表
-func GetFavorList(UserId int64) (resp *favorite.FavoriteListResponse, err error) {
+func GetFavorList(UserId int64, token string) (resp *favorite.FavoriteListResponse, err error) {
 	resp = new(favorite.FavoriteListResponse)
+	// check token & get uid
+	var reqId int64
+	reqId = -1
+	claims, err := secret.ParseToken(token)
+	if err != nil {
+		logger.Infof("failed to parse token, err: %v", err)
+	} else {
+		reqId = claims.Payload.UID
+	}
+
 	videos, err := f.Debug().Where(f.UID.Eq(UserId)).Find()
 	if err != nil {
 		return nil, err
@@ -30,62 +41,12 @@ func GetFavorList(UserId int64) (resp *favorite.FavoriteListResponse, err error)
 
 			return nil, err
 		}
-		VideoResp, err := changes.VideoRecord2videoResp(UserId, video)
+		VideoResp, err := changes.VideoRecord2videoResp(reqId, video)
 		resp.VideoList = append(resp.VideoList, VideoResp)
 
 	}
 
 	return
-}
-
-// FavorAction FollowAction 点赞
-func FavorAction(uid, vid int64) error {
-
-	//查询点赞关系是否存在
-	count, err := f.Where(f.UID.Eq(uid), f.Vid.Eq(vid), f.DeletedAt.IsNull()).Count()
-	if err != nil {
-		logger.Errorf("query favor record error", err.Error())
-		return err
-	}
-	if count > 0 {
-		logger.Infof("user: %d have liked", uid)
-		return errors.New("不要重复点赞")
-	}
-
-	favor := model.Favorite{UID: uid, Vid: vid}
-	logger.Infof("user:%d like video:%d", uid, vid)
-	err = f.WithContext(ctx).Create(&favor)
-	if err != nil {
-		return err
-	}
-	//更新video点赞数量
-	v := query.Video
-	_, err = v.Where(v.ID.Eq(vid)).Update(v.FavoriteCount, v.FavoriteCount.Add(1))
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// UnFavorAction UnFollowAction 取消点赞
-func UnFavorAction(uid, vid int64) error {
-
-	result, err := f.WithContext(ctx).Where(f.UID.Eq(uid), f.Vid.Eq(vid)).Delete()
-	if err != nil {
-		return err
-	}
-	if result.RowsAffected == 0 {
-		logger.Infof("like record not exist")
-		return nil
-	}
-	logger.Infof("user:%d unlike video:%d", uid, vid)
-	//更新video点赞数量
-	v := query.Video
-	_, err = v.Where(v.ID.Eq(vid)).Update(v.FavoriteCount, v.FavoriteCount.Sub(1))
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func UpdateLike(uid, vid int64, actionType int32) (resp *favorite.FavoriteResponse, err error) {

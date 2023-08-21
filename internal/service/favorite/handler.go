@@ -58,7 +58,7 @@ func (s *FavoriteServiceImpl) GetFavoriteList(ctx context.Context, req *favorite
 	}
 
 	resp = new(favorite.FavoriteListResponse)
-	resp, err = dao.GetFavorList(req.UserId)
+	resp, err = dao.GetFavorList(req.UserId, req.Token)
 	if err != nil {
 		logger.Errorf("failed to get favor list, err: %v", err)
 		return nil, err

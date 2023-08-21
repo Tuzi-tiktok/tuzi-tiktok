@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"tuzi-tiktok/dao/query"
 	relation "tuzi-tiktok/kitex/kitex_gen/relation"
 	"tuzi-tiktok/logger"
@@ -70,10 +71,14 @@ func (s *RelationServiceImpl) FollowAction(ctx context.Context, req *relation.Re
 // GetFollowList implements the RelationServiceImpl interface.
 func (s *RelationServiceImpl) GetFollowList(ctx context.Context, req *relation.RelationFollowListRequest) (resp *relation.RelationFollowListResponse, err error) {
 	logger.Infof("get user:%d follow list", req.UserId)
+	var reqId int64
+	reqId = int64(-1)
 	// check token
-	_, err = secret.ParseToken(req.Token)
+	claims, err := secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Infof("failed to parse token, err: %v", err)
+	} else {
+		reqId = claims.Payload.UID
 	}
 
 	resp = new(relation.RelationFollowListResponse)
@@ -90,7 +95,7 @@ func (s *RelationServiceImpl) GetFollowList(ctx context.Context, req *relation.R
 			logger.Infof("failed to query follow details, err: %v", err)
 			return nil, err
 		}
-		userResp, err := changes.UserRecord2userResp(req.UserId, user)
+		userResp, err := changes.UserRecord2userResp(reqId, user)
 		if err != nil {
 			return nil, err
 		}
@@ -110,7 +115,7 @@ func (s *RelationServiceImpl) GetFollowerList(ctx context.Context, req *relation
 	if err != nil {
 		logger.Infof("failed to parse token, err: %v", err)
 	}
-	
+
 	resp = new(relation.RelationFollowerListResponse)
 	r := query.Relation
 	u := query.User
@@ -142,10 +147,14 @@ func (s *RelationServiceImpl) GetFollowerList(ctx context.Context, req *relation
 func (s *RelationServiceImpl) GetFriendList(ctx context.Context, req *relation.RelationFriendListRequest) (resp *relation.RelationFriendListResponse, err error) {
 	logger.Infof("get user:%d friend list", req.UserId)
 	// check token & get uid
-	_, err = secret.ParseToken(req.Token)
+	claims, err := secret.ParseToken(req.Token)
 	if err != nil {
 		logger.Infof("failed to parse token, err: %v", err)
 		return resp, nil
+	}
+	uid := claims.Payload.UID
+	if uid != req.UserId {
+		return nil, errors.New("reqId not equal to token id")
 	}
 
 	resp = new(relation.RelationFriendListResponse)
