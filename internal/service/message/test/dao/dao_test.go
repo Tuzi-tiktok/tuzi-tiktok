@@ -7,7 +7,7 @@ import (
 	"time"
 	"tuzi-tiktok/dao/model"
 	"tuzi-tiktok/dao/query"
-	"tuzi-tiktok/redis"
+	"tuzi-tiktok/rds"
 )
 
 var qMessage = query.Message

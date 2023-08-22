@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"tuzi-tiktok/redis"
+	"tuzi-tiktok/rds"
 )
 
 func TestRedis(t *testing.T) {
