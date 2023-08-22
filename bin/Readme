@@ -1,4 +1,5 @@
 sh startup.sh  启动所有服务
 sh startup.sh -s <server-name> 启动指定服务
 sh startup.sh -q <server-name> 停止指定服务
+server-name 为空默认为全部服务
 sh startup.sh -l  列出目前正在运行的服务
