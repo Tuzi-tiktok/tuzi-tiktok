@@ -40,7 +40,7 @@ func (s *FeedServiceImpl) GetFeedList(ctx context.Context, req *feed.FeedRequest
 		Uid:     uid,
 		Ltime:   t,
 		Limit:   consts.DEAULT_VIDEO_LIST_LIMIST,
-		IsLogin: isLogin(uid),
+		IsLogin: dao.IsLogin(uid),
 	})
 	if err != nil {
 		resp.StatusCode = consts.FEED_API_ERROR
@@ -69,8 +69,4 @@ func transformTimeToSecond(ms int64) time.Time {
 	seconds := ms / 1000
 
 	return time.Unix(seconds, 0)
-}
-
-func isLogin(uid int64) bool {
-	return uid != consts.NOUSERSTATE
 }

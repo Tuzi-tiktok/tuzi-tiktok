@@ -24,17 +24,10 @@ func (s *MessageServiceImpl) GetMessageList(ctx context.Context, req *message.Me
 		return
 	}
 
-	have := dao.HaveNewMessage(uid, req.ToUserId)
-	if !have {
-		resp.StatusCode = consts.MESSAGE_API_NEW_MESSAGE_NULL
-		resp.StatusMsg = &consts.MESSAGE_NEW_MESSAGE_NULL_MSG
-		resp.MessageList = nil
-		return
-	}
-
 	msgList, err := dao.GetMessageList(ctx, dao.QueryOption{
-		Uid:   uid,
-		ToUid: req.ToUserId,
+		Uid:        uid,
+		ToUid:      req.ToUserId,
+		PreMsgTime: parsePreMsgTime(req.PreMsgTime),
 	})
 	if err != nil {
 		logger.Errorf("Could not get the message list, err : %v", err)
@@ -46,8 +39,6 @@ func (s *MessageServiceImpl) GetMessageList(ctx context.Context, req *message.Me
 	resp.MessageList = msgList
 	resp.StatusCode = consts.MESSAGE_API_SUCCESS
 	resp.StatusMsg = &consts.MESSAGE_SUCCESS_MSG
-
-	logger.Debugf("msg list is %v", msgList)
 
 	return
 }
@@ -69,12 +60,12 @@ func (s *MessageServiceImpl) MessageAction(ctx context.Context, req *message.Mes
 		resp.StatusMsg = &consts.MESSAGE_UID_GET_FAILED_MSG
 		return
 	}
-	ok := dao.IsUserExist(req.ToUserId)
-	if !ok {
-		resp.StatusCode = consts.MESSAGE_API_TOUID_NO_EXIST
-		resp.StatusMsg = &consts.MESSAGE_USER_NO_EXIST_MSG
-		return
-	}
+	// ok := dao.IsUserExist(req.ToUserId)
+	// if !ok {
+	// 	resp.StatusCode = consts.MESSAGE_API_TOUID_NO_EXIST
+	// 	resp.StatusMsg = &consts.MESSAGE_USER_NO_EXIST_MSG
+	// 	return
+	// }
 
 	isAction, err := dao.ActionMessage(ctx, dao.QueryOption{
 		Uid:         uid,
@@ -105,4 +96,12 @@ func parseToken(token string) int64 {
 	uid := claims.Payload.UID
 	logger.Infof("success to get uid : %d ", uid)
 	return uid
+}
+
+// todo: 更换更好的判断方法
+func parsePreMsgTime(pmt int64) int64 {
+	if pmt >= 1000000000 && pmt <= 9999999999 {
+		return pmt
+	}
+	return pmt / 1000
 }

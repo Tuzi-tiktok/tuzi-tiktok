@@ -9,6 +9,7 @@ import (
 	"tuzi-tiktok/kitex/kitex_gen/auth"
 	"tuzi-tiktok/kitex/kitex_gen/feed"
 	"tuzi-tiktok/logger"
+	consts "tuzi-tiktok/utils/consts/feed"
 )
 
 const (
@@ -34,12 +35,9 @@ type QueryOption struct {
 	IsLogin bool
 }
 
-var isLogin bool
-
 // GetVideoListWithTime 根据本次时间逆序查找limit数量的video列表
 func (QVideo) GetVideoListWithTime(ctx context.Context, q QueryOption) ([]*feed.Video, time.Time, error) {
-	isLogin = q.IsLogin
-	logger.Debugf(" user login state is %v", isLogin)
+	// logger.Debugf(" user login state is %v", q.IsLogin)
 
 	mVideos, err := qVideo.WithContext(ctx).
 		Where(qVideo.CreatedAt.Lt(q.Ltime)).
@@ -111,7 +109,7 @@ func getUserInfoByAuthorID(aid int64) (u *model.User) {
 
 // isFollower 判断是否关注该作者
 func isFollower(uid int64, aid int64) bool {
-	if !isLogin {
+	if !IsLogin(uid) {
 		// logger.Debug("------------------ > user is no login return false")
 		return false
 	}
@@ -129,7 +127,7 @@ func isFollower(uid int64, aid int64) bool {
 
 // isFavorite 判断用户是否点赞该视频
 func isFavorite(uid int64, vid int64) bool {
-	if !isLogin {
+	if !IsLogin(uid) {
 		return false
 	}
 
@@ -230,4 +228,8 @@ func mVideo2fVideoMore(q QueryOption, mv []*model.Video) ([]*feed.Video, error) 
 		fv = append(fv, f)
 	}
 	return fv, nil
+}
+
+func IsLogin(uid int64) bool {
+	return uid != consts.NOUSERSTATE
 }
