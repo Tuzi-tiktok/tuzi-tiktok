@@ -9,7 +9,7 @@ import (
 	"tuzi-tiktok/dao/query"
 	"tuzi-tiktok/kitex/kitex_gen/message"
 	"tuzi-tiktok/logger"
-	"tuzi-tiktok/redis"
+	"tuzi-tiktok/rds"
 )
 
 var (
@@ -66,9 +66,9 @@ func ActionMessage(ctx context.Context, q QueryOption) (bool, error) {
 	c := 0
 	if exists == 1 {
 		logger.Infof("%v key is exists", rKey)
-		c, _ = redis.IRC.Get(context.Background(), rKey).Int()
+		c, _ = rds.IRC.Get(context.Background(), rKey).Int()
 	}
-	redis.IRC.Set(ctx, rKey, c+1, time.Hour*24*7).Err()
+	rds.IRC.Set(ctx, rKey, c+1, time.Hour*24*7).Err()
 
 	return true, nil
 }
@@ -106,7 +106,7 @@ func getHistoryMessageList(q QueryOption) ([]*model.Message, error) {
 	}
 	var t time.Time
 	// 初次 || 再次 打开聊天，获取上次的聊天记录
-	strTime, err := redis.IRC.Get(context.Background(), preKey).Result()
+	strTime, err := rds.IRC.Get(context.Background(), preKey).Result()
 	if err != nil {
 		logger.Errorf("get redis key %v error, err : %v", preKey, err)
 		return nil, err
@@ -123,8 +123,8 @@ func getHistoryMessageList(q QueryOption) ([]*model.Message, error) {
 
 	st := time.Now().Local().Format("2006-01-02 15:04:05")
 
-	redis.IRC.Set(context.Background(), hKey, 0, time.Hour*24*7).Err()
-	redis.IRC.Set(context.Background(), preKey, st, time.Hour*24*7).Err()
+	rds.IRC.Set(context.Background(), hKey, 0, time.Hour*24*7).Err()
+	rds.IRC.Set(context.Background(), preKey, st, time.Hour*24*7).Err()
 	return msgListFrom, nil
 }
 
@@ -142,7 +142,7 @@ func getMessageListWithPreTime(q QueryOption) ([]*model.Message, error) {
 
 	newMsgTime := time.Now().Format("2006-01-02 15:04:05")
 
-	err = redis.IRC.Set(context.Background(), preKey, newMsgTime, 0).Err()
+	err = rds.IRC.Set(context.Background(), preKey, newMsgTime, 0).Err()
 	if err != nil {
 		logger.Errorf("redis set %v error :%v", preKey, err)
 		return nil, err
@@ -168,7 +168,7 @@ func HaveHistoryMessage(hKey string) bool {
 		return false
 	}
 
-	count, err := redis.IRC.Get(context.Background(), hKey).Int()
+	count, err := rds.IRC.Get(context.Background(), hKey).Int()
 	if err != nil {
 		logger.Errorf("get the value of %v error: %v", hKey, err)
 		return false
@@ -184,7 +184,7 @@ func HaveHistoryMessage(hKey string) bool {
 }
 
 func existsRedisKey(rKey string) int {
-	exists, err := redis.IRC.Exists(context.Background(), rKey).Result()
+	exists, err := rds.IRC.Exists(context.Background(), rKey).Result()
 	if err != nil {
 		logger.Errorf("redis is wrong, err : %v", rKey, err)
 		return 0

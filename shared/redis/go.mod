@@ -1,4 +1,4 @@
-module tuzi-tiktok/redis
+module tuzi-tiktok/rds
 
 go 1.20
 

@@ -8,7 +8,7 @@ import (
 	"tuzi-tiktok/dao/query"
 	"tuzi-tiktok/kitex/kitex_gen/favorite"
 	"tuzi-tiktok/logger"
-	"tuzi-tiktok/redis"
+	"tuzi-tiktok/rds"
 	"tuzi-tiktok/secret"
 	"tuzi-tiktok/utils/changes"
 	consts "tuzi-tiktok/utils/consts/favorite"
@@ -53,7 +53,7 @@ func UpdateLike(uid, vid int64, actionType int32) (resp *favorite.FavoriteRespon
 	resp = new(favorite.FavoriteResponse)
 	//判断当前用户是否点过赞
 	var key string = "video:liked:" + strconv.Itoa(int(vid))
-	ok, err := redis.IRC.SIsMember(context.Background(), key, uid).Result()
+	ok, err := rds.IRC.SIsMember(context.Background(), key, uid).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func UpdateLike(uid, vid int64, actionType int32) (resp *favorite.FavoriteRespon
 			return nil, err
 		}
 		//保存用户到redis set集合
-		err = redis.IRC.SAdd(context.Background(), key, uid).Err()
+		err = rds.IRC.SAdd(context.Background(), key, uid).Err()
 		if err != nil {
 			return nil, err
 		}
@@ -113,7 +113,7 @@ func UpdateLike(uid, vid int64, actionType int32) (resp *favorite.FavoriteRespon
 		}
 
 		//把用户从redis的集合中移除
-		err = redis.IRC.SRem(context.Background(), key, uid).Err()
+		err = rds.IRC.SRem(context.Background(), key, uid).Err()
 		if err != nil {
 			return nil, err
 		}

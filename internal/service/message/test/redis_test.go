@@ -10,12 +10,12 @@ import (
 func TestRedis(t *testing.T) {
 	count := "15-16-new-message-count"
 	t2 := "15-16-pre-message-time"
-	
-	v1, err := redis.IRC.Get(context.Background(), count).Int()
+
+	v1, err := rds.IRC.Get(context.Background(), count).Int()
 	if err != nil {
 		panic(err)
 	}
-	v2, err := redis.IRC.Get(context.Background(), t2).Result()
+	v2, err := rds.IRC.Get(context.Background(), t2).Result()
 	if err != nil {
 		panic(err)
 	}

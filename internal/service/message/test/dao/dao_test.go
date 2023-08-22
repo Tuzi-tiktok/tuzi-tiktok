@@ -14,7 +14,7 @@ var qMessage = query.Message
 
 func TestDao(t *testing.T) {
 	tKey := "15-16-pre-message-time"
-	v, err := redis.IRC.Get(context.Background(), tKey).Result()
+	v, err := rds.IRC.Get(context.Background(), tKey).Result()
 	if err != nil {
 		panic(err)
 	}
