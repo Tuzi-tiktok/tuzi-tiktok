@@ -27,8 +27,11 @@ func (s *MessageServiceImpl) GetMessageList(ctx context.Context, req *message.Me
 	msgList, err := dao.GetMessageList(ctx, dao.QueryOption{
 		Uid:        uid,
 		ToUid:      req.ToUserId,
-		PreMsgTime: parsePreMsgTime(req.PreMsgTime),
+		PreMsgTime: req.PreMsgTime,
 	})
+	msgTime := req.PreMsgTime
+	logger.Info(msgTime)
+
 	if err != nil {
 		logger.Errorf("Could not get the message list, err : %v", err)
 		resp.StatusCode = consts.MESSAGE_API_GET_LIST_FAILED
@@ -45,20 +48,21 @@ func (s *MessageServiceImpl) GetMessageList(ctx context.Context, req *message.Me
 
 // MessageAction implements the MessageServiceImpl interface.
 func (s *MessageServiceImpl) MessageAction(ctx context.Context, req *message.MessageActionRequest) (resp *message.MessageActionResponse, err error) {
+
 	// 如果content是空的，无需发送消息
 	if req.Content == "" || req.ActionType != 1 {
-		resp.StatusCode = consts.MESSAGE_API_CONTENT_NULL
-		resp.StatusMsg = &consts.MESSAGE_CONTENT_NULL_MES
-		return
+		return &message.MessageActionResponse{
+			StatusCode: consts.MESSAGE_API_CONTENT_NULL,
+			StatusMsg:  &consts.MESSAGE_CONTENT_NULL_MES,
+		}, nil
 	}
-
-	resp = new(message.MessageActionResponse)
 
 	uid := parseToken(req.Token)
 	if uid == 0 {
-		resp.StatusCode = consts.MESSAGE_API_Uid_FAILED
-		resp.StatusMsg = &consts.MESSAGE_UID_GET_FAILED_MSG
-		return
+		return &message.MessageActionResponse{
+			StatusCode: consts.MESSAGE_API_Uid_FAILED,
+			StatusMsg:  &consts.MESSAGE_UID_GET_FAILED_MSG,
+		}, nil
 	}
 	// ok := dao.IsUserExist(req.ToUserId)
 	// if !ok {
@@ -68,21 +72,23 @@ func (s *MessageServiceImpl) MessageAction(ctx context.Context, req *message.Mes
 	// }
 
 	isAction, err := dao.ActionMessage(ctx, dao.QueryOption{
-		Uid:         uid,
-		ToUid:       req.ToUserId,
-		Action_type: req.ActionType,
-		Content:     req.Content,
+		Uid:        uid,
+		ToUid:      req.ToUserId,
+		ActionType: req.ActionType,
+		Content:    req.Content,
 	})
+
 	if err != nil || !isAction {
-		resp.StatusCode = consts.MESSAGE_API_ACTION_FAILED
-		resp.StatusMsg = &consts.MESSAGE_ACTION_FAILED_MSG
-		return
+		return &message.MessageActionResponse{
+			StatusCode: consts.MESSAGE_API_ACTION_FAILED,
+			StatusMsg:  &consts.MESSAGE_ACTION_FAILED_MSG,
+		}, nil
 	}
 
-	resp.StatusCode = consts.MESSAGE_API_SUCCESS
-	resp.StatusMsg = &consts.MESSAGE_SUCCESS_MSG
-
-	return
+	return &message.MessageActionResponse{
+		StatusCode: consts.MESSAGE_API_SUCCESS,
+		StatusMsg:  &consts.MESSAGE_SUCCESS_MSG,
+	}, nil
 }
 
 // 获取用户uid
@@ -96,12 +102,4 @@ func parseToken(token string) int64 {
 	uid := claims.Payload.UID
 	logger.Infof("success to get uid : %d ", uid)
 	return uid
-}
-
-// todo: 更换更好的判断方法
-func parsePreMsgTime(pmt int64) int64 {
-	if pmt >= 1000000000 && pmt <= 9999999999 {
-		return pmt
-	}
-	return pmt / 1000
 }
