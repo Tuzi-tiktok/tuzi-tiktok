@@ -22,23 +22,31 @@ type QueryOption struct {
 	ToUid       int64
 	Action_type int32
 	Content     string
+	PreMsgTime  int64
 }
 
 func GetMessageList(ctx context.Context, q QueryOption) ([]*message.Message, error) {
+	msgList := make([]*model.Message, 0)
+	var err error
 
-	mMessageListFrom, err := getMessageListBy(q.Uid, q.ToUid)
-	if err != nil {
-		logger.Errorf("get message listFrom failed , err : %v", err)
-		return nil, err
+	logger.Debugf("pre_msg_time is %v", q.PreMsgTime)
+	// 获取历史消息
+	if q.PreMsgTime == 0 {
+		logger.Debug("================> entry history msg")
+		msgList, err = getHistoryMessageList(q)
+		if err != nil || msgList == nil {
+			return nil, err
+		}
+	} else {
+		logger.Debug("================> get now msg")
+		msgList, err = getMessageListWithPreTime(q)
+		if err != nil {
+			logger.Errorf("get message listFrom failed , err : %v", err)
+			return nil, err
+		}
 	}
-	// mMessageListTo, err := getMessageListBy(q.ToUid, q.Uid)
-	// if err != nil {
-	// 	logger.Errorf("get message listTo failed , err : %v", err)
-	// 	return nil, err
-	// }
-	// mergeMessageList := append(mMessageListFrom, mMessageListTo...)
-	messageList := mMessage2kMessageMore(mMessageListFrom)
 
+	messageList := mMessage2kMessageMore(msgList)
 	return messageList, nil
 }
 
@@ -53,15 +61,14 @@ func ActionMessage(ctx context.Context, q QueryOption) (bool, error) {
 		logger.Errorf("user %d action message to %d failed, err: %v", q.Uid, q.ToUid, err)
 		return false, err
 	}
-	rKey := getNewMessageCountRedisKey(q.ToUid, q.Uid)
+	rKey := getHistoryMessageRedisKey(q.ToUid, q.Uid)
 	exists := existsRedisKey(rKey)
 	c := 0
 	if exists == 1 {
-		logger.Debugf("%v key is exists", rKey)
+		logger.Infof("%v key is exists", rKey)
 		c, _ = redis.IRC.Get(context.Background(), rKey).Int()
 	}
-	logger.Debugf("count is %v", c+1)
-	redis.IRC.Set(ctx, rKey, c+1, 0).Err()
+	redis.IRC.Set(ctx, rKey, c+1, time.Hour*24*7).Err()
 
 	return true, nil
 }
@@ -83,42 +90,63 @@ func mMessage2kMessageMore(mMsgList []*model.Message) (msgList []*message.Messag
 	return
 }
 
-// getMessageListBy 获取消息列表，返回一星期（默认）之内的消息
-func getMessageListBy(toUid, fromUid int64) ([]*model.Message, error) {
-	cKey := getNewMessageCountRedisKey(toUid, fromUid)
-	tKey := getPreMessageTimeRedisKey(toUid, fromUid)
-
-	exists := existsRedisKey(tKey)
-	// 查询时间值 默认为七天前
-	t := time.Now().AddDate(0, 0, -7)
-	if exists == 1 {
-		v, err := redis.IRC.Get(context.Background(), tKey).Result()
-		if err != nil {
-			logger.Errorf("get the value of %v error: %v", tKey, err)
-			return nil, err
-		}
-		loc, _ := time.LoadLocation("Asia/Shanghai")
-		t, _ = time.ParseInLocation("2006-01-02 15:04:05", v, loc)
-	}
-
-	mList, err := qMessage.Where(qMessage.ToUserID.Eq(toUid), qMessage.FormUserID.Eq(fromUid)).
+func findMsgList(toUid, fromUid int64, t time.Time) ([]*model.Message, error) {
+	return qMessage.Where(qMessage.ToUserID.Eq(toUid), qMessage.FormUserID.Eq(fromUid)).
 		Where(qMessage.CreatedAt.Gt(t)).
+		// Order(qMessage.CreatedAt).
 		Find()
+}
+
+// getHistoryMessageList 获得历史消息列表
+func getHistoryMessageList(q QueryOption) ([]*model.Message, error) {
+	preKey := getPreMessageTimeRedisKey(q.Uid, q.ToUid)
+	hKey := getHistoryMessageRedisKey(q.Uid, q.ToUid)
+	if !HaveHistoryMessage(hKey) {
+		return nil, nil
+	}
+	var t time.Time
+	// 初次 || 再次 打开聊天，获取上次的聊天记录
+	strTime, err := redis.IRC.Get(context.Background(), preKey).Result()
+	if err != nil {
+		logger.Errorf("get redis key %v error, err : %v", preKey, err)
+		return nil, err
+	}
+	// t = 获取上次聊天的消息时间
+	loc, _ := time.LoadLocation("Asia/Shanghai")
+	t, _ = time.ParseInLocation("2006-01-02 15:04:05", strTime, loc)
+	logger.Debugf("get value from %v is %v ", preKey, t)
+	// 获取双发的信息
+	msgListFrom, _ := findMsgList(q.Uid, q.ToUid, t)
+	msgListTo, _ := findMsgList(q.ToUid, q.Uid, t)
+
+	msgListFrom = append(msgListFrom, msgListTo...)
+
+	st := time.Now().Local().Format("2006-01-02 15:04:05")
+
+	redis.IRC.Set(context.Background(), hKey, 0, time.Hour*24*7).Err()
+	redis.IRC.Set(context.Background(), preKey, st, time.Hour*24*7).Err()
+	return msgListFrom, nil
+}
+
+// getMessageListWithPreTime 获取消息列表
+func getMessageListWithPreTime(q QueryOption) ([]*model.Message, error) {
+	preKey := getPreMessageTimeRedisKey(q.Uid, q.ToUid)
+
+	t := time.Unix(q.PreMsgTime, 0)
+
+	mList, err := findMsgList(q.Uid, q.ToUid, t)
 	if err != nil {
 		logger.Errorf("get message listFrom failed , err : %v", err)
 		return nil, err
 	}
 
 	newMsgTime := time.Now().Format("2006-01-02 15:04:05")
-	logger.Debugf("new redis key = %v : value = %v", tKey, newMsgTime)
 
-	err = redis.IRC.Set(context.Background(), tKey, newMsgTime, 0).Err()
+	err = redis.IRC.Set(context.Background(), preKey, newMsgTime, 0).Err()
 	if err != nil {
-		logger.Errorf("redis set %v error :%v", tKey, err)
+		logger.Errorf("redis set %v error :%v", preKey, err)
 		return nil, err
 	}
-	// 将消息数重置
-	redis.IRC.Set(context.Background(), cKey, 0, 0).Err()
 	return mList, nil
 }
 
@@ -131,27 +159,24 @@ func IsUserExist(uid int64) bool {
 	return c == 1
 }
 
-// HaveNewMessage 从redis中读取，判断是否有新的消息
-func HaveNewMessage(toUid, fromUid int64) bool {
-	rKey := getNewMessageCountRedisKey(toUid, fromUid)
-
-	exists := existsRedisKey(rKey)
+// HaveHistoryMessage 从redis中读取，判断是否有新的消息
+func HaveHistoryMessage(hKey string) bool {
+	// hKey := getHistoryMessageRedisKey(toUid, fromUid)
+	exists := existsRedisKey(hKey)
 	if exists != 1 {
-		logger.Infof("rkey = %v is no exists", rKey)
+		logger.Infof("hkey = %v is no exists", hKey)
 		return false
 	}
 
-	count, err := redis.IRC.Get(context.Background(), rKey).Result()
+	count, err := redis.IRC.Get(context.Background(), hKey).Int()
 	if err != nil {
-		logger.Errorf("get the value of %v error: %v", rKey, err)
+		logger.Errorf("get the value of %v error: %v", hKey, err)
 		return false
 	}
-	logger.Debugf("HaveNewMessage rKey is %v, get count is %v", rKey, count)
+	logger.Debugf("HaveHistoryMessage hKey is %v, get count is %v", hKey, count)
 
-	c, _ := strconv.ParseInt(count, 10, 32)
-
-	if c == 0 {
-		logger.Infof("no new message from %v", fromUid)
+	if count == 0 {
+		logger.Infof("no history message from %v", hKey)
 		return false
 	}
 
@@ -167,10 +192,14 @@ func existsRedisKey(rKey string) int {
 	return int(exists)
 }
 
-func getNewMessageCountRedisKey(toUid, fromUid int64) string {
-	return fmt.Sprintf("%v-%v-new-message-count", toUid, fromUid)
-}
+// func getNewMessageCountRedisKey(toUid, fromUid int64) string {
+// 	return fmt.Sprintf("%v-%v-new-message-count", toUid, fromUid)
+// }
 
 func getPreMessageTimeRedisKey(toUid, fromUid int64) string {
 	return fmt.Sprintf("%v-%v-pre-message-time", toUid, fromUid)
+}
+
+func getHistoryMessageRedisKey(toUid, fromUid int64) string {
+	return fmt.Sprintf("%v-%v-history-message-count", toUid, fromUid)
 }
