@@ -1,8 +1,6 @@
 package mapstruct
 
 import (
-	"strconv"
-
 	"tuzi-tiktok/gateway/biz/model/message"
 	kmessage "tuzi-tiktok/kitex/kitex_gen/message"
 )
@@ -11,14 +9,12 @@ func ToMessage(k *kmessage.Message) *message.Message {
 	if k == nil {
 		return nil
 	}
-	t, _ := strconv.ParseInt(*k.CreateTime, 10, 64)
-
 	return &message.Message{
 		Id:         k.Id,
 		ToUserId:   k.ToUserId,
 		FromUserId: k.FromUserId,
 		Content:    k.Content,
-		CreateTime: t,
+		CreateTime: k.CreateTime,
 	}
 }
 
