@@ -25,6 +25,12 @@ oss:
     bucket: tiktok
     accessKey: minio
     secretKey: minioadmin
+
+redis:
+  addr: "100.93.41.99:6379"
+  password: ""
+  db: 0
+
 secret:
   JWTPublicKey: |-
     -----BEGIN EC PUBLIC KEY-----
