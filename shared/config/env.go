@@ -3,6 +3,8 @@ package cfg
 import (
 	"errors"
 	"fmt"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"log"
 	"os"
 	"strconv"
@@ -36,7 +38,7 @@ func DetermineEnvironment() {
 		}
 		CandidateConfigPath = DetermineSrcPath()
 	}
-	log.Println(fmt.Sprintf("- Load %v Config", strings.ToUpper(ConfigEnv)))
+	log.Println(fmt.Sprintf("- Load %v Config", cases.Title(language.Und).String(ConfigEnv)))
 }
 
 func DetermineSrcPath() string {
