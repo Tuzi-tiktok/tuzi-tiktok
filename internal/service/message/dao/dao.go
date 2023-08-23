@@ -35,7 +35,7 @@ func GetMessageList(ctx context.Context, q QueryOption) ([]*message.Message, err
 
 	g := qMessage.Where(ca).Or(cb)
 
-	messages, err := qMessage.Debug().WithContext(ctx).
+	messages, err := qMessage.WithContext(ctx).
 		Where(qMessage.CreatedAt.Gt(lastTime)).Where(g).Order(qMessage.CreatedAt).Find()
 
 	if err != nil {
