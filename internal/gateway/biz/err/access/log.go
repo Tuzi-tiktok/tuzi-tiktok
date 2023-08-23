@@ -62,6 +62,10 @@ func DebugDump(c *app.RequestContext) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
+	if !strings.HasPrefix(c.FullPath(), "/dou") {
+		return
+	}
+
 	// Process Request
 	value, ok := c.Get(DebugRequestKey)
 	req := "Bind Error or The parameter is incorrect"
