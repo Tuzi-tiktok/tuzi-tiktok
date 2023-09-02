@@ -10,8 +10,10 @@ services:
       MYSQL_ROOT_PASSWORD: "admin"
     command: --init-file /docker-entrypoint-initdb.d/init.sql
     volumes:
-      - /data/tuzi-tiktok/data:/var/lib/mysql
+      - /root/tuzi-tiktok/data:/var/lib/mysql
       - /root/tuzi-tiktok/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "13306:3306"
   nacos:
     container_name: "tuzi_registry"
     image: nacos/nacos-server:v2.2.3
@@ -26,14 +28,16 @@ services:
       - MINIO_ROOT_USER=minio
       - MINIO_ROOT_PASSWORD=minioadmin
     volumes:
-      - /data/tuzi-tiktok/oss:/data
+      - /root/tuzi-tiktok/oss:/data
     command: server /data --console-address ":9998" --address ":9090"
     ports:
       - "9998:9998"
-  all:
-    container_name: "tuzi_tiktok"
+      - "9091:9090"
+  cache:
+    container_name: "tuzi_cache"
+    image: redis
     ports:
-      - "8888:8888"
+      - "6379:6379"
 
 networks:
   default:

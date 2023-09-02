@@ -1,9 +1,3 @@
-registry:
-  host: "tuzi_registry"
-  port: 8848
-  namespaceId: "c8bf818f-7660-4590-b763-157cffcd209b"
-  group: "DEFAULT_GROUP"
-  dataId: "bootstrap.yml"
 log:
   level: "Debug"
   development: false
@@ -11,16 +5,12 @@ log:
   encoding: "console"
 database:
   #  DSN 优先生效 (如果存在)
-  #  dsn: root:admin@(tuzi_database:3306)/tuzi_tiktok?charset=utf8mb4&parseTime=True&loc=Local
-  username: root
-  password: admin
-  host: "tuzi_database"
-  port: 3306
-  databaseName: tuzi_tiktok
-  timeout: 2000
+  dsn: root:admin@(127.0.0.1:13306)/tuzi_tiktok?charset=utf8mb4&parseTime=True&loc=Local
 oss:
   minio:
-    endpoint: "tuzi_oss:9090"
+#    外部Minio OSS 对应的URL
+    externalURL: "https://tiktok.ivresse.top/oss"
+    endpoint: "localhost:9091"
     bucket: tiktok
     accessKey: minio
     secretKey: minioadmin
