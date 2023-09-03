@@ -1,8 +1,17 @@
 # Tuzi-Tiktok
 🐯 抖音项目
+### 如何运行 ?
+- 构建项目可执行文件
+  ```shell
+    sh build-all.sh
+  ```
+- 按照docker-compose搭建运行环境 & 按照文档选择配置模式
+- 执行bin/startup.sh 详见 bin/Readme
+  ```shell
+    cd bin/ && sh startup.sh
+  ```
 
 ### 初步架构图
-
 ![](https://ivresse.top/api/img/2023-08-02-14-02-23945--models.png)
 ### 技术选型
 - 开发框架
